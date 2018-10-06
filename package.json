@@ -1,0 +1,24 @@
+{
+  "name": "alia",
+  "version": "0.1.0",
+  "description": "Alias To Go",
+  "main": "index.js",
+  "bin": {
+    "al": "index.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "alias",
+    "cli",
+    "cmd",
+    "aka",
+    "also",
+    "known",
+    "as"
+  ],
+  "author": "Eduard Kotkas",
+  "license": "ISC",
+  "dependencies": {}
+}
