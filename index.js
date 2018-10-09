@@ -5,7 +5,7 @@ const project = require('./package')
 const cmd = require('./src/cmds')
 const store = require('./src/store')
 
-const { exec } = require('child_process')
+const { spawn } = require('child_process')
 
 const help = `
     Usage
@@ -74,14 +74,15 @@ if (!argv[0]) {
         No alias found for: ${argv.join(' ')}
       `)
     } else {
-      exec(command, (err, stdout, stderr) => {
-        if (stdout) {
-          console.log(stdout)
-        }
+      const [ps, ...opts] = command.split(' ')
+      const process = spawn(ps, opts)
 
-        if (stderr) {
-          console.error(stderr)
-        }
+      process.stdout.on('data', data => {
+        console.log(data.toString())
+      })
+
+      process.stderr.on('data', data => {
+        console.log(data.toString())
       })
     }
   }
