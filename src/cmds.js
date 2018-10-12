@@ -1,10 +1,10 @@
-const alia = require('../alia')
+const { alias } = require('./store.js').config
 
 module.exports = function(args) {
   let cmd = args.join(' ')
   for (const _ in args) {
-    if (alia[cmd]) {
-      return args.join(' ').replace(cmd, alia[cmd])
+    if (alias[cmd]) {
+      return args.join(' ').replace(cmd, alias[cmd])
     }
 
     let t = cmd.split(' ')

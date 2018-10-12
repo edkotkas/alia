@@ -7,10 +7,12 @@ const store = require('./src/store')
 
 const { spawn } = require('child_process')
 
+const separator = store.config.options.separator
+
 const help = `
     Usage
     
-      $ al [options] [alias] [~] [command]
+      $ al [options] [alias] [${separator}] [command]
  
     Options
     
@@ -20,12 +22,11 @@ const help = `
       --add, -a       add alias
       --remove, -r    remove alias
       --list, -l      list aliases (WIP)
-      --generate, -g  generate alia file in current dir (WIP)
  
     Examples
     
-      $ al -a gp ~ git push
-        > Added: gp ~ git push
+      $ al -a gp ${separator} git push
+        > Added: gp ${separator} git push
         
       $ al gp
         > git push
@@ -34,45 +35,34 @@ const help = `
         > Removed: gp
 `
 
-const flags = ['--version', '-v', '--add', '-a', '--remove', '-r', '--generate', '-g']
+const flags = ['--version', '-v', '--add', '-a', '--remove', '-r']
 
 const argv = process.argv.slice(2)
-
 
 if (!argv[0]) {
   console.log(help)
 } else {
   if (flags.includes(argv[0])) {
+    const args = argv.slice(1)
+
     if (argv[0] === '--version' || argv[0] === '-v') {
       console.log(project.version)
+
     } else if (argv[0] === '--help' || argv[0] === '-h') {
       console.log(help)
-    } else if (argv[0] === '--generate' || argv[0] === '-g') {
-      console.log('Fake generating to:', process.cwd())
-    }  else if (argv[0] === '--add' || argv[0] === '-a') {
-      store.add(argv.slice(1), (err, cmd) => {
-        if (err) {
-          return console.error(err)
-        }
 
-        console.log(`Added: ${cmd}`)
-      })
+    } else if (argv[0] === '--add' || argv[0] === '-a') {
+      store.alias.add(args)
+
     } else if (argv[0] === '--remove' || argv[0] === '-r') {
-      store.remove(argv.slice(1), (err, cmd) => {
-        if (err) {
-          return console.error(err)
-        }
+      store.alias.remove(args)
 
-        console.log(`Removed: ${cmd}`)
-      })
     }
   } else {
     let command = cmd(argv)
 
     if (!command) {
-      console.error(`
-        No alias found for: ${argv.join(' ')}
-      `)
+      console.error(`No alias found for: ${argv.join(' ')}`)
     } else {
       const [ps, ...opts] = command.split(' ')
       const process = spawn(ps, opts)
@@ -82,8 +72,10 @@ if (!argv[0]) {
       })
 
       process.stderr.on('data', data => {
-        console.log(data.toString())
+        console.error(data.toString())
       })
     }
   }
 }
+
+store.writeConfig()
