@@ -1,94 +1,65 @@
 const path = require('path')
 const fs = require('fs')
+const homedir = require('os').homedir()
 
-const global = path.join(__dirname, '..', 'alia.json')
+const defaultConfig = require('./defaultConfig')
+let config = defaultConfig
 
-const separator = `~`
+const configPath = path.join(homedir, '.alia.json')
 
-module.exports.add = function(args, cb) {
-  if (!args.includes(separator)) {
-    return cb(`
-      Invalid Input, missing separator: ~
-    `)
-  }
-
-  const [key, cmd] = args.map(arg => arg).join(' ').split(separator).map(arg => arg.trim())
-
-  readStore((err, alia) => {
-    if (err) {
-      return cb(err)
-    }
-
-    if (alia[key]) {
-      return cb(`
-        Alias already exists for '${key}' as: ${key} ${separator} ${alia[key]}
-        Remove it first and try again
-        Your alias: ${args.join(' ')}
-      `)
-    } else {
-      alia[key] = cmd
-
-      updateStore(alia, (err) => {
-        if (err) {
-          return cb(err)
-        }
-
-        cb(null, args.join(' '))
-
-      })
-    }
-  })
+function writeConfig() {
+  fs.writeFileSync(configPath, JSON.stringify(config, null, 2))
 }
 
-module.exports.remove = function(args, cb) {
+try {
+  // Read config
+  config = require(configPath)
+} catch (err) {
+  // Write config if require fails
+  writeConfig()
+}
+
+function addAlias(args) {
+  if (!args.includes(config.options.separator)) {
+    console.error(`Invalid Input, missing separator: '${config.options.separator}'`)
+    return 1
+  }
+
+  const [key, cmd] = args.map(arg => arg).join(' ').split(config.options.separator).map(arg => arg.trim())
+
+  if (config.alias[key]) {
+    console.error(`Alias ${key} already exists - remove and try again`)
+    return 1
+  } else {
+    config.alias[key] = cmd
+  }
+
+  console.log(`Added alias: ${key} ${config.options.separator} ${cmd}`)
+  return 0
+}
+
+function removeAlias(args) {
   const key = args.join(' ').trim()
 
   if (!key) {
-    return cb('Invalid Input')
+    console.error('No alias specified')
+    return 1
   }
 
-  readStore((err, alia) => {
-    if (err) {
-      return cb(err)
-    }
+  if (!config.alias[key]) {
+    console.error(`Alias '${key}' does not exist`)
+    return 1
+  } else {
+    delete config.alias[key]
+  }
 
-    if (!alia[key]) {
-      return cb(`
-        Alias does not exist
-        Your alias: ${key}
-      `)
-    } else {
-      delete alia[key]
-
-      updateStore(alia, (err) => {
-        if (err) {
-          return cb(err)
-        }
-
-        cb(null, args.join(' '))
-      })
-    }
-  })
+  console.log(`Removed alias: ${key}`)
+  return 0
 }
 
-function readStore(cb) {
-    fs.readFile(global, (err, data) => {
-      if (err) {
-        cb('Could note find Alia file')
-      }
-
-      cb(null, JSON.parse(data))
-    })
+module.exports.alias = {
+  'add': addAlias,
+  'remove': removeAlias
 }
-
-function updateStore(data, cb) {
-  fs.writeFile(global, JSON.stringify(data, null, 2), (err) => {
-    if (err) {
-      return cb(`
-        Failed to update Alia file
-      `)
-    }
-
-    cb()
-  })
-}
+module.exports.config = config
+module.exports.writeConfig = writeConfig
