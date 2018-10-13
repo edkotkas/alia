@@ -28,13 +28,13 @@ function addAlias(args) {
   const [key, cmd] = args.map(arg => arg).join(' ').split(config.options.separator).map(arg => arg.trim())
 
   if (config.alias[key]) {
-    console.error(`alias ${key} already exists - remove and try again`)
+    console.error(`Alias ${key} already exists - remove and try again`)
     return 1
   } else {
     config.alias[key] = cmd
   }
 
-  console.log(`added alias: ${key} ${config.options.separator} ${cmd}`)
+  console.log(`Added alias: ${key} ${config.options.separator} ${cmd}`)
   return 0
 }
 
@@ -42,18 +42,18 @@ function removeAlias(args) {
   const key = args.join(' ').trim()
 
   if (!key) {
-    console.err('No alias specified')
+    console.error('No alias specified')
     return 1
   }
 
   if (!config.alias[key]) {
-    console.error(`alias '${key}' does not exist`)
+    console.error(`Alias '${key}' does not exist`)
     return 1
   } else {
     delete config.alias[key]
   }
 
-  console.log(`removed alias: ${key}`)
+  console.log(`Removed alias: ${key}`)
   return 0
 }
 
