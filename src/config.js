@@ -1,34 +1,36 @@
 const path = require('path')
 const fs = require('fs')
 
-const global = path.join(__dirname, '..', 'alia.json')
+const home = process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE
 
-const separator = `~`
+const configPath = path.join(home, '.alia.json')
 
-module.exports.add = function(args, cb) {
-  if (!args.includes(separator)) {
+const config = require(configPath)
+
+function add(args, cb) {
+  if (!args.includes(config.key)) {
     return cb(`
-      Invalid Input, missing separator: ~
+      Invalid Input, missing separator: ${config.key}
     `)
   }
 
-  const [key, cmd] = args.map(arg => arg).join(' ').split(separator).map(arg => arg.trim())
+  const [key, cmd] = args.map(arg => arg).join(' ').split(config.key).map(arg => arg.trim())
 
-  readStore((err, alia) => {
+  readStore((err, cfg) => {
     if (err) {
       return cb(err)
     }
 
-    if (alia[key]) {
+    if (cfg.alias[key]) {
       return cb(`
-        Alias already exists for '${key}' as: ${key} ${separator} ${alia[key]}
+        Alias already exists for '${key}' as: ${key} ${config.key} ${cfg.alias[key]}
         Remove it first and try again
         Your alias: ${args.join(' ')}
       `)
     } else {
-      alia[key] = cmd
+      cfg.alias[key] = cmd
 
-      updateStore(alia, (err) => {
+      updateStore(cfg, (err) => {
         if (err) {
           return cb(err)
         }
@@ -40,27 +42,27 @@ module.exports.add = function(args, cb) {
   })
 }
 
-module.exports.remove = function(args, cb) {
+function remove(args, cb) {
   const key = args.join(' ').trim()
 
   if (!key) {
     return cb('Invalid Input')
   }
 
-  readStore((err, alia) => {
+  readStore((err, cfg) => {
     if (err) {
       return cb(err)
     }
 
-    if (!alia[key]) {
+    if (!cfg.alias[key]) {
       return cb(`
         Alias does not exist
         Your alias: ${key}
       `)
     } else {
-      delete alia[key]
+      delete cfg.alias[key]
 
-      updateStore(alia, (err) => {
+      updateStore(cfg, (err) => {
         if (err) {
           return cb(err)
         }
@@ -72,7 +74,7 @@ module.exports.remove = function(args, cb) {
 }
 
 function readStore(cb) {
-    fs.readFile(global, (err, data) => {
+    fs.readFile(configPath, (err, data) => {
       if (err) {
         cb('Could note find Alia file')
       }
@@ -82,7 +84,7 @@ function readStore(cb) {
 }
 
 function updateStore(data, cb) {
-  fs.writeFile(global, JSON.stringify(data, null, 2), (err) => {
+  fs.writeFile(configPath, JSON.stringify(data, null, 2), (err) => {
     if (err) {
       return cb(`
         Failed to update Alia file
@@ -92,3 +94,6 @@ function updateStore(data, cb) {
     cb()
   })
 }
+
+
+module.exports = {add, remove}
