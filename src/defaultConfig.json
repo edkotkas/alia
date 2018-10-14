@@ -1,0 +1,8 @@
+{
+  "options": {
+    "separator": "@"
+  },
+  "alias": {
+    "test": "echo alia is working!"
+  }
+}

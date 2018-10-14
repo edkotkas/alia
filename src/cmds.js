@@ -1,16 +1,16 @@
-const alia = require('../config')
+const { alias } = require('./config').config
 const { spawn } = require('child_process')
 
 module.exports = function(args) {
   let cmd = args.join(' ')
   for (const _ in args) {
-    if (alia[cmd]) {
-      const command = args.join(' ').replace(cmd, alia[cmd])
+    if (alias[cmd]) {
+      const command = args.join(' ').replace(cmd, alias[cmd])
 
       if (!command) {
         console.error(`
-        No alias found for: ${cmd}
-      `)
+          No alias found for: ${cmd}
+        `)
       } else {
         const [ps, ...opts] = command.split(' ')
         const process = spawn(ps, opts)
