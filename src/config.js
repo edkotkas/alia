@@ -55,6 +55,10 @@ function checkConfig(cb) {
   })
 }
 
+function getConfig() {
+  return config
+}
+
 function writeConfig(cb = () => {}) {
   fs.writeFile(configPath, JSON.stringify(config, null, 2), (err) => {
     if (err) throw err
@@ -125,5 +129,5 @@ module.exports.alias = { add, remove, list, help, version }
 
 module.exports.options = { setSeparator }
 
-module.exports.config = config
 module.exports.checkConfig = checkConfig
+module.exports.getConfig = getConfig
