@@ -43,31 +43,24 @@ function help() {
   `)
 }
 
-function checkConfig(cb) {
-  fs.stat(configPath, (err, _) => {
-    if (err && err.code === 'ENOENT') {
-      console.log('Creating default config in:', configPath)
-      writeConfig(cb)
-    } else {
-      config = require(configPath)
-      cb()
-    }
-  })
+function loadConfig() {
+  try {
+    config = require(configPath)
+  } catch(err) {
+    console.log(`Creating default config in ${configPath}`)
+    writeConfig()
+  }  
 }
 
 function getConfig() {
   return config
 }
 
-function writeConfig(cb = () => {}) {
-  fs.writeFile(configPath, JSON.stringify(config, null, 2), (err) => {
-    if (err) throw err
-    config = require(configPath)
-    cb()
-  })
+function writeConfig() {
+  fs.writeFileSync(configPath, JSON.stringify(config, null, 2))
 }
 
-function add(args) {
+function addAlias(args) {
   if (!args.includes(config.options.separator)) {
     console.error(`Invalid Input, missing separator: '${config.options.separator}'`)
     return 1
@@ -87,7 +80,7 @@ function add(args) {
   return 0
 }
 
-function remove(args) {
+function removeAlias(args) {
   const key = args.join(' ').trim()
 
   if (!key) {
@@ -125,9 +118,8 @@ function setSeparator(args) {
   console.log(`Set the separator to:`, config.options.separator)
 }
 
-module.exports.alias = { add, remove, list, help, version }
+loadConfig()
 
+module.exports.alias = { addAlias, removeAlias, list, help, version }
 module.exports.options = { setSeparator }
-
-module.exports.checkConfig = checkConfig
 module.exports.getConfig = getConfig

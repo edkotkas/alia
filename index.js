@@ -2,13 +2,9 @@
 
 const argv = process.argv.slice(2)
 
-const { checkConfig } = require('./src/config')
+const cmd = require('./src/cmds')
+const opts = require('./src/opts')
 
-checkConfig(() => {
-  const cmd = require('./src/cmds')
-  const opts = require('./src/opts')
-
-  if (!opts(argv)){
-    cmd(argv)
-  }
-})
+if (!opts(argv)){
+  cmd(argv)
+}
