@@ -20,5 +20,14 @@
   ],
   "author": "Eduard Kotkas",
   "license": "ISC",
-  "dependencies": {}
+  "dependencies": {},
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/edkotkas/alia.git"
+  },
+  "bugs": {
+    "url": "https://github.com/edkotkas/alia/issues"
+  },
+  "homepage": "https://github.com/edkotkas/alia#readme"
 }
