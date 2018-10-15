@@ -11,10 +11,10 @@ module.exports = function(args) {
 
       if (command) {
         const [ps, ...opts] = command.split(' ')
-        const process = spawn(ps, opts)
+        const task = spawn(ps, opts)
 
-        process.stdout.on('data', data => console.log(data.toString()))
-        process.stderr.on('data', data => console.log(data.toString()))
+        task.stdout.on('data', data => process.stdout.write(data))
+        task.stderr.on('data', data => process.stderr.write(data))
       }
 
       break
