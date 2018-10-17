@@ -9,6 +9,17 @@ let config = defaultConfig
 
 const configPath = path.join(homedir, '.alia.json')
 
+try {
+  config = require(configPath)
+} catch(err) {
+  if(err.code === 'MODULE_NOT_FOUND') {
+    console.log(`Creating default config in ${configPath}`)
+    writeConfig()
+  } else {
+    console.error('Error reading config', err)
+  }
+}
+
 function version() {
   console.log(project.version)
 }
@@ -41,19 +52,6 @@ function help() {
         $ al -r gp
           > Removed: gp
   `)
-}
-
-function loadConfig() {
-  try {
-    config = require(configPath)
-  } catch(err) {
-    if(err.code === 'MODULE_NOT_FOUND') {
-      console.log(`Creating default config in ${configPath}`)
-      writeConfig()
-    } else {
-      console.error('Error reading config', err)
-    }
-  }
 }
 
 function getConfig() {
@@ -121,8 +119,6 @@ function setSeparator(args) {
   writeConfig()
   console.log(`Set the separator to:`, config.options.separator)
 }
-
-loadConfig()
 
 module.exports.alias = { addAlias, removeAlias, list, help, version }
 module.exports.options = { setSeparator }
