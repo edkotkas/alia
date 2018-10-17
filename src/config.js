@@ -47,9 +47,13 @@ function loadConfig() {
   try {
     config = require(configPath)
   } catch(err) {
-    console.log(`Creating default config in ${configPath}`)
-    writeConfig()
-  }  
+    if(err.toString().includes('Cannot find module')) {
+      console.log(`Creating default config in ${configPath}`)
+      writeConfig()
+    } else {
+      console.error('Error reading config', err)
+    }
+  }
 }
 
 function getConfig() {
