@@ -6,7 +6,9 @@ const flags = [
   ['--add, -a', alias.addAlias],
   ['--remove, -r', alias.removeAlias],
   ['--list, -l', alias.list],
-  ['--separator, -s', options.setSeparator]
+  ['--separator, -s', options.setSeparator],
+  ['--pull, -p', options.gistPull],
+  ['--push, -u', options.gistPush]
 ]
 
 module.exports = function(args) {

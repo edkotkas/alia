@@ -2,8 +2,10 @@ const path = require('path')
 const fs = require('fs')
 const homedir = require('os').homedir()
 
+const gist = require('./gist.js')
 const project = require('../package')
 const defaultConfig = require('./defaultConfig')
+defaultConfig.aliaVersion = project.version
 
 let config = defaultConfig
 
@@ -25,7 +27,7 @@ function version() {
 }
 
 function help() {
-  let separator = config.options.separator
+  const separator = config.options.separator
   console.log(`
       Usage
       
@@ -59,6 +61,7 @@ function getConfig() {
 }
 
 function writeConfig() {
+  config.aliaVersion = project.version
   fs.writeFileSync(configPath, JSON.stringify(config, null, 2))
 }
 
@@ -120,6 +123,23 @@ function setSeparator(args) {
   console.log(`Set the separator to:`, config.options.separator)
 }
 
+function gistPull() {
+  gist.pull(config, function(err, gistConfig) {
+    if (err) {
+      return console.error(err)
+    }
+    console.log('gistConfig :', gistConfig)
+  })
+}
+
+function gistPush() {
+  gist.push(config, function(err) {
+    if (err) {
+      return console.error(err)
+    }
+  })
+}
+
 module.exports.alias = { addAlias, removeAlias, list, help, version }
-module.exports.options = { setSeparator }
+module.exports.options = { setSeparator, gistPull, gistPush }
 module.exports.getConfig = getConfig
