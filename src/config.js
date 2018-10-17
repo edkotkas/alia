@@ -44,16 +44,12 @@ function help() {
 }
 
 function loadConfig() {
-  if (fs.existsSync(configPath) && fs.lstatSync(configPath).isFile()) {
-    try {
-      config = require(configPath)
-    } catch(err) {
-      console.error(`Error: config file ${configPath} exists but can't be loaded`)
-    }
-  } else {
+  try {
+    config = require(configPath)
+  } catch(err) {
     console.log(`Creating default config in ${configPath}`)
     writeConfig()
-  }
+  }  
 }
 
 function getConfig() {
@@ -64,7 +60,7 @@ function writeConfig() {
   fs.writeFileSync(configPath, JSON.stringify(config, null, 2))
 }
 
-function add(args) {
+function addAlias(args) {
   if (!args.includes(config.options.separator)) {
     console.error(`Invalid Input, missing separator: '${config.options.separator}'`)
     return 1
@@ -84,7 +80,7 @@ function add(args) {
   return 0
 }
 
-function remove(args) {
+function removeAlias(args) {
   const key = args.join(' ').trim()
 
   if (!key) {
@@ -124,6 +120,6 @@ function setSeparator(args) {
 
 loadConfig()
 
-module.exports.alias = { add, remove, list, help, version }
+module.exports.alias = { addAlias, removeAlias, list, help, version }
 module.exports.options = { setSeparator }
 module.exports.getConfig = getConfig

@@ -3,8 +3,8 @@ const { alias, options } = require('./config')
 const flags = [
   ['--version, -v', alias.version],
   ['--help, -h', alias.help],
-  ['--add, -a', alias.add],
-  ['--remove, -r', alias.remove],
+  ['--add, -a', alias.addAlias],
+  ['--remove, -r', alias.removeAlias],
   ['--list, -l', alias.list],
   ['--separator, -s', options.setSeparator]
 ]
