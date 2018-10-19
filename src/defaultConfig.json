@@ -1,8 +1,9 @@
 {
+  "aliaVersion": "0.3.0",
   "options": {
     "separator": "@"
   },
   "alias": {
-    "test": "echo alia is working!"
+    "test": ["echo", "alia", "is", "working!"]
   }
 }

@@ -20,6 +20,17 @@ try {
   }
 }
 
+if (!config.aliaVersion) {
+  console.log(`
+    Updating Alia config structure: ${project.version}
+  `)
+  config.aliaVersion = project.version
+  Object.keys(config.alias)
+    .filter(key => !Array.isArray(config.alias[key]))
+    .map(key => config.alias[key] = config.alias[key].split(' '))
+  writeConfig()
+}
+
 function version() {
   console.log(project.version)
 }
@@ -54,21 +65,19 @@ function help() {
   `)
 }
 
-function getConfig() {
-  return config
-}
-
 function writeConfig() {
   fs.writeFileSync(configPath, JSON.stringify(config, null, 2))
 }
 
 function addAlias(args) {
-  if (!args.includes(config.options.separator)) {
+  let separatorIndex = args.indexOf(config.options.separator)
+  if (separatorIndex === -1) {
     console.error(`Invalid Input, missing separator: '${config.options.separator}'`)
     return 1
   }
 
-  const [key, cmd] = args.map(arg => arg).join(' ').split(config.options.separator).map(arg => arg.trim())
+  const key = args.slice(0, separatorIndex).join(' ')
+  const cmd = args.slice(separatorIndex + config.options.separator.length)
 
   if (config.alias[key]) {
     console.error(`Alias '${key}' already exists - remove and try again`)
@@ -78,7 +87,7 @@ function addAlias(args) {
     writeConfig()
   }
 
-  console.log(`Added alias: ${key} ${config.options.separator} ${cmd}`)
+  console.log(`Added alias: ${key} ${config.options.separator} ${cmd.join(' ')}`)
   return 0
 }
 
@@ -104,14 +113,14 @@ function removeAlias(args) {
 
 function list() {
   const alias = Object.keys(config.alias)
-    .map(key => `${key} ${config.options.separator} ${config.alias[key]}`)
+    .map(key => `${key} \t${config.options.separator} \t${config.alias[key].join(' ')}`)
     .join('\n')
 
   console.log(alias)
 }
 
 function setSeparator(args) {
-  let separator = args.join('')
+  let separator = args.join(' ')
   config.options.separator = separator
     ? separator
     : defaultConfig.options.separator
@@ -122,4 +131,4 @@ function setSeparator(args) {
 
 module.exports.alias = { addAlias, removeAlias, list, help, version }
 module.exports.options = { setSeparator }
-module.exports.getConfig = getConfig
+module.exports.config = config
