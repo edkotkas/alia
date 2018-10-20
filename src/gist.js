@@ -10,7 +10,7 @@ function pull (config, callback) {
     }
   }, function (err, res, body) {
     if (err) {
-      return callback(`Error getting gist ${config.options.sync.gistId}`)
+      return callback(`Error pulling gist ${config.options.sync.gistId}`)
     }
 
     const aliaFile = JSON.parse(body).files[aliaGistFilename]
@@ -30,20 +30,32 @@ function pull (config, callback) {
 }
 
 function push (config, callback) {
-  callback('Error: Not implemented')
+  const auth = config.options.sync.apiKey
+  config.options.sync.apiKey = 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
+
+  request.patch({
+    url: `https://api.github.com/gists/${config.options.sync.gistId}`,
+    headers: {
+      'User-Agent': 'nodejs',
+      Authorization: `token ${auth}`
+    },
+    json: {
+      description: 'alia config',
+      files: {
+        [aliaGistFilename]: {
+          content: JSON.stringify(config, null, 2)
+        }
+      }
+    }
+  }, function (err, res, body) {
+    if (err) {
+      return callback(`Error pushing gist ${config.options.sync.gistId}`)
+    }
+
+    return callback(null, body.html_url)
+  })
+
 }
 
 module.exports.pull = pull
 module.exports.push = push
-
-// // ================================================================
-// // test stuff
-// // TODO: remove this before merge
-// const getConfig = require('./config.js').getConfig
-// pull(getConfig(), function (err, config) {
-//   if (err) {
-//     return console.error(err)
-//   }
-//   console.log('gist config :', config)
-// })
-

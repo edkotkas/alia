@@ -124,19 +124,30 @@ function setSeparator(args) {
 }
 
 function gistPull() {
+  console.log('Pulling config from gist...')
+
   gist.pull(config, function(err, gistConfig) {
     if (err) {
       return console.error(err)
     }
-    console.log('gistConfig :', gistConfig)
+    
+    gistConfig.options.sync.apiKey = config.options.sync.apiKey
+    config = gistConfig
+  
+    writeConfig()
+    console.log(`...written config to ${configPath}`)
   })
 }
 
 function gistPush() {
-  gist.push(config, function(err) {
+  console.log('Pushing local config to gist...')
+
+  gist.push(config, function(err, gistUrl) {
     if (err) {
       return console.error(err)
     }
+
+    console.log(`...Done: ${gistUrl}`)
   })
 }
 
