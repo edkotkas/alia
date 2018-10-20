@@ -131,7 +131,7 @@ function gistPull() {
       return console.error(err)
     }
     
-    gistConfig.options.sync.apiKey = config.options.sync.apiKey
+    gistConfig.options.sync.apiToken = config.options.sync.apiToken
     config = gistConfig
   
     writeConfig()

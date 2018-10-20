@@ -30,8 +30,9 @@ function pull (config, callback) {
 }
 
 function push (config, callback) {
-  const auth = config.options.sync.apiKey
-  config.options.sync.apiKey = 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
+  const auth = config.options.sync.apiToken
+  // Mask API token
+  config.options.sync.apiToken = '########################################'
 
   request.patch({
     url: `https://api.github.com/gists/${config.options.sync.gistId}`,
