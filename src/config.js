@@ -4,6 +4,7 @@ const homedir = require('os').homedir()
 
 const project = require('../package')
 const defaultConfig = require('./defaultConfig')
+defaultConfig.aliaVersion = project.version
 
 let config = defaultConfig
 
@@ -66,6 +67,7 @@ function help() {
 }
 
 function writeConfig() {
+  config.aliaVersion = project.version
   fs.writeFileSync(configPath, JSON.stringify(config, null, 2))
 }
 
