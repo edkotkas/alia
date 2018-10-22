@@ -1,30 +1,20 @@
 const { spawn } = require('child_process')
 const config  = require('./config')
 
+const options = {
+  stdio: 'inherit',
+  shell: true
+}
+
 module.exports = function(args) {
-  const { alias } = config.getConfig()
+  const { alias } = config.config
 
-  let cmd = args.join(' ')
-  for (const _ in args) {
-    if (alias[cmd]) {
-      const command = args.join(' ').replace(cmd, alias[cmd])
+  const cmd = args.shift()
 
-      if (command) {
-        const [ps, ...opts] = command.split(' ')
-        const task = spawn(ps, opts)
-
-        task.stdout.on('data', data => process.stdout.write(data))
-        task.stderr.on('data', data => process.stderr.write(data))
-      }
-
-      break
-    }
-
-    let t = cmd.split(' ')
-    cmd = t.slice(0, t.length - 1).join(' ')
-  }
-
-  if (!cmd) {
+  const command = alias[cmd]
+  if (command) {
+    spawn(command.shift(), command.concat(args), options)
+  } else {
     console.error(`
       No alias found for: ${args}
     `)

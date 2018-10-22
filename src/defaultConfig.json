@@ -3,6 +3,6 @@
     "separator": "@"
   },
   "alias": {
-    "test": "echo alia is working!"
+    "test": ["echo", "alia", "is", "working!"]
   }
 }
