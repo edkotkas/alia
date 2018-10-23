@@ -1,6 +1,10 @@
 {
   "options": {
-    "separator": "@"
+    "separator": "@",
+    "sync": {
+      "apiToken": "",
+      "gistId": ""
+    }
   },
   "alias": {
     "test": ["echo", "alia", "is", "working!"]

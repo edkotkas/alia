@@ -20,7 +20,9 @@
   ],
   "author": "Eduard Kotkas",
   "license": "ISC",
-  "dependencies": {},
+  "dependencies": {
+    "request": "^2.88.0"
+  },
   "devDependencies": {},
   "repository": {
     "type": "git",

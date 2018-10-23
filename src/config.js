@@ -2,6 +2,7 @@ const path = require('path')
 const fs = require('fs')
 const homedir = require('os').homedir()
 
+const gist = require('./gist.js')
 const project = require('../package')
 const defaultConfig = require('./defaultConfig')
 defaultConfig.aliaVersion = project.version
@@ -21,23 +22,12 @@ try {
   }
 }
 
-if (!config.aliaVersion) {
-  console.log(`
-    Updating Alia config structure: ${project.version}
-  `)
-  config.aliaVersion = project.version
-  Object.keys(config.alias)
-    .filter(key => !Array.isArray(config.alias[key]))
-    .map(key => config.alias[key] = config.alias[key].split(' '))
-  writeConfig()
-}
-
 function version() {
   console.log(project.version)
 }
 
 function help() {
-  let separator = config.options.separator
+  const separator = config.options.separator
   console.log(`
       Usage
       
@@ -131,6 +121,34 @@ function setSeparator(args) {
   console.log(`Set the separator to:`, config.options.separator)
 }
 
+function gistPull() {
+  console.log('Pulling config from gist...')
+
+  gist.pull(config, function(err, gistConfig) {
+    if (err) {
+      return console.error(err)
+    }
+    
+    gistConfig.options.sync.apiToken = config.options.sync.apiToken
+    config = gistConfig
+  
+    writeConfig()
+    console.log(`...written config to ${configPath}`)
+  })
+}
+
+function gistPush() {
+  console.log('Pushing local config to gist...')
+
+  gist.push(config, function(err, gistUrl) {
+    if (err) {
+      return console.error(err)
+    }
+
+    console.log(`...Done: ${gistUrl}`)
+  })
+}
+
 module.exports.alias = { addAlias, removeAlias, list, help, version }
-module.exports.options = { setSeparator }
+module.exports.options = { setSeparator, gistPull, gistPush }
 module.exports.config = config
