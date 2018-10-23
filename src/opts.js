@@ -27,7 +27,7 @@ module.exports = function(args) {
     console.log(`
       No option: ${args[0]}
     `)
-    return false
+    return true
   }
 
   const [option, action] = flag

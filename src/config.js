@@ -69,7 +69,7 @@ function addAlias(args) {
   }
 
   const key = args.slice(0, separatorIndex).join(' ')
-  const cmd = args.slice(separatorIndex + config.options.separator.length)
+  const cmd = args.slice(separatorIndex + config.options.separator.length - 1)
 
   if (config.alias[key]) {
     console.error(`Alias '${key}' already exists - remove and try again`)
