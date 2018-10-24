@@ -42,6 +42,8 @@ function help() {
         --remove, -r      remove alias
         --list, -l        list available alias
         --separator, -s   change the separator (default: @)
+        --pull, -p'       restore your config
+        --push, -u        backup your config
    
       Examples
       

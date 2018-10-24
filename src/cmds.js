@@ -12,9 +12,13 @@ module.exports = function(args) {
   const command = args.reduce((acc, val, index, arr) => {
     if (acc) return acc
 
-    let c = arr.slice(0, arr.length - (index - 1)).join(' ')
-    if (alias[c]) {
-      return alias[c].concat(args.slice(index).filter(arg => c.indexOf(arg) === -1))
+    const cmd = arr.slice(0, arr.length - (index - 1)).join(' ')
+    if (alias[cmd]) {
+      const extraParameters = args
+        .slice(index)
+        .filter(arg => cmd.indexOf(arg) === -1)
+
+      return alias[cmd].concat(extraParameters)
     } else {
       return ''
     }
