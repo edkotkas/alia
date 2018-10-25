@@ -12,7 +12,7 @@ module.exports = function(args) {
   const command = args.reduce((acc, val, index, arr) => {
     if (acc) return acc
 
-    const cmd = arr.slice(0, arr.length - (index - 1)).join(' ')
+    const cmd = arr.slice(0, arr.length - index).join(' ')
     if (alias[cmd]) {
       const extraParameters = args
         .slice(index)
@@ -28,7 +28,7 @@ module.exports = function(args) {
     spawn(command.shift(), command, options)
   } else {
     console.error(`
-      No alias found for: ${command.join(' ')}
+      Failed to parse alias from: ${args.join(' ')}
     `)
   }
 }

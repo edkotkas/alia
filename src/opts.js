@@ -21,7 +21,7 @@ module.exports = function(args) {
     return false
   }
 
-  let flag = flags.find(([option, _]) => option.split(', ').includes(args[0]))
+  const flag = flags.find(([option]) => option.split(', ').includes(args[0]))
 
   if (!flag) {
     console.log(`
