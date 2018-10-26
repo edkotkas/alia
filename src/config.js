@@ -56,10 +56,11 @@ function help() {
         
         --add, -a         add alias (add -p for project alias)
         --remove, -r      remove alias (add -p for project alias)
+        --project, -p     create project alia config
         --list, -l        list available alias
         --separator, -s   change the separator (default: @)
-        --pull, -p        restore your config
-        --push, -u        backup your config
+        --restore, -r     restore your config
+        --backup, -b      backup your config
    
       Examples
       
@@ -76,7 +77,12 @@ function help() {
 
 function writeConfig(proj = false) {
   config.aliaVersion = project.version
-  fs.writeFileSync(proj ? projectConfigPath : configPath, JSON.stringify(project ? projectConfig : config, null, 2))
+
+  if (proj) {
+    fs.writeFileSync(projectConfigPath, JSON.stringify(projectConfig, null, 2))
+  } else {
+    fs.writeFileSync(configPath, JSON.stringify(config, null, 2))
+  }
 }
 
 function addAlias(args) {
@@ -96,7 +102,7 @@ function addAlias(args) {
       return 1
     } else {
       projectConfig.alias[key] = cmd
-      writeConfig(projectConfigPath)
+      writeConfig(true)
     }
   } else {
     if (config.alias[key]) {
@@ -104,7 +110,7 @@ function addAlias(args) {
       return 1
     } else {
       config.alias[key] = cmd
-      writeConfig(configPath)
+      writeConfig()
     }
   }
 
@@ -127,7 +133,7 @@ function removeAlias(args) {
       return 1
     } else {
       delete projectConfig.alias[key]
-      writeConfig(projectConfigPath)
+      writeConfig(true)
     }
   } else {
     if (!config.alias[key]) {
@@ -135,7 +141,7 @@ function removeAlias(args) {
       return 1
     } else {
       delete config.alias[key]
-      writeConfig(configPath)
+      writeConfig()
     }
   }
 
@@ -150,7 +156,7 @@ function mapList(alias) {
 function list() {
   let alias = ['Global', ...mapList(config.alias)]
 
-  if (projectConfig && projectConfig.alias) {
+  if (projectConfig && projectConfig.alias[0]) {
     const projectAlias = mapList(projectConfig.alias)
     alias.push('\nProject', ...projectAlias)
   }
@@ -196,7 +202,12 @@ function gistPush() {
   })
 }
 
-module.exports.alias = { addAlias, removeAlias, list, help, version }
+function createProject() {
+  fs.writeFileSync(projectConfigPath, JSON.stringify(defaultConfig, null, 2))
+  console.log('Created project config in:', projectConfigPath)
+}
+
+module.exports.alias = { addAlias, removeAlias, createProject, list, help, version }
 module.exports.options = { setSeparator, gistPull, gistPush }
 module.exports.config = config
 module.exports.projectConfig = projectConfig

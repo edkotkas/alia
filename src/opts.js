@@ -4,11 +4,12 @@ const flags = [
   ['--version, -v', alias.version],
   ['--help, -h', alias.help],
   ['--add, -a', alias.addAlias],
+  ['--project, -p', alias.createProject],
   ['--remove, -r', alias.removeAlias],
   ['--list, -l', alias.list],
   ['--separator, -s', options.setSeparator],
-  ['--pull, -p', options.gistPull],
-  ['--push, -u', options.gistPush]
+  ['--restore, -r', options.gistPull],
+  ['--backup, -b', options.gistPush]
 ]
 
 module.exports = function(args) {

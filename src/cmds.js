@@ -35,8 +35,7 @@ function getCommand(alias, args, acc, index, arr) {
   const cmd = arr.slice(0, arr.length - index).join(' ')
   if (alias[cmd]) {
     const extraParameters = args
-      .slice(index)
-      .filter(arg => cmd.indexOf(arg) === -1)
+      .slice(arr.length - index)
 
     return alias[cmd].concat(extraParameters)
   } else {
