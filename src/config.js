@@ -217,7 +217,7 @@ function sync(args) {
   }
 
   if (!args || args.length !== 1) {
-    return console.error(err)
+    return ops.pull()
   }
 
   let op = ops[args[0]]
@@ -234,44 +234,37 @@ function conf(args) {
     Invalid input.
   
     Valid options:
-      separator [string]                  -   set alias separator (default: @)   
-      sync.token <your github api key>    -   set the api key for gist sync
-      sync.id <your gist id>              -   set the gist id to use for sync
+      separator [string]                -   set alias separator (default: @)   
+      token <your github api token>     -   set the api token for gist sync
+      gist <your gist id>               -   set the gist id to use for sync
   `
 
   const ops = {
     separator: setSeparator,
-    sync: {
-      token: () => {console.log('do key')},
-      id: () => {console.log('do id')}
+    token: (token) => {
+      config.options.sync.apiToken = token
+      writeConfig()
+    },
+    gist: (id) => {
+      config.options.sync.gistId = id
+      writeConfig()
     }
   }
 
-  if (!args || args.length === 0) {
+  if (!args || args.length !== 2) {
     return console.error(err)
-  }
-
-  const drill = (path, obj) => {
-    return path.reduce((_, part) => {
-      const o = obj[part]
-
-      if (o) {
-        obj = o
-      }
-
-      return obj
-    }, null)
   }
 
   let path = args[0].split('.')
 
-  let op = drill(path, ops)
+  let op = ops[path]
 
   if (!op) {
+    console.log(args)
     return console.error(err)
   }
 
-  op()
+  op(args[1])
 }
 
 function createProject() {
