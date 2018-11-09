@@ -54,7 +54,7 @@ function add(args) {
   }
 
   const key = args.slice(project ? 1 : 0, separatorIndex).join(' ')
-  const cmd = args.slice(separatorIndex + config.options.separator.length - 1)
+  const cmd = args.slice(separatorIndex + (project ? 2 : 1))
 
   if (project) {
     if (projectConfig.alias[key]) {
