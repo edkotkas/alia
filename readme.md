@@ -1,4 +1,4 @@
-# Alia (WIP) [![Build Status](https://travis-ci.org/edkotkas/alia.svg?branch=master)](https://travis-ci.org/edkotkas/alia)
+# Alia [![Build Status](https://travis-ci.org/edkotkas/alia.svg?branch=master)](https://travis-ci.org/edkotkas/alia)
 
 > Alias To Go
 
@@ -31,12 +31,19 @@ $ al
     --version, -v     show version
     --help, -h        show this
 
-    --add, -a         add alias
-    --remove, -r      remove alias
+    --add, -a         add alias (add -p for project alias)
+    --remove, -r      remove alias (add -p for project alias)
+    --project, -p     create project alia config
     --list, -l        list available alias
-    --separator, -s   change the separator (default: @)
-    --pull, -p        restore your config
-    --push, -u        backup your config
+
+    --conf, -c        change alia configuration
+      separator [string]                set alias separator (default: @)   
+      token <your github api token>     set the api token for gist sync
+      gist <your gist id>               set the gist id to use for sync
+
+    --sync, -s        backup/restore your config (default: restore)
+      push    backup your current config
+      pull    restore config from gist
 
   Examples
   
@@ -52,21 +59,20 @@ $ al
 
 ### Gist sync
 
-alia allows you to backup/restore config from a [gist](http://gist.github.com) using the commands:
+Alia allows you to backup/restore config from a [gist](http://gist.github.com) using the commands:
 
-- `al --push` to backup your config (push to gist)
-- `al --pull` to restore your config (pull from gist)
+- `al --sync push` to backup your config (push to gist)
+- `al --sync pull` to restore your config (pull from gist)
 
 To get started:
 
-1. Create a new [gist](http://gist.github.com) with a file titled `alia.json`. Copy the gist id (32-char id in URL) to your config's `options.sync.gistId` value
-2. Create a new [GitHub token](https://github.com/settings/tokens) with the 'gist' permission. Use this as the `options.sync.apiToken` value
+1. Create a new [gist](http://gist.github.com) with a file titled `alia.json`.
+2. Create a new [GitHub token](https://github.com/settings/tokens) with the 'gist' permission.
+3. Setup Alia with the following commands:
 
-```json
-"sync": {
-  "apiToken": "<api token>",
-  "gistId": "<32-char gist id>"
-}
+```bash
+al --conf token <api token>
+al --conf gist <32-char gist id>
 ```
 
 ## License
