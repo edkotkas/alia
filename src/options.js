@@ -1,11 +1,12 @@
-const { alias, options } = require('./config')
+const { options } = require('./config')
+const alias = require('./alia')
 
 const flags = [
   ['--version, -v', alias.version],
   ['--help, -h', alias.help],
-  ['--add, -a', alias.addAlias],
-  ['--project, -p', alias.createProject],
-  ['--remove, -r', alias.removeAlias],
+  ['--add, -a', alias.add],
+  ['--project, -p', options.createProject],
+  ['--remove, -r', alias.remove],
   ['--list, -l', alias.list],
   ['--conf, -c', options.conf],
   ['--sync, -s', options.sync]
