@@ -48,8 +48,7 @@ function write(proj = false) {
   }
 }
 
-function setSeparator(args) {
-  let separator = args.join(' ')
+function setSeparator(separator) {
   config.options.separator = separator
     ? separator
     : defaultConfig.options.separator
@@ -124,27 +123,28 @@ function conf(args) {
   `
 
   const ops = {
-    separator: setSeparator,
+    separator: arg => setSeparator(arg),
     token: (token) => {
-      config.options.sync.apiToken = token
-      write()
+      if (token) {
+        config.options.sync.apiToken = token
+        write()
+      }
     },
     gist: (id) => {
-      config.options.sync.gistId = id
-      write()
+      if (id) {
+        config.options.sync.gistId = id
+        write()
+      }
     }
   }
 
-  if (!args || args.length !== 2) {
+  if (!args || args.length < 1) {
     return console.error(err)
   }
 
-  let path = args[0].split('.')
-
-  let op = ops[path]
+  let op = ops[args[0]]
 
   if (!op) {
-    console.log(args)
     return console.error(err)
   }
 
