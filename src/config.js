@@ -153,7 +153,6 @@ function conf(args) {
 
 function createProject() {
   fs.writeFileSync(projectConfigPath, JSON.stringify(defaultConfig, null, 2))
-  projectConfig = require(projectConfigPath)
   console.log('Created project config in:', projectConfigPath)
 }
 
