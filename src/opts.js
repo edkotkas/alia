@@ -7,9 +7,8 @@ const flags = [
   ['--project, -p', alias.createProject],
   ['--remove, -r', alias.removeAlias],
   ['--list, -l', alias.list],
-  ['--separator, -s', options.setSeparator],
-  ['--restore, -r', options.gistPull],
-  ['--backup, -b', options.gistPush]
+  ['--conf, -c', options.conf],
+  ['--sync, -s', options.sync]
 ]
 
 module.exports = function(args) {

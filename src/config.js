@@ -2,7 +2,7 @@ const path = require('path')
 const fs = require('fs')
 const homedir = require('os').homedir()
 
-const gist = require('./gist.js')
+const gist = require('./gist')
 const project = require('../package')
 const defaultConfig = require('./defaultConfig')
 defaultConfig.aliaVersion = project.version
@@ -14,8 +14,8 @@ const configPath = path.join(homedir, aliaFileName)
 
 try {
   config = require(configPath)
-} catch(err) {
-  if(err.code === 'MODULE_NOT_FOUND') {
+} catch (err) {
+  if (err.code === 'MODULE_NOT_FOUND') {
     console.log(`Creating default config in ${configPath}`)
     writeConfig()
   } else {
@@ -31,8 +31,8 @@ let projectConfig
 if (projectConfigPath !== configPath) {
   try {
     projectConfig = require(projectConfigPath)
-  } catch(err) {
-    if(err.code !== 'MODULE_NOT_FOUND') {
+  } catch (err) {
+    if (err.code !== 'MODULE_NOT_FOUND') {
       console.error('Error reading project config', err)
     }
   }
@@ -177,14 +177,14 @@ function setSeparator(args) {
 function gistPull() {
   console.log('Pulling config from gist...')
 
-  gist.pull(config, function(err, gistConfig) {
+  gist.pull(config, (err, gistConfig) => {
     if (err) {
       return console.error(err)
     }
-    
+
     gistConfig.options.sync.apiToken = config.options.sync.apiToken
     config = gistConfig
-  
+
     writeConfig()
     console.log(`...written config to ${configPath}`)
   })
@@ -193,7 +193,7 @@ function gistPull() {
 function gistPush() {
   console.log('Pushing local config to gist...')
 
-  gist.push(config, function(err, gistUrl) {
+  gist.push(config, (err, gistUrl) => {
     if (err) {
       return console.error(err)
     }
@@ -202,12 +202,84 @@ function gistPush() {
   })
 }
 
+function sync(args) {
+  const err = `
+    Invalid input.
+
+    Valid options:
+      push    -   backup your current config
+      pull    -   restore config from gist
+  `
+
+  const ops = {
+    push: gistPush,
+    pull: gistPull
+  }
+
+  if (!args || args.length !== 1) {
+    return console.error(err)
+  }
+
+  let op = ops[args[0]]
+
+  if (!op) {
+    return console.err(err)
+  }
+
+  op()
+}
+
+function conf(args) {
+  const err = `
+    Invalid input.
+  
+    Valid options:
+      separator [string]                  -   set alias separator (default: @)   
+      sync.token <your github api key>    -   set the api key for gist sync
+      sync.id <your gist id>              -   set the gist id to use for sync
+  `
+
+  const ops = {
+    separator: setSeparator,
+    sync: {
+      token: () => {console.log('do key')},
+      id: () => {console.log('do id')}
+    }
+  }
+
+  if (!args || args.length === 0) {
+    return console.error(err)
+  }
+
+  const drill = (path, obj) => {
+    return path.reduce((_, part) => {
+      const o = obj[part]
+
+      if (o) {
+        obj = o
+      }
+
+      return obj
+    }, null)
+  }
+
+  let path = args[0].split('.')
+
+  let op = drill(path, ops)
+
+  if (!op) {
+    return console.error(err)
+  }
+
+  op()
+}
+
 function createProject() {
   fs.writeFileSync(projectConfigPath, JSON.stringify(defaultConfig, null, 2))
   console.log('Created project config in:', projectConfigPath)
 }
 
-module.exports.alias = { addAlias, removeAlias, createProject, list, help, version }
-module.exports.options = { setSeparator, gistPull, gistPush }
+module.exports.alias = {addAlias, removeAlias, createProject, list, help, version}
+module.exports.options = {conf, sync}
 module.exports.config = config
 module.exports.projectConfig = projectConfig
