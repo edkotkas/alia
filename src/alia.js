@@ -1,5 +1,6 @@
 const project = require('../package')
-const {config, projectConfig, write} = require('./config')
+const gist = require('./gist')
+const {config, write, configPath, defaultConfig} = require('./config')
 
 function version() {
   console.log(project.version)
@@ -44,36 +45,23 @@ function help() {
   `)
 }
 
-
 function add(args) {
-  const project = args[0] === '-p'
   let separatorIndex = args.indexOf(config.options.separator)
   if (separatorIndex === -1) {
     console.error(`Invalid Input, missing separator: '${config.options.separator}'`)
     return 1
   }
 
-  const key = args.slice(project ? 1 : 0, separatorIndex).join(' ')
-  const cmd = args.slice(separatorIndex + (project ? 2 : 1))
+  const key = args.slice(0, separatorIndex).join(' ')
+  const cmd = args.slice(separatorIndex + 1)
 
-  if (project) {
-    if (projectConfig.alias[key]) {
-      console.error(`Alias '${key}' already exists - remove and try again`)
-      return 1
-    } else {
-      projectConfig.alias[key] = cmd
-      write(true)
-    }
+  if (config.alias[key]) {
+    console.error(`Alias '${key}' already exists - remove and try again`)
+    return 1
   } else {
-    if (config.alias[key]) {
-      console.error(`Alias '${key}' already exists - remove and try again`)
-      return 1
-    } else {
-      config.alias[key] = cmd
-      write()
-    }
+    config.alias[key] = cmd
+    write()
   }
-
 
   console.log(`Added alias: ${key} ${config.options.separator} ${cmd.join(' ')}`)
   return 0
@@ -87,22 +75,13 @@ function remove(args) {
     console.error('No alias specified')
     return 1
   }
-  if (project) {
-    if (!projectConfig.alias[key]) {
-      console.error(`Alias '${key}' does not exist`)
-      return 1
-    } else {
-      delete projectConfig.alias[key]
-      write(true)
-    }
+
+  if (!config.alias[key]) {
+    console.error(`Alias '${key}' does not exist`)
+    return 1
   } else {
-    if (!config.alias[key]) {
-      console.error(`Alias '${key}' does not exist`)
-      return 1
-    } else {
-      delete config.alias[key]
-      write()
-    }
+    delete config.alias[key]
+    write()
   }
 
   console.log(`Removed alias: ${key}`)
@@ -114,14 +93,110 @@ function mapList(alias) {
 }
 
 function list() {
-  let alias = ['Global', ...mapList(config.alias)]
-
-  if (projectConfig && Object.keys(projectConfig.alias).length > 0) {
-    const projectAlias = mapList(projectConfig.alias)
-    alias.push('\nProject', ...projectAlias)
-  }
-
-  console.log(alias.join('\n'))
+  console.log(mapList(config.alias).join('\n'))
 }
 
-module.exports = {add, remove, list, help, version}
+function setSeparator(separator) {
+  config.options.separator = separator
+    ? separator
+    : defaultConfig.options.separator
+
+  write()
+  console.log(`Set the separator to:`, config.options.separator)
+}
+
+function gistPull() {
+  console.log('Pulling config from gist...')
+
+  gist.pull(config, (err, gistConfig) => {
+    if (err) {
+      return console.error('Failed to pull:', err)
+    }
+
+    gistConfig.options.sync.apiToken = config.options.sync.apiToken
+
+    write(gistConfig)
+
+    console.log('...Done:', configPath)
+  })
+}
+
+function gistPush() {
+  console.log('Pushing local config to gist...')
+
+  gist.push(config, (err, gistUrl) => {
+    if (err) {
+      return console.error('Failed to push:', err)
+    }
+
+    console.log('...Done:', gistUrl)
+  })
+}
+
+function sync(args) {
+  const err = `
+    Invalid input.
+
+    Valid options:
+      push    backup your current config
+      pull    restore config from gist
+  `
+
+  const ops = {
+    push: gistPush,
+    pull: gistPull
+  }
+
+  if (!args || args.length !== 1) {
+    return ops.pull()
+  }
+
+  let op = ops[args[0]]
+
+  if (!op) {
+    return console.err(err)
+  }
+
+  op()
+}
+
+function conf(args) {
+  const err = `
+    Invalid input.
+  
+    Valid options:
+      separator [string]                set alias separator (default: @)   
+      token <your github api token>     set the api token for gist sync
+      gist <your gist id>               set the gist id to use for sync
+  `
+
+  const ops = {
+    separator: arg => setSeparator(arg),
+    token: (token) => {
+      if (token) {
+        config.options.sync.apiToken = token
+        write()
+      }
+    },
+    gist: (id) => {
+      if (id) {
+        config.options.sync.gistId = id
+        write()
+      }
+    }
+  }
+
+  if (!args || args.length < 1) {
+    return console.error(err)
+  }
+
+  let op = ops[args[0]]
+
+  if (!op) {
+    return console.error(err)
+  }
+
+  op(args[1])
+}
+
+module.exports = {add, remove, list, help, version, sync, conf}

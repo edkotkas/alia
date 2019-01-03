@@ -10,13 +10,6 @@ Works on Linux, Windows and maybe macOS (not tried).
 $ npm install -g alia
 ```
 
-## Shell
-**Please note:** use single quotes for strings as double quotes will be interpreted by the Shell.
-```bash
-$ al -a gcm @ git commit -m
-$ al gcm 'init'
-```
-
 ## Usage
 
 ```bash
@@ -31,9 +24,8 @@ $ al
     --version, -v     show version
     --help, -h        show this
 
-    --add, -a         add alias (add -p for project alias)
-    --remove, -r      remove alias (add -p for project alias)
-    --project, -p     create project alia config
+    --add, -a         add alias
+    --remove, -r      remove alias
     --list, -l        list available alias
 
     --conf, -c        change alia configuration
@@ -73,6 +65,42 @@ To get started:
 ```bash
 al --conf token <api token>
 al --conf gist <32-char gist id>
+```
+
+## Developing
+These instructions will help get you up and running with Alia on your local machine.
+
+### Prerequisites
+
+- Node: Version 6 or higher
+
+### Installing
+1. Clone the repository.
+```bash
+git clone https://github.com/edkotkas/alia.git
+cd alia
+```
+
+2. Install the NPM packages.
+```bash
+npm i
+```
+
+3. Symlink the project to your global NPM folder. This will allow you to run Alia using the cli command.
+```bash
+npm link
+```
+4. Try it out!
+```bash
+al --help
+```
+
+5. Add issues to Github, make changes to the project and create pull requests for review.
+
+### Tests
+Run the tests with mocha.
+```bash
+npm test
 ```
 
 ## License
