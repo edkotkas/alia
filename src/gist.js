@@ -58,5 +58,4 @@ function push (config, callback) {
 
 }
 
-module.exports.pull = pull
-module.exports.push = push
+module.exports = {pull, push}
