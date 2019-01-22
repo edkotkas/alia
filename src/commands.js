@@ -17,6 +17,11 @@ module.exports = function(args) {
       const extraParameters = args
         .slice(arr.length - index)
 
+      if (al[0] === 'EXPERIMENTAL') {
+        al.shift()
+        options.shell = true
+      }
+
       return al.concat(extraParameters)
     } else {
       return ''
