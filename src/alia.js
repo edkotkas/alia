@@ -18,9 +18,9 @@ function help() {
         --version, -v     show version
         --help, -h        show this
         
-        --add, -a         add alias (add -p for project alias)
-        --remove, -r      remove alias (add -p for project alias)
-        --project, -p     create project alia config
+        --add, -a         add alias
+            -x            enable experimental shell
+        --remove, -r      remove alias
         --list, -l        list available alias
         
         --conf, -c        change alia configuration
@@ -46,20 +46,31 @@ function help() {
 }
 
 function add(args) {
+  const experimental = args[0] === '-x'
+
   let separatorIndex = args.indexOf(config.options.separator)
   if (separatorIndex === -1) {
     console.error(`Invalid Input, missing separator: '${config.options.separator}'`)
     return 1
   }
 
-  const key = args.slice(0, separatorIndex).join(' ')
+  const key = args.slice(experimental ? 1 : 0, separatorIndex).join(' ')
   const cmd = args.slice(separatorIndex + 1)
 
   if (config.alias[key]) {
     console.error(`Alias '${key}' already exists - remove and try again`)
     return 1
   } else {
+    if (experimental) {
+      console.log(`
+        Warning: Adding experimental feature (potentially insecure), use at your own discretion!
+      `)
+
+      cmd.unshift('EXPERIMENTAL')
+    }
+
     config.alias[key] = cmd
+
     write()
   }
 
@@ -68,8 +79,7 @@ function add(args) {
 }
 
 function remove(args) {
-  const project = args[0] === '-p'
-  const key = project ? args.slice(1) : args.join(' ').trim()
+  const key = args.join(' ').trim()
 
   if (!key) {
     console.error('No alias specified')
