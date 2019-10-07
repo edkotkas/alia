@@ -4,6 +4,7 @@ const flags = [
   ['--version, -v', alias.version],
   ['--help, -h', alias.help],
   ['--add, -a', alias.add],
+  ['--edit, -e', alias.edit],
   ['--remove, -r', alias.remove],
   ['--list, -l', alias.list],
   ['--conf, -c', alias.conf],

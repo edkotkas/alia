@@ -20,6 +20,7 @@ function help() {
         
         --add, -a         add alias
             -x            enable experimental shell
+        --edit, -e        edit alias
         --remove, -r      remove alias
         --list, -l        list available alias
         
@@ -45,12 +46,20 @@ function help() {
   `)
 }
 
-function add(args) {
-  const experimental = args[0] === '-x'
-
+function getSeparatorIndex(args) {
   let separatorIndex = args.indexOf(config.options.separator)
   if (separatorIndex === -1) {
     console.error(`Invalid Input, missing separator: '${config.options.separator}'`)
+  }
+
+  return separatorIndex
+}
+
+function add(args) {
+  const experimental = args[0] === '-x'
+
+  let separatorIndex = getSeparatorIndex(args)
+  if (separatorIndex === -1) {
     return 1
   }
 
@@ -75,6 +84,26 @@ function add(args) {
   }
 
   console.log(`Added alias: ${key} ${config.options.separator} ${cmd.join(' ')}`)
+  return 0
+}
+
+function edit(args) {
+  let separatorIndex = getSeparatorIndex(args)
+  if (separatorIndex === -1) {
+    return 1
+  }
+
+  const key = args.slice(0, separatorIndex).join(' ')
+  const cmd = args.slice(separatorIndex + 1)
+
+  if (!config.alias[key]) {
+    return add(args)
+  }
+
+  config.alias[key] = cmd
+  write()
+
+  console.log(`Updated alias: ${key} ${config.options.separator} ${cmd.join(' ')}`)
   return 0
 }
 
@@ -209,4 +238,4 @@ function conf(args) {
   op(args[1])
 }
 
-module.exports = {add, remove, list, help, version, sync, conf}
+module.exports = {add, edit, remove, list, help, version, sync, conf}

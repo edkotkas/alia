@@ -26,6 +26,7 @@ $ al
 
     --add, -a         add alias
         -x            enable experimental shell
+    --edit, -e        edit alias
     --remove, -r      remove alias
     --list, -l        list available alias
 
