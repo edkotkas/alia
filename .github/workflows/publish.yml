@@ -1,9 +1,6 @@
-name: Node.js Package
+name: Publish
 
 on:
-  pull_request:
-    branches:
-      - master
   push:
     branches:
       - master
