@@ -20,22 +20,26 @@ $ al
     $ al [options] [alias] [@] [command]
 
   Options
-  
+
     --version, -v     show version
     --help, -h        show this
 
-    --add, -a         add alias
+    --add, -a         add alias (deprecated)
         -x            enable experimental shell
-    --edit, -e        edit alias
+    --edit, -e        edit alias (deprecated)
+
+    --set, -s         set/update alias
+        -x            enable experimental shell
+
     --remove, -r      remove alias
     --list, -l        list available alias
 
     --conf, -c        change alia configuration
-      separator [string]                set alias separator (default: @)   
+      separator [string]                set alias separator (default: @)
       token <your github api token>     set the api token for gist sync
       gist <your gist id>               set the gist id to use for sync
 
-    --sync, -s        backup/restore your config (default: restore)
+    --sync, -sy        backup/restore your config (default: restore)
       push    backup your current config
       pull    restore config from gist
 
