@@ -18,9 +18,13 @@ function help() {
         --version, -v     show version
         --help, -h        show this
         
-        --add, -a         add alias
+        --add, -a         add alias (deprecated)
             -x            enable experimental shell
-        --edit, -e        edit alias
+        --edit, -e        edit alias (deprecated)
+        
+        --set, -s         set/update alias 
+            -x            enable experimental shell
+            
         --remove, -r      remove alias
         --list, -l        list available alias
         
@@ -29,7 +33,7 @@ function help() {
           token <your github api token>     set the api token for gist sync
           gist <your gist id>               set the gist id to use for sync
           
-        --sync, -s        backup/restore your config (default: restore)
+        --sync, -sy        backup/restore your config (default: restore)
           push    backup your current config
           pull    restore config from gist
 
@@ -55,55 +59,37 @@ function getSeparatorIndex(args) {
   return separatorIndex
 }
 
-function add(args) {
-  const experimental = args[0] === '-x'
-
+function set(args) {
   let separatorIndex = getSeparatorIndex(args)
   if (separatorIndex === -1) {
     return 1
   }
+
+  const experimental = args[0] === '-x'
 
   const key = args.slice(experimental ? 1 : 0, separatorIndex).join(' ')
   const cmd = args.slice(separatorIndex + 1)
 
-  if (config.alias[key]) {
-    console.error(`Alias '${key}' already exists - remove and try again`)
-    return 1
-  } else {
-    if (experimental) {
-      console.log(`
-        Warning: Adding experimental feature (potentially insecure), use at your own discretion!
-      `)
+  if (!key && !cmd) {
+    console.error(`
+      Error: No ${key ? 'key' : 'command'} provided.
+    `)
 
-      cmd.unshift('EXPERIMENTAL')
-    }
-
-    config.alias[key] = cmd
-
-    write()
-  }
-
-  console.log(`Added alias: ${key} ${config.options.separator} ${cmd.join(' ')}`)
-  return 0
-}
-
-function edit(args) {
-  let separatorIndex = getSeparatorIndex(args)
-  if (separatorIndex === -1) {
     return 1
   }
 
-  const key = args.slice(0, separatorIndex).join(' ')
-  const cmd = args.slice(separatorIndex + 1)
+  if (experimental) {
+    console.log(`
+      Warning: Adding experimental feature (potentially insecure), use at your own discretion!
+    `)
 
-  if (!config.alias[key]) {
-    return add(args)
+    cmd.unshift('EXPERIMENTAL')
   }
 
   config.alias[key] = cmd
   write()
 
-  console.log(`Updated alias: ${key} ${config.options.separator} ${cmd.join(' ')}`)
+  console.log(`Set alias: ${key} ${config.options.separator} ${cmd.join(' ')}`)
   return 0
 }
 
@@ -238,4 +224,4 @@ function conf(args) {
   op(args[1])
 }
 
-module.exports = {add, edit, remove, list, help, version, sync, conf}
+module.exports = {set, remove, list, help, version, sync, conf}
