@@ -1,6 +1,6 @@
 {
   "name": "alia",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "description": "Alias To Go",
   "main": "index.js",
   "bin": {
@@ -21,7 +21,7 @@
   "author": "Eduard Kotkas",
   "license": "ISC",
   "dependencies": {
-    "request": "^2.88.2"
+    "axios": "^0.20.0"
   },
   "devDependencies": {
     "chai": "^4.2.0",

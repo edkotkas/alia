@@ -1,19 +1,21 @@
-const request = require('request')
+const ax = require('axios')
 
 const aliaGistFilename = 'alia.json'
+const apiUrl = `https://api.github.com/gists/`
 
 function pull (config, callback) {
-  request.get({
-    url: `https://api.github.com/gists/${config.options.sync.gistId}`,
-    headers: {
-      'User-Agent': 'nodejs'
-    }
-  }, function (err, res, body) {
-    if (err) {
-      return callback(`Error pulling gist ${config.options.sync.gistId}`)
-    }
+  const gistId = config.options.sync.gistId
 
-    const aliaFile = JSON.parse(body).files[aliaGistFilename]
+  ax.get(
+    `${apiUrl}${gistId}`,
+    {headers: {
+        'User-Agent': 'nodejs'
+      }}
+  ).then(res => {
+    const { updated_at, files } = res.data
+    console.log(`Fetched: ${updated_at}`)
+
+    const aliaFile = files[aliaGistFilename]
     if (!aliaFile){
       return callback(`Error: Gist must contain a file named ${aliaGistFilename}`)
     }
@@ -26,36 +28,38 @@ function pull (config, callback) {
     }
 
     return callback(null, aliaJson)
+  }).catch(err => {
+    const {status, statusText} = err.response
+    callback(`Error pulling gist: ${status} - ${statusText}`)
   })
 }
 
 function push (config, callback) {
+  const gistId = config.options.sync.gistId
   const auth = config.options.sync.apiToken
   // Mask API token
   config.options.sync.apiToken = '########################################'
 
-  request.patch({
-    url: `https://api.github.com/gists/${config.options.sync.gistId}`,
-    headers: {
-      'User-Agent': 'nodejs',
-      Authorization: `token ${auth}`
-    },
-    json: {
+  ax.patch(
+    `${apiUrl}${gistId}`,
+    {
       description: 'alia config',
       files: {
         [aliaGistFilename]: {
           content: JSON.stringify(config, null, 2)
         }
       }
-    }
-  }, function (err, res, body) {
-    if (err) {
-      return callback(`Error pushing gist ${config.options.sync.gistId}`)
-    }
-
-    return callback(null, body.html_url)
+    },
+    {headers: {
+        'User-Agent': 'nodejs',
+        Authorization: `token ${auth}`
+      }}
+  ).then(res => {
+    return callback(null, res.data.html_url)
+  }).catch(err => {
+    const {status, statusText} = err.response
+    console.log(`Error pushing gist: ${status} - ${statusText}`)
   })
-
 }
 
 module.exports = {pull, push}
