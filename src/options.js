@@ -3,8 +3,6 @@ const alias = require('./alia')
 const flags = [
   ['--version, -v', alias.version],
   ['--help, -h', alias.help],
-  ['--add, -a', alias.set],
-  ['--edit, -e', alias.set],
   ['--set, -s', alias.set],
   ['--remove, -r', alias.remove],
   ['--list, -l', alias.list],
