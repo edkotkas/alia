@@ -38,51 +38,35 @@ describe('Alia', () => {
     })
   })
 
-  it(`should add alias`, done => {
-    cli(['-a', 'yell', '@', 'echo'], result => {
+  it(`should set alias`, done => {
+    cli(['-s', 'agree', '@', 'echo yes'], result => {
       if (result.err) {
         return done(result.err)
       }
 
-      result.data.should.contain('Set alias: yell @ echo')
+      result.data.should.contain('Set alias: agree @ echo yes')
 
       let config = JSON.parse(fs.readFileSync(aliaPath, 'utf8'))
 
-      config.alias.should.have.property('yell').with.deep.equal(['echo'])
+      config.alias.should.have.property('agree').with.deep.equal(['echo yes'])
 
       done()
     })
   })
 
   it('should use alias', done => {
-    cli(['yell', '"testing"'], result => {
+    cli(['agree'], result => {
       if (result.err) {
         return done(result.err)
       }
 
-      result.data.should.contain('"testing"')
-      done()
-    })
-  })
-
-  it(`should set alias`, done => {
-    cli(['-s', 'agree', '@', 'yes'], result => {
-      if (result.err) {
-        return done(result.err)
-      }
-
-      result.data.should.contain('Set alias: agree @ yes')
-
-      let config = JSON.parse(fs.readFileSync(aliaPath, 'utf8'))
-
-      config.alias.should.have.property('agree').with.deep.equal(['yes'])
-
+      result.data.should.contain('yes')
       done()
     })
   })
 
   it(`should update alias`, done => {
-    cli(['-s', 'agree', '@', 'echo', 'definitely'], result => {
+    cli(['-s', 'agree', '@', 'echo definitely'], result => {
       if (result.err) {
         return done(result.err)
       }
@@ -91,35 +75,19 @@ describe('Alia', () => {
 
       let config = JSON.parse(fs.readFileSync(aliaPath, 'utf8'))
 
-      config.alias.should.have.property('agree').with.deep.equal(['echo', 'definitely'])
-
-      done()
-    })
-  })
-
-  it(`should set experimental alias`, done => {
-    cli(['-s', '-x', 'wow', '@', 'echo test && echo nice'], result => {
-      if (result.err) {
-        return done(result.err)
-      }
-
-      result.data.should.contain('Set alias: wow @ EXPERIMENTAL echo test && echo nice')
-
-      let config = JSON.parse(fs.readFileSync(aliaPath, 'utf8'))
-
-      config.alias.should.have.property('wow').with.deep.equal(['EXPERIMENTAL', 'echo test && echo nice'])
+      config.alias.should.have.property('agree').with.deep.equal(['echo definitely'])
 
       done()
     })
   })
 
   it('should remove alias', done => {
-    cli(['-r', 'yell'], result => {
+    cli(['-r', 'agree'], result => {
       if (result.err) {
         return done(result.err)
       }
 
-      result.data.should.contain('Removed alias: yell')
+      result.data.should.contain('Removed alias: agree')
 
 
       let config = JSON.parse(fs.readFileSync(aliaPath, 'utf8'))
