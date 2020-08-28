@@ -2,7 +2,8 @@ const { spawnSync } = require('child_process')
 const config  = require('./config')
 
 const options = {
-  stdio: 'inherit'
+  stdio: 'inherit',
+  shell: true
 }
 
 module.exports = function(args) {
@@ -19,7 +20,6 @@ module.exports = function(args) {
 
       if (al[0] === 'EXPERIMENTAL') {
         al.shift()
-        options.shell = true
       }
 
       return al.concat(extraParameters)

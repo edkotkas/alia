@@ -17,15 +17,11 @@ function help() {
       
         --version, -v     show version
         --help, -h        show this
-        
-        --add, -a         add alias (deprecated)
-            -x            enable experimental shell
-        --edit, -e        edit alias (deprecated)
-        
-        --set, -s         set/update alias 
-            -x            enable experimental shell
-            
+
+        --set, -s         set alias 
+
         --remove, -r      remove alias
+        
         --list, -l        list available alias
         
         --conf, -c        change alia configuration
@@ -39,7 +35,7 @@ function help() {
 
       Examples
       
-        $ al -a gp ${separator} git push
+        $ al -s gp ${separator} git push
           > Added: gp ${separator} git push
           
         $ al gp
@@ -65,9 +61,7 @@ function set(args) {
     return 1
   }
 
-  const experimental = args[0] === '-x'
-
-  const key = args.slice(experimental ? 1 : 0, separatorIndex).join(' ')
+  const key = args.slice(0, separatorIndex).join(' ')
   const cmd = args.slice(separatorIndex + 1)
 
   if (!key && !cmd) {
@@ -76,14 +70,6 @@ function set(args) {
     `)
 
     return 1
-  }
-
-  if (experimental) {
-    console.log(`
-      Warning: Adding experimental feature (potentially insecure), use at your own discretion!
-    `)
-
-    cmd.unshift('EXPERIMENTAL')
   }
 
   config.alias[key] = cmd

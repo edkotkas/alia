@@ -14,61 +14,41 @@ $ npm install -g alia
 
 ```bash
 $ al
-
   Usage
   
     $ al [options] [alias] [@] [command]
 
   Options
-
+  
     --version, -v     show version
     --help, -h        show this
 
-    --add, -a         add alias (deprecated)
-        -x            enable experimental shell
-    --edit, -e        edit alias (deprecated)
-
-    --set, -s         set/update alias
-        -x            enable experimental shell
+    --set, -s         set alias 
 
     --remove, -r      remove alias
+    
     --list, -l        list available alias
-
+    
     --conf, -c        change alia configuration
-      separator [string]                set alias separator (default: @)
+      separator [string]                set alias separator (default: @)   
       token <your github api token>     set the api token for gist sync
       gist <your gist id>               set the gist id to use for sync
-
+      
     --sync, -sy        backup/restore your config (default: restore)
       push    backup your current config
       pull    restore config from gist
 
   Examples
   
-    $ al -a gp @ git push
-      > Added: gp @ git push
-
+    $ al -s gp ${separator} "git push"
+      > Added: gp ${separator} git push
+      
     $ al gp
       > git push
-
+      
     $ al -r gp
       > Removed: gp
 ```
-
-#### Experimental Shell (use at your own risk!)
-You can add commands with the shell enabled (_al -a -x_) to allow the use of more complex aliases.
-
-Using double quotes, you can combine multiple commands into one.
-```bash
-$ al -a -x test @ "echo hi && echo bye"
-```
-
-This also allows using your existing Alia aliases as an alias.
-```bash
-$ al -a -x testy @ al test
-```
-
-Again, this is experimental and not very secure. Be careful of the commands used in this mode.
 
 ### Gist sync
 
