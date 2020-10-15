@@ -1,6 +1,6 @@
 {
   "name": "alia",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "description": "Alias To Go",
   "main": "index.js",
   "bin": {
