@@ -7,11 +7,16 @@
     }
   },
   "alias": {
-    "test": [
-      "echo",
-      "alia",
-      "is",
-      "working!"
-    ]
+    "test": {
+      "options": {
+        "shell": false
+      },
+      "command": [
+        "echo",
+        "alia",
+        "is",
+        "working!"
+      ]
+    }
   }
 }

@@ -1,4 +1,6 @@
-# Alia [![Build Status](https://travis-ci.org/edkotkas/alia.svg?branch=master)](https://travis-ci.org/edkotkas/alia)
+# Alia 
+[![Build Status](https://travis-ci.org/edkotkas/alia.svg?branch=master)](https://travis-ci.org/edkotkas/alia)
+[![install size](https://packagephobia.com/badge?p=alia@0.10.0)](https://packagephobia.com/result?p=alia@0.10.0)
 
 > Alias To Go
 
@@ -13,41 +15,7 @@ $ npm install -g alia
 ## Usage
 
 ```bash
-$ al
-  Usage
-  
-    $ al [options] [alias] [@] [command]
-
-  Options
-  
-    --version, -v     show version
-    --help, -h        show this
-
-    --set, -s         set alias 
-
-    --remove, -r      remove alias
-    
-    --list, -l        list available alias
-    
-    --conf, -c        change alia configuration
-      separator [string]                set alias separator (default: @)   
-      token <your github api token>     set the api token for gist sync
-      gist <your gist id>               set the gist id to use for sync
-      
-    --sync, -sy        backup/restore your config (default: restore)
-      push    backup your current config
-      pull    restore config from gist
-
-  Examples
-  
-    $ al -s gp ${separator} "git push"
-      > Added: gp ${separator} git push
-      
-    $ al gp
-      > git push
-      
-    $ al -r gp
-      > Removed: gp
+$ al --help
 ```
 
 ### Gist sync
@@ -76,27 +44,37 @@ These instructions will help get you up and running with Alia on your local mach
 - Node: Version 6 or higher
 
 ### Installing
-1. Clone the repository.
+ Single line setup (or follow the steps below)
 ```bash
-git clone https://github.com/edkotkas/alia.git
-cd alia
+git clone https://github.com/edkotkas/alia.git && cd alia && npm i && npm link && al
 ```
 
-2. Install the NPM packages.
+-  Clone the repository (or fork it).
+```bash
+git clone https://github.com/edkotkas/alia.git && cd alia
+```
+
+- Install the NPM packages.
 ```bash
 npm i
 ```
 
-3. Symlink the project to your global NPM folder. This will allow you to run Alia using the cli command.
+- (Optional) Symlink the project to your global NPM folder. __This will allow you to run Alia using the cli command ("al").__
 ```bash
 npm link
 ```
-4. Try it out!
+
+- Run
 ```bash
-al --help
+$ al --help
 ```
 
-5. Add issues to Github, make changes to the project and create pull requests for review.
+- Alternatively, without symlink (will still create a global config file in your home directory).
+```bash
+$ node index --help
+```
+
+- Add issues to Github, make changes to the project and create pull requests for review.
 
 ### Tests
 Run the tests with mocha.
