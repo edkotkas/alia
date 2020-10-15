@@ -1,5 +1,5 @@
 const fs = require('fs')
-const {spawn} = require('child_process')
+const { spawn } = require('child_process')
 const chai = require('chai')
 chai.use(require('chai-fs'))
 chai.use(require('chai-exclude'))
@@ -14,10 +14,11 @@ const aliaPath = path.join(homedir, '.alia_test.json')
 
 function cli(args, cb) {
   let result = {}
-
-  let child = spawn('node', ['./index.js', ...args]) //, {stdio: 'inherit'}
-  child.stdout.on('data', data => result.data = data.toString())
-  child.stderr.on('data', err => result.err = err.toString())
+  let child = spawn('node', ['./index.js', ...args], { shell: true })
+  child.stdout.setEncoding('utf8')
+  child.stdout.on('data', data => result.data = data)
+  child.stderr.setEncoding('utf8')
+  child.stderr.on('data', data => result.err = data)
   child.on('close', () => cb(result))
 }
 
@@ -32,7 +33,10 @@ describe('Alia', () => {
       aliaPath.should.be.a.file()
 
       let config = JSON.parse(fs.readFileSync(aliaPath, 'utf8'))
-      config.should.excluding('aliaVersion').deep.equal(require('./src/defaultConfig.json'))
+      config.should
+        .excluding('aliaVersion')
+        .excluding('version')
+        .deep.equal(require('./src/defaultConfig.json'))
 
       done()
     })
@@ -48,7 +52,12 @@ describe('Alia', () => {
 
       let config = JSON.parse(fs.readFileSync(aliaPath, 'utf8'))
 
-      config.alias.should.have.property('agree').with.deep.equal(['echo yes'])
+      config.alias
+        .should.have.property('agree')
+        .with.deep.equal({
+        options: { shell: false },
+        command: ['echo', 'yes']
+      })
 
       done()
     })
@@ -56,8 +65,8 @@ describe('Alia', () => {
 
   it('should use alias', done => {
     cli(['agree'], result => {
-      if (result.err) {
-        return done(result.err)
+      if (result.err || !result.data) {
+        return done(result.err || 'no result returned')
       }
 
       result.data.should.contain('yes')
@@ -75,7 +84,10 @@ describe('Alia', () => {
 
       let config = JSON.parse(fs.readFileSync(aliaPath, 'utf8'))
 
-      config.alias.should.have.property('agree').with.deep.equal(['echo definitely'])
+      config.alias.should.have.property('agree').with.deep.equal({
+        options: { shell: false },
+        command: ['echo', 'definitely']
+      })
 
       done()
     })
@@ -88,7 +100,6 @@ describe('Alia', () => {
       }
 
       result.data.should.contain('Removed alias: agree')
-
 
       let config = JSON.parse(fs.readFileSync(aliaPath, 'utf8'))
 

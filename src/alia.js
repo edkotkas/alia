@@ -19,6 +19,7 @@ function help() {
         --help, -h        show this
 
         --set, -s         set alias 
+            -x            use shell
 
         --remove, -r      remove alias
         
@@ -61,10 +62,15 @@ function set(args) {
     return 1
   }
 
-  const key = args.slice(0, separatorIndex).join(' ')
-  const cmd = args.slice(separatorIndex + 1)
+  const shell = args[0] === '-x'
+  if (shell) {
+    args.shift()
+  }
 
-  if (!key && !cmd) {
+  const key = args.slice(0, separatorIndex).join(' ')
+  const command = args.slice(separatorIndex + 1)
+
+  if (!key && !command) {
     console.error(`
       Error: No ${key ? 'key' : 'command'} provided.
     `)
@@ -72,10 +78,20 @@ function set(args) {
     return 1
   }
 
-  config.alias[key] = cmd
+  if (config.alias[key]) {
+    console.log(`Unset alias: ${key} ${config.options.separator} ${config.alias[key].command}`)
+  }
+
+  config.alias[key] = {
+    options: {
+      shell
+    },
+    command
+  }
+
   write()
 
-  console.log(`Set alias: ${key} ${config.options.separator} ${cmd.join(' ')}`)
+  console.log(`Set alias: ${key} ${config.options.separator} ${command.join(' ')}`)
   return 0
 }
 
@@ -100,7 +116,7 @@ function remove(args) {
 }
 
 function mapList(alias) {
-  return Object.keys(alias).map(key => `${key} \t${config.options.separator} \t${alias[key].join(' ')}`)
+  return Object.keys(alias).map(key => `${key} \t${config.options.separator} \t${alias[key].command.join(' ')}`)
 }
 
 function list() {
