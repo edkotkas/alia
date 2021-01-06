@@ -1,5 +1,5 @@
 # Alia 
-[![Build Status](https://travis-ci.org/edkotkas/alia.svg?branch=master)](https://travis-ci.org/edkotkas/alia)
+[![Build Status](https://travis-ci.com/edkotkas/alia.svg?branch=master)](https://travis-ci.com/edkotkas/alia)
 [![install size](https://packagephobia.com/badge?p=alia@0.10.0)](https://packagephobia.com/result?p=alia@0.10.0)
 
 > Alias To Go

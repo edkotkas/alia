@@ -14,13 +14,22 @@ module.exports = function (args) {
 
   if (!al) {
     console.error(`
-      Alias not set: ${key}}
+      Alias not set: ${key}
     `)
+
+    return 1
   }
 
   options.shell = al.options.shell
 
   const [command, ...parameters] = al.command.concat(args)
 
-  spawnSync(command, parameters, options)
+  const proc = spawnSync(command, parameters, options)
+
+  if (proc.error) {
+    console.error(proc.error)
+    return 1
+  }
+
+  return 0
 }

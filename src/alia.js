@@ -65,10 +65,11 @@ function set(args) {
   const shell = args[0] === '-x'
   if (shell) {
     args.shift()
+    separatorIndex--
   }
 
   const key = args.slice(0, separatorIndex).join(' ')
-  const command = args.slice(separatorIndex + 1)
+  let command = args.slice(separatorIndex + 1)
 
   if (!key && !command) {
     console.error(`
@@ -78,8 +79,12 @@ function set(args) {
     return 1
   }
 
+  if (command.length === 1) {
+    command = command[0].split(' ')
+  }
+
   if (config.alias[key]) {
-    console.log(`Unset alias: ${key} ${config.options.separator} ${config.alias[key].command}`)
+    console.log(`Unset alias: ${key} ${config.options.separator} ${config.alias[key].command.join(' ')}`)
   }
 
   config.alias[key] = {
