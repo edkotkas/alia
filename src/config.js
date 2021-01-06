@@ -22,11 +22,13 @@ if (fs.existsSync(configPath)) {
 }
 
 function applyMigrations() {
+  let updateTo = undefined
+
   if (!config.version || config.version < 2) {
     delete config.aliaVersion
     Object.keys(config.alias)
       .filter(key => !config.alias[key].command)
-      .map(key => {
+      .forEach(key => {
         const alias = config.alias[key]
         const options = {}
 
@@ -41,11 +43,34 @@ function applyMigrations() {
         }
       })
 
+    updateTo = 2
+  }
 
-    config.version = 2
-    console.log('Migrating config to version 2')
+  if (config.version === 2) {
+    delete config.aliaVersion
+    const keysToBeUpdated = Object.keys(config.alias)
+      .filter(key => {
+        const cmd = config.alias[key].command.toString()
+        return !config.options.shell
+          && !config.alias[key].command[1]
+          && (cmd.includes('-') || cmd.includes('&') || cmd.includes('|'))
+      })
 
+    if (keysToBeUpdated.length > 0) {
+      keysToBeUpdated.forEach(key => {
+        const alias = config.alias[key]
+        alias.options.shell = true
+        alias.command = alias.command[0].split(' ')
+      })
+
+      updateTo = 2.1
+    }
+  }
+
+  if (updateTo) {
+    config.version = updateTo
     write()
+    console.log(`Migrated config to: ${updateTo}`)
   }
 }
 

@@ -13,11 +13,11 @@ const flags = [
 module.exports = function(args) {
   if (!args[0]) {
     alias.help()
-    return true
+    return 0
   }
 
   if (!args[0].startsWith('-')) {
-    return false
+    return 1
   }
 
   const flag = flags.find(([option]) => option.split(', ').includes(args[0]))
@@ -26,15 +26,15 @@ module.exports = function(args) {
     console.log(`
       No option: ${args[0]}
     `)
-    return true
+    return 0
   }
 
   const [option, action] = flag
 
   if (option) {
     action(args.slice(1))
-    return true
+    return 0
   }
 
-  return false
+  return 1
 }
