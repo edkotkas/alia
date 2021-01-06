@@ -22,7 +22,10 @@ function cli(args, cb) {
   child.stdout.on('data', data => result.data.push(data))
   child.stderr.setEncoding('utf8')
   child.stderr.on('data', data => result.err.push(data))
-  child.on('close', () => cb(result))
+  child.on('close', () => {
+    result.data = result.data.map(x => x.trim()).join('\n')
+    cb(result)
+  })
 }
 
 describe('Alia', () => {
@@ -51,7 +54,7 @@ describe('Alia', () => {
         return done(result.err.join('\n'))
       }
 
-      result.data[0].should.contain('Set alias: agree @ echo yes')
+      result.data.should.contain('Set alias: agree @ echo yes')
 
       let config = JSON.parse(fs.readFileSync(aliaPath, 'utf8'))
 
@@ -76,7 +79,7 @@ describe('Alia', () => {
         return done('no result returned')
       }
 
-      result.data[0].should.contain('yes')
+      result.data.should.contain('yes')
       done()
     })
   })
@@ -87,8 +90,7 @@ describe('Alia', () => {
         return done(result.err.join('\n'))
       }
 
-      result.data[0].should.contain('Unset alias: agree @ echo yes')
-      result.data[1].should.contain('Set alias: agree @ echo definitely')
+      result.data.should.contain('Unset alias: agree @ echo yes\nSet alias: agree @ echo definitely')
 
       let config = JSON.parse(fs.readFileSync(aliaPath, 'utf8'))
 
@@ -107,7 +109,7 @@ describe('Alia', () => {
         return done(result.err.join('\n'))
       }
 
-      result.data[0].should.contain('Removed alias: agree')
+      result.data.should.contain('Removed alias: agree')
 
       let config = JSON.parse(fs.readFileSync(aliaPath, 'utf8'))
 
@@ -123,7 +125,7 @@ describe('Alia', () => {
         return done(result.err.join('\n'))
       }
 
-      result.data[0].should.contain('Set alias: shell @ echo best && echo test')
+      result.data.should.contain('Set alias: shell @ echo best && echo test')
 
       let config = JSON.parse(fs.readFileSync(aliaPath, 'utf8'))
 
@@ -139,8 +141,9 @@ describe('Alia', () => {
         return done(result.err.join('\n'))
       }
 
-      result.data[0].should.contain('best')
-      result.data[1].should.contain('test')
+      console.log('result', result)
+
+      result.data.should.contain('best\ntest')
       done()
     })
   })
