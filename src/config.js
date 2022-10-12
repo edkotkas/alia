@@ -2,8 +2,30 @@ const path = require('path')
 const fs = require('fs')
 const homedir = require('os').homedir()
 
-const defaultConfig = require('./defaultConfig')
-defaultConfig.version = 2
+const defaultConfig = {
+  "options": {
+    "separator": "@",
+    "sync": {
+      "apiToken": "",
+      "gistId": ""
+    }
+  },
+  "alias": {
+    "test": {
+      "options": {
+        "shell": false
+      },
+      "command": [
+        "echo",
+        "alia",
+        "is",
+        "working!"
+      ]
+    }
+  }
+}
+
+defaultConfig.version = 2.1
 
 let aliaFileName = '.alia.json'
 if (process.env.NODE_ENV === 'test') {

@@ -12,12 +12,14 @@ process.env.NODE_ENV = 'test'
 
 const aliaPath = path.join(homedir, '.alia_test.json')
 
+const { defaultConfig } = require('./src/config')
+
 function cli(args, cb) {
   let result = {
     err: [],
     data: []
   }
-  let child = spawn('node', ['./index.js', ...args], { shell: true })
+  let child = spawn('node', ['./src/main.js', ...args], { shell: true })
   child.stdout.setEncoding('utf8')
   child.stdout.on('data', data => result.data.push(data))
   child.stderr.setEncoding('utf8')
@@ -42,7 +44,7 @@ describe('Alia', () => {
       config.should
         .excluding('aliaVersion')
         .excluding('version')
-        .deep.equal(require('./src/defaultConfig.json'))
+        .deep.equal(defaultConfig)
 
       done()
     })
@@ -120,7 +122,7 @@ describe('Alia', () => {
   })
 
   it('should add command with shell option', done => {
-    cli(['-s', '-x', 'shell', '@', '"echo best && echo test"'], result => {
+    cli(['-sh', 'shell', '@', '"echo best && echo test"'], result => {
       if (result.err.length > 0) {
         return done(result.err.join('\n'))
       }
@@ -140,8 +142,6 @@ describe('Alia', () => {
       if (result.err.length > 0) {
         return done(result.err.join('\n'))
       }
-
-      console.log('result', result)
 
       result.data.should.contain('best\ntest')
       done()

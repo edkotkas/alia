@@ -1,6 +1,6 @@
 # Alia 
 [![Build Status](https://travis-ci.com/edkotkas/alia.svg?branch=master)](https://travis-ci.com/edkotkas/alia)
-[![install size](https://packagephobia.com/badge?p=alia@0.10.0)](https://packagephobia.com/result?p=alia@0.10.0)
+[![install size](https://packagephobia.com/badge?p=alia@0.12.0)](https://packagephobia.com/result?p=alia@0.12.0)
 
 > Alias To Go
 
@@ -9,13 +9,13 @@ Works on Linux, Windows and maybe macOS (not tried).
 ## Install
 
 ```bash
-$ npm install -g alia
+npm install -g alia
 ```
 
 ## Usage
 
 ```bash
-$ al --help
+al --help
 ```
 
 ### Gist sync

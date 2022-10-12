@@ -17,19 +17,17 @@ module.exports = function (args) {
       Alias not set: ${key}
     `)
 
-    return 1
+    return true
   }
-
-  options.shell = al.options.shell
 
   const [command, ...parameters] = al.command.concat(args)
 
-  const proc = spawnSync(command, parameters, options)
+  const proc = spawnSync(command, parameters, {
+    ...options,
+    shell: al.options.shell
+  })
 
   if (proc.error) {
     console.error(proc.error)
-    return 1
   }
-
-  return 0
 }

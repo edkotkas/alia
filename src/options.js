@@ -1,40 +1,61 @@
 const alias = require('./alia')
 
 const flags = [
-  ['--version, -v', alias.version],
-  ['--help, -h', alias.help],
-  ['--set, -s', alias.set],
-  ['--remove, -r', alias.remove],
-  ['--list, -l', alias.list],
-  ['--conf, -c', alias.conf],
-  ['--sync, -sy', alias.sync]
+  {
+    keys: ['version', 'v'],
+    option: alias.version
+  },
+  {
+    keys: ['help', 'h'],
+    option: alias.help
+  },
+  {
+    keys: ['set', 's', 'sh'],
+    option: alias.set
+  },
+  {
+    keys: ['remove', 'r'],
+    option: alias.remove
+  },
+  {
+    keys: ['list', 'l', 'la'],
+    option: alias.list
+  },
+  {
+    keys: ['conf', 'c', 'cs', 'ct', 'cg'],
+    option: alias.conf
+  },
+  {
+    keys: ['sync', 'sy', 'syp', 'syu'],
+    option: alias.sync
+  }
 ]
 
-module.exports = function(args) {
+function options(args) {
   if (!args[0]) {
     alias.help()
-    return 0
+    return true
   }
 
   if (!args[0].startsWith('-')) {
-    return 1
+    return false
   }
 
-  const flag = flags.find(([option]) => option.split(', ').includes(args[0]))
+  const arg = args[0].split('-').join('')
+  const flag = flags.find(flag => flag.keys.find(key => key === arg))
 
   if (!flag) {
-    console.log(`
+    console.error(`
       No option: ${args[0]}
     `)
-    return 0
+  } else {
+    flag.option(args)
   }
 
-  const [option, action] = flag
+  return true
+}
 
-  if (option) {
-    action(args.slice(1))
-    return 0
-  }
-
-  return 1
+module.exports = {
+  flags,
+  options
 }

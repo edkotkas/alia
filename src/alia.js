@@ -18,8 +18,7 @@ function help() {
         --version, -v     show version
         --help, -h        show this
 
-        --set, -s         set alias 
-            -x            use shell
+        --set, -s[h]      set alias (with 'h' for 'shell' option) 
 
         --remove, -r      remove alias
         
@@ -31,8 +30,8 @@ function help() {
           gist <your gist id>               set the gist id to use for sync
           
         --sync, -sy        backup/restore your config (default: restore)
-          push    backup your current config
-          pull    restore config from gist
+          push             backup your current config
+          pull             restore config from gist
 
       Examples
       
@@ -47,22 +46,14 @@ function help() {
   `)
 }
 
-function getSeparatorIndex(args) {
+function set([ cmd, ...args ]) {
   let separatorIndex = args.indexOf(config.options.separator)
   if (separatorIndex === -1) {
     console.error(`Invalid Input, missing separator: '${config.options.separator}'`)
-  }
-
-  return separatorIndex
-}
-
-function set(args) {
-  let separatorIndex = getSeparatorIndex(args)
-  if (separatorIndex === -1) {
     return 1
   }
 
-  const shell = args[0] === '-x'
+  const shell = args[0] === '-sh'
   if (shell) {
     args.shift()
     separatorIndex--
@@ -73,7 +64,7 @@ function set(args) {
 
   if (!key && !command) {
     console.error(`
-      Error: No ${key ? 'key' : 'command'} provided.
+      Error: 'key' or 'command' not provided.
     `)
 
     return 1
@@ -89,7 +80,7 @@ function set(args) {
 
   config.alias[key] = {
     options: {
-      shell
+      shell: shell || cmd === '-sh'
     },
     command
   }
@@ -100,7 +91,7 @@ function set(args) {
   return 0
 }
 
-function remove(args) {
+function remove([_, ...args]) {
   const key = args.join(' ').trim()
 
   if (!key) {
@@ -124,8 +115,12 @@ function mapList(alias) {
   return Object.keys(alias).map(key => `${key} \t${config.options.separator} \t${alias[key].command.join(' ')}`)
 }
 
-function list() {
-  console.log(mapList(config.alias).join('\n'))
+function list([cmd, ...args]) {
+  const l = mapList(config.alias)
+
+  console.log(
+    (cmd === '-la' || args[0] === '-a' ? l.sort() : l).join('\n')
+  )
 }
 
 function setSeparator(separator) {
@@ -165,7 +160,7 @@ function gistPush() {
   })
 }
 
-function sync(args) {
+function sync([cmd, ...args]) {
   const err = `
     Invalid input.
 
@@ -176,59 +171,67 @@ function sync(args) {
 
   const ops = {
     push: gistPush,
-    pull: gistPull
+    pull: gistPull,
+    '-syp': gistPush,
+    '-syu': gistPull,
+    '-sy': gistPull,
+    '--sync': gistPull
   }
 
-  if (!args || args.length !== 1) {
+  if (!cmd) {
     return ops.pull()
   }
 
-  let op = ops[args[0]]
+  let op = ops[args[0]] || ops[cmd]
 
   if (!op) {
     return console.err(err)
   }
 
-  op()
+  op(ops[cmd] ? args[0] : args[1])
 }
 
-function conf(args) {
-  const err = `
-    Invalid input.
-  
-    Valid options:
-      separator [string]                set alias separator (default: @)   
-      token <your github api token>     set the api token for gist sync
-      gist <your gist id>               set the gist id to use for sync
-  `
-
-  const ops = {
-    separator: arg => setSeparator(arg),
-    token: (token) => {
+function conf([cmd, ...args]) {
+  const setToken = (token) => {
       if (token) {
         config.options.sync.apiToken = token
         write()
       }
-    },
-    gist: (id) => {
-      if (id) {
-        config.options.sync.gistId = id
-        write()
-      }
+  }
+
+  const setGist = (id) => {
+    if (id) {
+      config.options.sync.gistId = id
+      write()
     }
   }
 
-  if (!args || args.length < 1) {
-    return console.error(err)
+  const ops = {
+    separator: setSeparator,
+    token: setToken,
+    gist: setGist,
+    '-cs': setSeparator,
+    '-ct': setToken,
+    '-cg': setGist
   }
 
-  let op = ops[args[0]]
+  if (!cmd) {
+    return console.error(`
+      No argument provided.
+      Available: ${Object.keys(ops).join(', ')}
+    `)
+  }
+
+  const op = ops[args[0]] || ops[cmd]
 
   if (!op) {
-    return console.error(err)
+    return console.error(`
+      Invalid argument: ${args[0]}
+      Available: ${Object.keys(ops).join(', ')}
+    `)
   }
 
-  op(args[1])
+  op(ops[cmd] ? args[0] : args[1])
 }
 
 module.exports = {set, remove, list, help, version, sync, conf}
