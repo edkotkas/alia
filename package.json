@@ -1,13 +1,27 @@
 {
   "name": "alia",
-  "version": "0.11.0",
+  "version": "0.12.0",
   "description": "Alias To Go",
-  "main": "index.js",
+  "exports": null,
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=19"
+  },
   "bin": {
-    "al": "index.js"
+    "al": "dist/main.js"
   },
   "scripts": {
-    "test": "node ./node_modules/mocha/bin/_mocha test"
+    "postinstall": "echo Alia is an experimental tool, use at your own discretion. Thank you!",
+    "start": "tsx src/main.ts",
+    "prebuild": "node ./node_modules/del-cli/cli.js dist/",
+    "build": "tsc --build src",
+    "postbuild": "node ./node_modules/del-cli/cli.js dist/models",
+    "test": "tsx test.ts",
+    "test:watch": "tsx --watch test.ts",
+    "test:coverage": "c8 npm run test"
   },
   "keywords": [
     "alias",
@@ -20,14 +34,22 @@
   ],
   "author": "Eduard Kotkas",
   "license": "ISC",
-  "dependencies": {
-    "axios": "^0.21.1"
-  },
   "devDependencies": {
-    "chai": "^4.2.0",
-    "chai-exclude": "^1.0.12",
-    "chai-fs": "^2.0.0",
-    "mocha": "^8.1.2"
+    "@types/jasmine": "^4.3.0",
+    "@types/node": "^18.11.9",
+    "@typescript-eslint/eslint-plugin": "^5.45.0",
+    "@typescript-eslint/parser": "^5.45.0",
+    "c8": "^7.12.0",
+    "del-cli": "^5.0.0",
+    "eslint": "^8.28.0",
+    "eslint-config-standard-with-typescript": "^23.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-n": "^15.5.1",
+    "eslint-plugin-promise": "^6.1.1",
+    "http-request-mock": "^1.8.5",
+    "jasmine": "^4.5.0",
+    "tsx": "^3.12.1",
+    "typescript": "^4.9.3"
   },
   "repository": {
     "type": "git",
@@ -36,5 +58,8 @@
   "bugs": {
     "url": "https://github.com/edkotkas/alia/issues"
   },
-  "homepage": "https://github.com/edkotkas/alia#readme"
+  "homepage": "https://github.com/edkotkas/alia#readme",
+  "dependencies": {
+    "node-media-server": "^2.4.9"
+  }
 }

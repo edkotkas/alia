@@ -118,4 +118,8 @@ fabric.properties
 
 # Editor-based Rest Client
 .idea/httpRequests
-.alia.json
+
+# Project 
+.alia*.json
+dist/
+*.tsbuildinfo

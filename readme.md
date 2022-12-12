@@ -1,83 +1,71 @@
 # Alia 
-[![Build Status](https://travis-ci.com/edkotkas/alia.svg?branch=master)](https://travis-ci.com/edkotkas/alia)
-[![install size](https://packagephobia.com/badge?p=alia@0.10.0)](https://packagephobia.com/result?p=alia@0.10.0)
+[![install size](https://packagephobia.com/badge?p=alia@0.12.0)](https://packagephobia.com/result?p=alia@0.12.0)
+[![c8 config on GitHub](https://img.shields.io/nycrc/edkotkas/alia?config=.c8rc.json)](coverage\index.html)
+![Snyk Vulnerabilities for npm package](https://img.shields.io/snyk/vulnerabilities/npm/alia)
+![npm](https://img.shields.io/npm/v/alia)
 
-> Alias To Go
+## Alias To Go
 
-Works on Linux, Windows and maybe macOS (not tried).
+Simple and lightweight cross-platform Alias solution w/ Gist Sync support in Node.
+
+> Warning, this is an experimental tool. Use at your own discretion.
 
 ## Install
 
 ```bash
-$ npm install -g alia
+npm install -g alia
 ```
 
 ## Usage
 
 ```bash
-$ al --help
+al --help
 ```
 
 ### Gist sync
 
 Alia allows you to backup/restore config from a [gist](http://gist.github.com) using the commands:
 
-- `al --sync push` to backup your config (push to gist)
-- `al --sync pull` to restore your config (pull from gist)
+- `al --sync --push` to backup your config (push to gist)
+- `al --sync --pull` to restore your config (pull from gist)
 
 To get started:
 
-1. Create a new [gist](http://gist.github.com) with a file titled `alia.json`.
-2. Create a new [GitHub token](https://github.com/settings/tokens) with the 'gist' permission.
+1. Create a new [Gist](http://gist.github.com) with a file titled `.alia.json`.
+2. Create a new [GitHub token](https://github.com/settings/tokens) with the `gist` permission.
 3. Setup Alia with the following commands:
 
 ```bash
-al --conf token <api token>
-al --conf gist <32-char gist id>
+al --conf --token=<api token> --gist=<gist id>
 ```
 
 ## Developing
-These instructions will help get you up and running with Alia on your local machine.
+Get up and running with Alia on your local machine.
 
 ### Prerequisites
 
-- Node: Version 6 or higher
+- Node: Version 16 or higher
 
 ### Installing
- Single line setup (or follow the steps below)
-```bash
-git clone https://github.com/edkotkas/alia.git && cd alia && npm i && npm link && al
-```
-
--  Clone the repository (or fork it).
+-  Clone the repository (or fork it)
 ```bash
 git clone https://github.com/edkotkas/alia.git && cd alia
 ```
 
-- Install the NPM packages.
+- Install the dev dependencies
 ```bash
 npm i
 ```
 
-- (Optional) Symlink the project to your global NPM folder. __This will allow you to run Alia using the cli command ("al").__
+- Run the script (will create a global config file in your home directory)
 ```bash
-npm link
+npm start -- --help
 ```
 
-- Run
-```bash
-$ al --help
-```
-
-- Alternatively, without symlink (will still create a global config file in your home directory).
-```bash
-$ node index --help
-```
-
-- Add issues to Github, make changes to the project and create pull requests for review.
+- Add issues to Github, make changes to the project and create pull requests for review
 
 ### Tests
-Run the tests with mocha.
+Run the tests
 ```bash
 npm test
 ```
