@@ -1,5 +1,5 @@
 # Alia 
-[![install size](https://packagephobia.com/badge?p=alia@0.12.0)](https://packagephobia.com/result?p=alia@0.12.0)
+[![install size](https://packagephobia.com/badge?p=alia)](https://packagephobia.com/result?p=alia)
 [![c8 config on GitHub](https://img.shields.io/nycrc/edkotkas/alia?config=.c8rc.json)](coverage\index.html)
 ![Snyk Vulnerabilities for npm package](https://img.shields.io/snyk/vulnerabilities/npm/alia)
 ![npm](https://img.shields.io/npm/v/alia)
@@ -44,7 +44,7 @@ Get up and running with Alia on your local machine.
 
 ### Prerequisites
 
-- Node: Version 16 or higher
+- Node: Version 19 or higher
 
 ### Installing
 -  Clone the repository (or fork it)
