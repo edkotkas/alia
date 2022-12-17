@@ -1,9 +1,5 @@
 {
-<<<<<<< HEAD
   "name": "@edkotkas/alia",
-=======
-  "name": "alia",
->>>>>>> c5c84f043c5c22c26b669580754f5aeac43ddf3f
   "version": "0.12.1",
   "description": "Alias To Go",
   "exports": null,
