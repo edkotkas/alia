@@ -13,9 +13,21 @@ jobs:
         with:
           node-version: 19
       - run: npm ci
-      - run: npm run build
-      - run: npm test
-      - run: npm run test:coverage
+      - name: Build/Test
+        run: |
+          npm run build
+          npm test
+          npm run test:coverage
+      - name: Upload Dist
+        uses: actions/upload-artifact@v3
+        with:
+          name: dist
+          path: dist
+      - name: Upload Coverage
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage
+          path: coverage
 
   publish-npm:
     needs: build
@@ -26,9 +38,12 @@ jobs:
         with:
           node-version: 19
           registry-url: https://registry.npmjs.org/
-      - run: npm ci
-      - run: npm run build
-      - run: npm publish
+      - name: Download Dist
+        uses: actions/download-artifact@v3
+        with:
+          name: dist
+      - name: Publish NPM
+        run: npm publish —access public
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
 
@@ -42,10 +57,13 @@ jobs:
         - uses: actions/checkout@v3
         - uses: actions/setup-node@v3
           with:
-            node-version: 16
+            node-version: 19
             registry-url: https://npm.pkg.github.com/
-        - run: npm ci
-        - run: npm run build
-        - run: npm publish
+        - name: Download Dist
+          uses: actions/download-artifact@v3
+          with:
+            name: dist
+        - name: Publish GHR
+          run: npm publish
           env:
             NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}

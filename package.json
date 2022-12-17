@@ -1,5 +1,5 @@
 {
-  "name": "alia",
+  "name": "@edkotkas/alia",
   "version": "0.12.1",
   "description": "Alias To Go",
   "exports": null,
