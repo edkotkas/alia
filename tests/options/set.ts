@@ -79,4 +79,32 @@ describe('Set', () => {
     expect(configServiceSpy.setAlias).toHaveBeenCalled()
     expect(Log.info).toHaveBeenCalledTimes(2)
   })
+
+  it('should set alias with env variable', async () => {
+    configServiceSpy.getAlias.and.returnValue(undefined)
+    configServiceSpy.setAlias.and.callFake(() => ({}))
+    process.env = {}
+
+    await action({
+      args: ['echo', '--', 'other'],
+      data: {
+        env: ['test=123']
+      },
+      modifiers: {
+        env: '--env',
+        shell: '--shell'
+      }
+    })
+
+    expect(configServiceSpy.setAlias).toHaveBeenCalledOnceWith('echo', {
+      options: {
+        shell: true,
+        env: {
+          test: '123'
+        }
+      },
+      command: ['other']
+    })
+    expect(Log.info).toHaveBeenCalledTimes(2)
+  })
 })

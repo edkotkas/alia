@@ -24,7 +24,8 @@ export class CommandService {
     const options: SpawnOptions = {
       cwd: process.cwd(),
       stdio: 'inherit',
-      shell: al.options.shell
+      shell: al.options.shell,
+      env: Object.assign(process.env, al.options.env ?? {})
     }
 
     child.spawnSync(command, parameters, options)

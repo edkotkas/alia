@@ -19,7 +19,8 @@ export interface Options {
 }
 
 export interface AliasOptions {
-  shell: boolean
+  shell?: boolean,
+  env?: NodeJS.ProcessEnv
 }
 
 export type Alias = Record<string, Command>

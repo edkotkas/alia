@@ -36,23 +36,32 @@ export class InputService {
 
     const params: ActionParameters<FlagModifiers> = { args, data: {}, modifiers: {} }
 
-    if (flag.modifiers) {
-      params.modifiers = flag.modifiers.reduce<FlagModifiers>((acc, key) => {
-        const modRegex = new RegExp(`^--(${key})=?(.+)?`)
-        const param = args.find(a => modRegex.test(a))
+    params.modifiers = flag.modifiers?.reduce<FlagModifiers>((acc, modifier) => {
+      const simple = typeof modifier === 'string'
+      const key = simple ? modifier : modifier.key
+      const modRegex = new RegExp(`^--(${key})=?(.+)?`)
+      const param = args.find(a => modRegex.test(a))
 
-        if (param) {
-          const result = modRegex.exec(param)
-          if (result) {
-            params.data[key] = result[2]
-          }
-
-          acc[key] = param
-        }
-
+      if (!param) {
         return acc
-      }, {})
-    }
+      }
+
+      acc[key] = param
+
+      const result = simple 
+        ? modRegex.exec(param) 
+        : args.filter(a => modifier.format.test(a))
+
+      if (!result) {
+        return acc
+      }
+      
+      params.data[key] = simple 
+        ? result[2] 
+        : result
+
+      return acc
+    }, {}) ?? {}
 
     await flag.action(params)
 
