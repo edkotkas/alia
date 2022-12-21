@@ -34,7 +34,7 @@ export class InputService {
       throw new Error(`Invalid flag provided: ${arg}`)
     }
 
-    const params: ActionParameters<FlagModifiers> = { args, data: {}, modifiers: {} }
+    const params: ActionParameters = { args, data: {}, modifiers: {} }
 
     params.modifiers = flag.modifiers?.reduce<FlagModifiers>((acc, modifier) => {
       const simple = typeof modifier === 'string'

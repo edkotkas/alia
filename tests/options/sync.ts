@@ -1,4 +1,4 @@
-import type { Action, SyncModifiers } from '../../src/models'
+import type { Action, ActionParameters } from '../../src/models'
 import type { ConfigService, GistService} from '../../src/services'
 import { OptionService } from '../../src/services'
 
@@ -64,7 +64,7 @@ describe('Sync', () => {
         modifiers: {
           a: '--a'
         }
-      })
+      } as ActionParameters)
 
       fail()
     } catch (e) {

@@ -187,7 +187,7 @@ export class OptionService {
     }
 
     if (modifiers.separator) {
-      this.configService.setSeparator(data.separator)
+      this.configService.setSeparator(data.separator as string)
       Log.info(`Set the separator to:`, this.configService.getSeparator())
     }
 
@@ -196,7 +196,7 @@ export class OptionService {
         throw new Error('No gist id provided')
       }
 
-      this.configService.setGistId(data.gist)
+      this.configService.setGistId(data.gist as string)
     }
 
     if (modifiers.token) {
@@ -204,7 +204,7 @@ export class OptionService {
         throw new Error('No token provided')
       }
 
-      this.configService.setToken(data.token)
+      this.configService.setToken(data.token as string)
     }
 
     if (modifiers.path) {

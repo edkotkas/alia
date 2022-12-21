@@ -5,9 +5,9 @@ export interface Flag {
   action: Action
 }
 
-export type Action = (params: ActionParameters<FlagModifiers>) => Promise<void>
+export type Action<T = FlagModifiers> = (params: ActionParameters<T>) => Promise<void>
 
-export interface ActionParameters<T> {
+export interface ActionParameters<T = FlagModifiers> {
   args: string[]
   data: ActionData<T>
   modifiers: T
@@ -33,7 +33,7 @@ export interface SyncModifiers {
 
 export interface SetModifiers {
   shell?: string
-  env?: string | ModifierData
+  env?: string  | ModifierData
 }
 
 export interface ListModifiers {

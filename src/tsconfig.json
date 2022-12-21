@@ -4,9 +4,6 @@
     "rootDir": ".",
     "outDir": "../dist"
   },
-  "include": [
-    "main.ts"
-  ],
   "references": [
     { "path": "../tsconfig.build.json" }
   ]
