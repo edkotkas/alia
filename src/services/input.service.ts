@@ -52,13 +52,11 @@ export class InputService {
         ? modRegex.exec(param) 
         : args.filter(a => modifier.format.test(a))
 
-      if (!result) {
-        return acc
-      }
-      
-      params.data[key] = simple 
+      if (result) {
+        params.data[key] = simple 
         ? result[2] 
         : result
+      }
 
       return acc
     }, {}) ?? {}
