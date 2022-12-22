@@ -22,12 +22,12 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: dist
-          path: dist
+          path: ./dist
       - name: Upload Coverage
         uses: actions/upload-artifact@v3
         with:
           name: coverage
-          path: coverage
+          path: ./coverage
 
   publish-npm:
     needs: build
@@ -40,10 +40,12 @@ jobs:
           registry-url: https://registry.npmjs.org/
       - name: Download Dist
         uses: actions/download-artifact@v3
-        with:
+      with:
           name: dist
+          path: ./dist
       - name: Publish NPM
-        run: npm publish --access public
+        run: ls
+        # run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
 
@@ -61,9 +63,11 @@ jobs:
             registry-url: https://npm.pkg.github.com/
         - name: Download Dist
           uses: actions/download-artifact@v3
-          with:
-            name: dist
+      with:
+          name: dist
+          path: ./dist
         - name: Publish GHR
-          run: npm publish
+          run: ls
+          # run: npm publish
           env:
             NODE_AUTH_TOKEN: ${{secrets.GPR_TOKEN}}
