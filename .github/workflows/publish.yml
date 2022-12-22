@@ -44,7 +44,7 @@ jobs:
             name: dist
             path: ./dist
       - name: Publish NPM
-        run: ls
+        run: ls dist
         # run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
@@ -67,7 +67,7 @@ jobs:
             name: dist
             path: ./dist
         - name: Publish GHR
-          run: ls
+          run: ls dist
           # run: npm publish
           env:
             NODE_AUTH_TOKEN: ${{secrets.GPR_TOKEN}}
