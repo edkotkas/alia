@@ -40,9 +40,9 @@ jobs:
           registry-url: https://registry.npmjs.org/
       - name: Download Dist
         uses: actions/download-artifact@v3
-      with:
-          name: dist
-          path: ./dist
+        with:
+            name: dist
+            path: ./dist
       - name: Publish NPM
         run: ls
         # run: npm publish --access public
@@ -63,9 +63,9 @@ jobs:
             registry-url: https://npm.pkg.github.com/
         - name: Download Dist
           uses: actions/download-artifact@v3
-      with:
-          name: dist
-          path: ./dist
+          with:
+            name: dist
+            path: ./dist
         - name: Publish GHR
           run: ls
           # run: npm publish
