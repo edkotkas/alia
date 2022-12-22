@@ -8,15 +8,28 @@ describe('InputService', () => {
   let commandServiceSpy: jasmine.SpyObj<CommandService>
 
   let confActionSpy: jasmine.Spy
-
+  let envActionSpy: jasmine.Spy
+  let versionActionSpy: jasmine.Spy
+  
   beforeEach(() => {
     process.argv = ['', '']
 
     confActionSpy = jasmine.createSpy('confAction')
+    envActionSpy = jasmine.createSpy('envActionSpy')
+    versionActionSpy = jasmine.createSpy('versionActionSpy')
 
     optionServiceSpy = jasmine.createSpyObj<OptionService>('OptionService', ['help'], {
       flags: [
-        { full: 'conf', short: 'c', modifiers: ['token', 'gist'], action: confActionSpy }
+        { full: 'conf', short: 'c', modifiers: ['token', 'gist'], action: confActionSpy },
+        { full: 'set', short: 's', modifiers: [{
+          key: 'env',
+          format: /\w+=\w+/
+        }], action: envActionSpy },
+        {
+          full: 'version',
+          short: 'v',
+          action: versionActionSpy
+        }
       ]
     })
 
@@ -95,6 +108,45 @@ describe('InputService', () => {
         args: ['--token=43243gfdsbfdg433g43', '--gist=gh_r422g4g2g'],
         data: { token: '43243gfdsbfdg433g43', gist: 'gh_r422g4g2g' },
         modifiers: { token: '--token=43243gfdsbfdg433g43', gist: '--gist=gh_r422g4g2g' }
+      })
+  })
+
+  it('should read env modifier', async () => {
+    process.argv.push('-s', '--env', 'test=123', 'abc=321', 'env', '--', 'echo', '%test%', '%abc%')
+
+    await inputService.read()
+
+    expect(envActionSpy)
+      .toHaveBeenCalledOnceWith({
+        args: ['--env', 'test=123', 'abc=321', 'env', '--', 'echo', '%test%', '%abc%'],
+        data: { env: ['test=123', 'abc=321'] },
+        modifiers: { env: '--env' }
+      })
+  })
+
+  it('should pass with no modifiers', async () => {
+    process.argv.push('-v')
+
+    await inputService.read()
+
+    expect(versionActionSpy)
+      .toHaveBeenCalledOnceWith({
+        args: [],
+        data: {},
+        modifiers: {}
+      })
+  })
+
+  it('should pass return empty data when no modifier data matches', async () => {
+    process.argv.push('-c', '--token')
+
+    await inputService.read()
+
+    expect(confActionSpy)
+      .toHaveBeenCalledOnceWith({
+        args: ['--token'],
+        data: { token: undefined },
+        modifiers: { token: '--token' }
       })
   })
 })

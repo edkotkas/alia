@@ -2,7 +2,7 @@ import type { ConfigService, GistService} from '../src/services'
 import { OptionService } from '../src/services'
 import { Log } from '../src/logger'
 import pkg from '../package.json' assert { type: 'json' }
-import { Action } from '../src/models'
+import { Action, ActionParameters } from '../src/models'
 
 describe('OptionService', () => {
 
@@ -26,13 +26,13 @@ describe('OptionService', () => {
   })
 
   it('should show correct version', async () => {
-    await versionAction()
+    await versionAction({} as ActionParameters)
 
     expect(Log.info).toHaveBeenCalledOnceWith(pkg.version)
   })
 
   it('should show help', async () => {
-    await helpAction()
+    await helpAction({} as ActionParameters)
 
     expect(Log.info).toHaveBeenCalled()
   })

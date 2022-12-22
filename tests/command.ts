@@ -1,7 +1,6 @@
 import child from 'node:child_process'
-import type { SpawnSyncReturns } from 'node:child_process';
-import type { Command } from './models'
-import type { ConfigService } from '../src/services';
+import type { SpawnSyncReturns } from 'node:child_process'
+import type { ConfigService } from '../src/services'
 import { CommandService } from '../src/services'
 
 describe('CommandService', () => {

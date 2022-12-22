@@ -1,5 +1,4 @@
 import https from 'node:https'
-import * as fs from 'node:fs'
 import type { Config, GistResponse, MetaData } from '../models'
 import type { ConfigService } from './index.js'
 

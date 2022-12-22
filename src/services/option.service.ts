@@ -25,7 +25,10 @@ export class OptionService {
     {
       full: 'set',
       short: 's',
-      modifiers: ['shell'],
+      modifiers: ['shell', {
+        key: 'env',
+        format: /\w+=\w+/
+      }],
       action: (params): Promise<void> => Promise.resolve(this.set(params))
     },
     {
@@ -100,7 +103,7 @@ export class OptionService {
   `)
   }
 
-  public set({ args, modifiers }: ActionParameters<SetModifiers>): void {
+  public set({ args, modifiers, data }: ActionParameters<SetModifiers>): void {
     const separator = this.configService.getSeparator()
     const separatorIndex = args.indexOf(separator)
     if (separatorIndex === -1) {
@@ -120,18 +123,31 @@ export class OptionService {
 
     const alias = this.configService.getAlias(key)
 
+    const env: NodeJS.ProcessEnv = {}
+    if (data.env && Array.isArray(data.env)) {
+      data.env.reduce((acc, val) => {
+        const [key, value] = val.split('=')
+        acc[key] = value
+        return acc
+      }, env)
+    }
+
     if (alias) {
       Log.info(`Unset alias: ${key} ${separator} ${alias.command.join(' ')}`)
     }
 
     this.configService.setAlias(key, {
       options: {
-        shell: !!modifiers.shell
+        shell: !!modifiers.shell,
+        env
       },
       command
     })
 
     Log.info(`Set alias: ${key} ${separator} ${command.join(' ')}`)
+    if (Object.values(env).length && Array.isArray(data.env)) {
+      Log.info(`With ENV:\n\t${data.env.join('\n\t')}`)
+    }
   }
 
   public remove({ args: [key] }: ActionParameters<FlagModifiers>): void {
@@ -171,7 +187,7 @@ export class OptionService {
     }
 
     if (modifiers.separator) {
-      this.configService.setSeparator(data.separator)
+      this.configService.setSeparator(data.separator as string)
       Log.info(`Set the separator to:`, this.configService.getSeparator())
     }
 
@@ -180,7 +196,7 @@ export class OptionService {
         throw new Error('No gist id provided')
       }
 
-      this.configService.setGistId(data.gist)
+      this.configService.setGistId(data.gist as string)
     }
 
     if (modifiers.token) {
@@ -188,7 +204,7 @@ export class OptionService {
         throw new Error('No token provided')
       }
 
-      this.configService.setToken(data.token)
+      this.configService.setToken(data.token as string)
     }
 
     if (modifiers.path) {

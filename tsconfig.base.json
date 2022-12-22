@@ -9,7 +9,7 @@
     "experimentalDecorators": true,
     "strict": true
   },
-   "exclude": [
+  "exclude": [
     "node_modules"
   ]
 }

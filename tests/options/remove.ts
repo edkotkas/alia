@@ -1,5 +1,5 @@
 import { Log } from '../../src/logger'
-import type { Action, ActionParameters, FlagModifier } from '../../src/models'
+import type { Action, ActionParameters } from '../../src/models'
 import type { ConfigService, GistService} from '../../src/services'
 import {  OptionService } from '../../src/services'
 
@@ -30,7 +30,7 @@ describe('Remove', () => {
       args: [''],
       data: {},
       modifiers: {}
-    } as ActionParameters<FlagModifier>)
+    } as ActionParameters)
 
     expect(configServiceSpy.removeAlias).toHaveBeenCalled()
   })
@@ -44,7 +44,7 @@ describe('Remove', () => {
         args: [''],
         data: {},
         modifiers: {}
-      } as ActionParameters<FlagModifier>)
+      } as ActionParameters)
 
       fail()
     } catch (e) {
