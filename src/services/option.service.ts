@@ -139,7 +139,7 @@ export class OptionService {
     this.configService.setAlias(key, {
       options: {
         shell: !!modifiers.shell,
-        env: Object.assign({}, process.env, env)
+        env
       },
       command
     })
