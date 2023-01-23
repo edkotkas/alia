@@ -1,6 +1,6 @@
 export abstract class Log {
   public static info(...data: unknown[]): void {
-    console.log(...data)
+    console.info(...data)
   }
 
   public static error(...data: unknown[]): void {

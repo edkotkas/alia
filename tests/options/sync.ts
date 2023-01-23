@@ -11,7 +11,7 @@ describe('Sync', () => {
   beforeEach(() => {
     gistServiceSpy = jasmine.createSpyObj<GistService>('GistService', ['pull', 'push'])
     optionService = new OptionService({} as ConfigService, gistServiceSpy)
-    action = optionService.flags.find(f => f.full === 'sync')?.action as unknown as Action
+    action = optionService.flags.find(f => f.key === 'sync')?.action as unknown as Action
   })
 
   it('should pull when no arguments passed', async () => {

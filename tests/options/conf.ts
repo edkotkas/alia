@@ -13,7 +13,7 @@ describe('Conf', () => {
     configServiceSpy = jasmine.createSpyObj<ConfigService>('ConfigService', ['getSeparator', 'setSeparator', 'setGistId', 'setToken'])
     optionService = new OptionService(configServiceSpy, {} as GistService)
 
-    action = optionService.flags.find(f => f.full === 'conf')?.action as unknown as Action
+    action = optionService.flags.find(f => f.key === 'conf')?.action as unknown as Action
 
     spyOn(Log, 'info').and.callFake(() => ({}))
   })

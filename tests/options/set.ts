@@ -12,7 +12,7 @@ describe('Set', () => {
   beforeEach(() => {
     configServiceSpy = jasmine.createSpyObj<ConfigService>('ConfigService', ['getSeparator', 'getAlias', 'setAlias'])
     optionService = new OptionService(configServiceSpy, {} as GistService)
-    action = optionService.flags.find(f => f.full === 'set')?.action as unknown as Action
+    action = optionService.flags.find(f => f.key === 'set')?.action as unknown as Action
 
     configServiceSpy.getSeparator.and.returnValue('--')
 
@@ -105,6 +105,6 @@ describe('Set', () => {
       },
       command: ['other']
     })
-    expect(Log.info).toHaveBeenCalledTimes(2)
+    expect(Log.info).toHaveBeenCalledTimes(3)
   })
 })

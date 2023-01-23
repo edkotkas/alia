@@ -20,7 +20,7 @@
   },
   "rules": {
     "semicolon": [
-      true,
+      0,
       "never"
     ],
     "@typescript-eslint/explicit-function-return-type": "warn",

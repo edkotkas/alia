@@ -12,7 +12,7 @@ describe('Remove', () => {
   beforeEach(() => {
     configServiceSpy = jasmine.createSpyObj<ConfigService>('ConfigService', ['getAlias', 'removeAlias', 'setGistId', 'setToken'])
     optionService = new OptionService(configServiceSpy, {} as GistService)
-    action = optionService.flags.find(f => f.full === 'remove')?.action as unknown as Action
+    action = optionService.flags.find(f => f.key === 'remove')?.action as unknown as Action
     spyOn(Log, 'info').and.callFake(() => ({}))
   })
 

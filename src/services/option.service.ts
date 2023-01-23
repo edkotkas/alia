@@ -1,5 +1,9 @@
 import pkg from '../../package.json' assert { type: 'json' }
-import type { Flag, ActionParameters, ConfModifiers, SetModifiers, SyncModifiers, ListModifiers, Alias, FlagModifiers } from '../models'
+import type { 
+  Flag, ActionParameters, ConfModifiers, 
+  SetModifiers, SyncModifiers, ListModifiers, 
+  Alias, ModifierData 
+} from '../models'
 
 import { Log } from '../logger.js'
 import type { ConfigService, GistService } from './index.js'
@@ -13,45 +17,89 @@ export class OptionService {
 
   public flags: Flag[] = [
     {
-      full: 'version',
+      key: 'version',
       short: 'v',
+      description: 'show version',
       action: (): Promise<void> => Promise.resolve(this.version())
     },
     {
-      full: 'help',
+      key: 'help',
       short: 'h',
+      description: 'show help',
       action: (): Promise<void> => Promise.resolve(this.help())
     },
     {
-      full: 'set',
+      key: 'set',
       short: 's',
-      modifiers: ['shell', {
-        key: 'env',
-        format: /\w+=\w+/
-      }],
+      description: 'set an alias',
+      modifiers: [
+        {
+          key: 'shell',
+          description: 'enable shell mode'
+        },
+        {
+          key: 'env',
+          format: /\w+=\w+/
+        }
+      ],
       action: (params): Promise<void> => Promise.resolve(this.set(params))
     },
     {
-      full: 'remove',
+      key: 'remove',
       short: 'r',
+      description: 'remove an alias',
       action: (params): Promise<void> => Promise.resolve(this.remove(params))
     },
     {
-      full: 'list',
+      key: 'list',
       short: 'l',
-      modifiers: ['sort'],
+      description: 'list available alias',
+      modifiers: [
+        {
+          key: 'sort',
+          description: 'sort alphabetically'
+        }
+      ],
       action: (params): Promise<void> => Promise.resolve(this.list(params))
     },
     {
-      full: 'conf',
+      key: 'conf',
       short: 'c',
-      modifiers: ['separator', 'token', 'gist', 'path'],
+      description: 'alia config (must use specify option)',
+      modifiers: [
+        {
+          key: 'separator',
+          description: 'set alias separator (default: @)'
+        },
+        {
+          key: 'token',
+          description: 'set the personal access token for gist sync'
+        },
+        {
+          key: 'gist',
+          description: 'set the gist id to use for sync'
+        },
+        {
+          key: 'path',
+          description: 'show config file path'
+        }
+      ],
       action: (params): Promise<void> => Promise.resolve(this.conf(params))
     },
     {
-      full: 'sync',
+      key: 'sync',
       short: 'sy',
-      modifiers: ['push', 'pull'],
+      description: 'backup/restore config from gist (default: restore)',
+      modifiers: [
+        {
+          key: 'push',
+          description: 'backup your current config'
+        },
+        {
+          key: 'pull',
+          description: 'restore latest config from gist'
+        }
+      ],
       action: (params): Promise<void> => this.sync(params)
     }
   ]
@@ -61,36 +109,38 @@ export class OptionService {
   }
 
   public help(): void {
-    const separator = this.configService.getSeparator()
     Log.info(`
-      Usage
+      Usage:
 
-        $ al [options] [alias] [${separator}] [command]
+        $ al [options] [alias] [separator] [command]
 
-      Options
+      Options:
+    `)
 
-        --version, -v     show version
-        --help, -h        show this
+    this.flags
+      .forEach((flag) => {
+        const short = flag.short 
+          ? `, -${flag.short}`
+          : ''
 
-        --set, -s         set alias
-          --shell             enable shell mode
+        const desc = (f: Flag | ModifierData): string => f.description
+          ? `\t${f.description}`
+          : ''
 
-        --remove, -r      remove alias
+        Log.info(`\t--${flag.key}${short}${desc(flag)}`)
+        const mods = (flag.modifiers?.filter(m => m.description) ?? [])
+        if (mods.length) {
+          mods.forEach(m => {
+            Log.info(`\t  --${m.key}${desc(m)}}`)
+          })
+        }
+        Log.info('')
+    })
 
-        --list, -l        list available alias
-          --sort              sort alphabetically
+    const separator = this.configService.getSeparator()
 
-        --conf, -c        change alia configuration
-          --separator=[string]                set alias separator (default: @)
-          --=token=<your github api token>    set the api token for gist sync
-          --gist=<your gist id>               set the gist id to use for sync
-          --path                              show config file path
-
-        --sync, -sy        backup/restore your config (default: restore)
-          --push             backup your current config
-          --pull             restore config from gist
-
-      Examples
+    Log.info(`
+      Examples:
 
         $ al -s gp ${separator} git push
           > Added: gp ${separator} git push
@@ -100,7 +150,7 @@ export class OptionService {
 
         $ al -r gp
           > Removed: gp
-  `)
+    `)
   }
 
   public set({ args, modifiers, data }: ActionParameters<SetModifiers>): void {
@@ -145,12 +195,17 @@ export class OptionService {
     })
 
     Log.info(`Set alias: ${key} ${separator} ${command.join(' ')}`)
+
+    if (!!modifiers.shell) {
+      Log.info(`With SHELL: enabled`)
+    }
+
     if (Object.values(env).length && Array.isArray(data.env)) {
       Log.info(`With ENV:\n\t${data.env.join('\n\t')}`)
     }
   }
 
-  public remove({ args: [key] }: ActionParameters<FlagModifiers>): void {
+  public remove({ args: [key] }: ActionParameters): void {
     if (!this.configService.getAlias(key)) {
       throw new Error(`Alias '${key}' does not exist`)
     }
@@ -169,7 +224,7 @@ export class OptionService {
     Log.info((modifiers.sort ? l.sort() : l).join('\n'))
   }
 
-  public async sync({ modifiers } : ActionParameters<SyncModifiers>): Promise<void> {
+  public async sync({ modifiers }: ActionParameters<SyncModifiers>): Promise<void> {
     if (Object.keys(modifiers).length === 0 || modifiers.pull) {
       return await this.gistService.pull()
     }

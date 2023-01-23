@@ -10,7 +10,7 @@ describe('InputService', () => {
   let confActionSpy: jasmine.Spy
   let envActionSpy: jasmine.Spy
   let versionActionSpy: jasmine.Spy
-  
+
   beforeEach(() => {
     process.argv = ['', '']
 
@@ -20,13 +20,21 @@ describe('InputService', () => {
 
     optionServiceSpy = jasmine.createSpyObj<OptionService>('OptionService', ['help'], {
       flags: [
-        { full: 'conf', short: 'c', modifiers: ['token', 'gist'], action: confActionSpy },
-        { full: 'set', short: 's', modifiers: [{
-          key: 'env',
-          format: /\w+=\w+/
-        }], action: envActionSpy },
         {
-          full: 'version',
+          key: 'conf', short: 'c', modifiers: [
+            { key: 'token' }, { key: 'gist' }
+          ], action: confActionSpy
+        },
+        {
+          key: 'set', short: 's', modifiers: [
+            {
+              key: 'env',
+              format: /\w+=\w+/
+            }
+          ], action: envActionSpy
+        },
+        {
+          key: 'version',
           short: 'v',
           action: versionActionSpy
         }
@@ -145,7 +153,7 @@ describe('InputService', () => {
     expect(confActionSpy)
       .toHaveBeenCalledOnceWith({
         args: ['--token'],
-        data: { token: undefined },
+        data: { },
         modifiers: { token: '--token' }
       })
   })

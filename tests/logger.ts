@@ -3,14 +3,14 @@ import { Log } from '../src/logger'
 describe('Logger', () => {
 
     beforeEach(() => {
-        spyOn(console, 'log').and.callFake(() => ({}))
+        spyOn(console, 'info').and.callFake(() => ({}))
         spyOn(console, 'error').and.callFake(() => ({}))
     })
 
-    it('should call console log', () => {
+    it('should call console info', () => {
         Log.info('test')
 
-        expect(console.log).toHaveBeenCalledOnceWith('test')
+        expect(console.info).toHaveBeenCalledOnceWith('test')
     })
 
     it('should call console error', () => {
