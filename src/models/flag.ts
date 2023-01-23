@@ -1,7 +1,9 @@
 export interface Flag {
-  full: string
+  key: string
   short?: string
-  modifiers?: (keyof FlagModifiers | ModifierData)[]
+  description?: string
+  usage?: string
+  modifiers?: ModifierData[]
   action: Action
 }
 
@@ -14,10 +16,13 @@ export interface ActionParameters<T = FlagModifiers> {
 }
 
 export type ActionData<T> = {
-  [key in keyof T]: string | string[]
+  [key in keyof T]?: string | string[]
 }
 
-export interface FlagModifiers extends ConfModifiers, SyncModifiers, SetModifiers, ListModifiers {}
+export type FlagModifier = keyof ConfModifiers | keyof SyncModifiers | keyof SetModifiers | keyof ListModifiers
+export type FlagModifiers = {
+  [key in FlagModifier]?: string
+}
 
 export interface ConfModifiers {
   separator?: string
@@ -33,7 +38,7 @@ export interface SyncModifiers {
 
 export interface SetModifiers {
   shell?: string
-  env?: string  | ModifierData
+  env?: string
 }
 
 export interface ListModifiers {
@@ -42,5 +47,6 @@ export interface ListModifiers {
 
 export interface ModifierData {
   key: keyof FlagModifiers,
-  format: RegExp
+  format?: RegExp,
+  description?: string
 }

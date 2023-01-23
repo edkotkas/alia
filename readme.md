@@ -1,8 +1,8 @@
 # Alia 
-[![install size](https://packagephobia.com/badge?p=alia)](https://packagephobia.com/result?p=alia)
+[![install size](https://packagephobia.com/badge?p=alia)](https://packagephobia.com/result?p=@edkotkas/alia)
 [![c8 config on GitHub](https://img.shields.io/nycrc/edkotkas/alia?config=.c8rc.json)](coverage\index.html)
-![Snyk Vulnerabilities for npm package](https://img.shields.io/snyk/vulnerabilities/npm/alia)
-![npm](https://img.shields.io/npm/v/alia)
+[![Snyk Vulnerabilities for npm package](https://img.shields.io/snyk/vulnerabilities/npm/@edkotkas/alia)](https://img.shields.io/snyk/vulnerabilities/npm/@edkotkas/alia)
+[![npm](https://img.shields.io/npm/v/@edkotkas/alia)](https://www.npmjs.com/package/@edkotkas/alia)
 
 ## Alias To Go
 
@@ -13,7 +13,7 @@ Simple and lightweight cross-platform Alias solution w/ Gist Sync support in Nod
 ## Install
 
 ```bash
-npm install -g alia
+npm install -g @edkotkas/alia
 ```
 
 ## Usage

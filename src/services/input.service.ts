@@ -26,9 +26,8 @@ export class InputService {
     }
 
     const flags = this.optionService.flags
-    const flagType = dashes[0].length === 2 ? 'full' : 'short'
     const key = arg.replace(dashes[0], '')
-    const flag = flags.find(f => f[flagType] === key)
+    const flag = flags.find(f => f.key === key || f.short === key)
 
     if (!flag) {
       throw new Error(`Invalid flag provided: ${arg}`)
@@ -36,10 +35,8 @@ export class InputService {
 
     const params: ActionParameters = { args, data: {}, modifiers: {} }
 
-    params.modifiers = flag.modifiers?.reduce<FlagModifiers>((acc, modifier) => {
-      const simple = typeof modifier === 'string'
-      const key = simple ? modifier : modifier.key
-      const modRegex = new RegExp(`^--(${key})=?(.+)?`)
+    params.modifiers = flag.modifiers?.reduce<FlagModifiers>((acc, { key, format }) => {
+      const modRegex = new RegExp(`^--(?:${key})=?(.+)?`)
       const param = args.find(a => modRegex.test(a))
 
       if (!param) {
@@ -48,14 +45,15 @@ export class InputService {
 
       acc[key] = param
 
-      const result = simple 
-        ? modRegex.exec(param) 
-        : args.filter(a => modifier.format.test(a))
+      const result = !format
+        ? modRegex.exec(param)?.at(1)
+        : args.filter(a => format.test(a))
 
       if (result) {
-        params.data[key] = simple 
-        ? result[2] 
-        : result
+        params.data = {
+          ...params.data,
+          [key]: result
+        }
       }
 
       return acc

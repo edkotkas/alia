@@ -1,8 +1,8 @@
 import type { ConfigService, GistService} from '../src/services'
+import type { Action, ActionParameters } from '../src/models'
 import { OptionService } from '../src/services'
 import { Log } from '../src/logger'
 import pkg from '../package.json' assert { type: 'json' }
-import { Action, ActionParameters } from '../src/models'
 
 describe('OptionService', () => {
 
@@ -15,8 +15,8 @@ describe('OptionService', () => {
     const gistService = jasmine.createSpyObj<GistService>('GistService', ['push', 'pull'])
     optionService = new OptionService(configService, gistService)
 
-    helpAction = optionService.flags.find(f => f.full === 'help')?.action as unknown as Action
-    versionAction = optionService.flags.find(f => f.full === 'version')?.action as unknown as Action
+    helpAction = optionService.flags.find(f => f.key === 'help')?.action as unknown as Action
+    versionAction = optionService.flags.find(f => f.key === 'version')?.action as unknown as Action
 
     spyOn(Log, 'info').and.callFake(() => ({}))
   })
@@ -35,5 +35,19 @@ describe('OptionService', () => {
     await helpAction({} as ActionParameters)
 
     expect(Log.info).toHaveBeenCalled()
+  })
+
+
+  it('should show help with no short flag or description', async () => {
+    optionService.flags = [
+      {
+        action: (): Promise<void> => Promise.resolve(),
+        key: 'noshort'
+      }
+    ]
+
+    await helpAction({} as ActionParameters)
+
+    expect(Log.info).toHaveBeenCalledWith(`\t--noshort`)
   })
 })

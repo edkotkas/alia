@@ -40,7 +40,7 @@ describe('List', () => {
 
     optionService = new OptionService(configServiceSpy, {} as GistService)
 
-    action = optionService.flags.find(f => f.full === 'list')?.action as unknown as Action
+    action = optionService.flags.find(f => f.key === 'list')?.action as unknown as Action
 
     spyOn(Log, 'info').and.callFake(() => ({}))
   })
