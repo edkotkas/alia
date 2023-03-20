@@ -1,4 +1,4 @@
-import { Log } from '../../src/logger'
+import Log from '../../src/logger'
 import type { Action, ActionParameters } from '../../src/models'
 import type { ConfigService, GistService} from '../../src/services'
 import {  OptionService } from '../../src/services'
@@ -24,7 +24,7 @@ describe('Remove', () => {
       command: ['command', 'test']
     })
 
-    configServiceSpy.removeAlias.and.callFake(() => ({}))
+    const spy = configServiceSpy.removeAlias.and.callFake(() => ({}))
 
     await action({
       args: [''],
@@ -32,7 +32,7 @@ describe('Remove', () => {
       modifiers: {}
     } as ActionParameters)
 
-    expect(configServiceSpy.removeAlias).toHaveBeenCalled()
+    expect(spy).toHaveBeenCalled()
   })
 
   it('should fail to remove alias', async () => {

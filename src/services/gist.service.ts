@@ -2,7 +2,7 @@ import https from 'node:https'
 import type { Config, GistResponse, MetaData } from '../models'
 import type { ConfigService } from './index.js'
 
-import { Log } from '../logger.js'
+import Log from '../logger.js'
 
 export class GistService {
 

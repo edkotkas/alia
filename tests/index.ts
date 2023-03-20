@@ -1,6 +1,6 @@
 import Jasmine from 'jasmine'
 
-void async function() {
+void async function(): Promise<void> {
   const jasmine = new Jasmine({})
 
   jasmine.loadConfig({

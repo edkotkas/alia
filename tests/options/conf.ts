@@ -1,4 +1,4 @@
-import { Log } from '../../src/logger'
+import Log from '../../src/logger'
 import type { Action } from '../../src/models'
 import type { ConfigService, GistService } from '../../src/services'
 import { OptionService } from '../../src/services'
@@ -9,13 +9,15 @@ describe('Conf', () => {
   let configServiceSpy: jasmine.SpyObj<ConfigService>
   let action: Action
 
+  let infoSpy: jasmine.Spy
+
   beforeEach(() => {
     configServiceSpy = jasmine.createSpyObj<ConfigService>('ConfigService', ['getSeparator', 'setSeparator', 'setGistId', 'setToken'])
     optionService = new OptionService(configServiceSpy, {} as GistService)
 
     action = optionService.flags.find(f => f.key === 'conf')?.action as unknown as Action
 
-    spyOn(Log, 'info').and.callFake(() => ({}))
+    infoSpy = spyOn(Log, 'info').and.callFake(() => ({}))
   })
 
   it('should fail when no modifiers provided', () => {
@@ -37,13 +39,13 @@ describe('Conf', () => {
       }
     })
 
-    expect(Log.info).toHaveBeenCalledOnceWith('Config path:', configServiceSpy.filePath)
+    expect(infoSpy).toHaveBeenCalledOnceWith('Config path:', configServiceSpy.filePath)
   })
 
   describe('Separator', () => {
     it('should set separator to default when no data passed', async () => {
       configServiceSpy.getSeparator.and.returnValue('@')
-      configServiceSpy.setSeparator.and.callFake(() => ({}))
+      const spy = configServiceSpy.setSeparator.and.callFake(() => ({}))
 
       await action({
         args: [],
@@ -53,11 +55,11 @@ describe('Conf', () => {
         }
       })
 
-      expect(configServiceSpy.setSeparator).toHaveBeenCalledWith(undefined)
+      expect(spy).toHaveBeenCalledWith(undefined)
     })
 
     it('should set to specified string', async () => {
-      configServiceSpy.setSeparator.and.callFake(() => ({}))
+      const spy = configServiceSpy.setSeparator.and.callFake(() => ({}))
 
       await action({
         args: [],
@@ -69,7 +71,7 @@ describe('Conf', () => {
         }
       })
 
-      expect(configServiceSpy.setSeparator).toHaveBeenCalledWith('--')
+      expect(spy).toHaveBeenCalledWith('--')
     })
   })
 
@@ -91,7 +93,7 @@ describe('Conf', () => {
     })
 
     it('should set to specified id', async () => {
-      configServiceSpy.setGistId.and.callFake(() => ({}))
+      const spy = configServiceSpy.setGistId.and.callFake(() => ({}))
 
       await action({
         args: [],
@@ -103,7 +105,7 @@ describe('Conf', () => {
         }
       })
 
-      expect(configServiceSpy.setGistId).toHaveBeenCalledWith('hgf1d56h159f1651')
+      expect(spy).toHaveBeenCalledWith('hgf1d56h159f1651')
     })
   })
 
@@ -125,7 +127,7 @@ describe('Conf', () => {
     })
 
     it('should set to specified id', async () => {
-      configServiceSpy.setToken.and.callFake(() => ({}))
+      const spy = configServiceSpy.setToken.and.callFake(() => ({}))
 
       await action({
         args: [],
@@ -137,7 +139,7 @@ describe('Conf', () => {
         }
       })
 
-      expect(configServiceSpy.setToken).toHaveBeenCalledWith('hgf1d56h159f1651')
+      expect(spy).toHaveBeenCalledWith('hgf1d56h159f1651')
     })
   })
 })

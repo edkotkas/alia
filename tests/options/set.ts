@@ -1,4 +1,4 @@
-import { Log } from '../../src/logger'
+import Log from '../../src/logger'
 import type { Action } from '../../src/models'
 import type { ConfigService,  GistService} from '../../src/services'
 import {  OptionService } from '../../src/services'
@@ -9,6 +9,8 @@ describe('Set', () => {
   let configServiceSpy: jasmine.SpyObj<ConfigService>
   let action: Action
 
+  let infoSpy: jasmine.Spy
+
   beforeEach(() => {
     configServiceSpy = jasmine.createSpyObj<ConfigService>('ConfigService', ['getSeparator', 'getAlias', 'setAlias'])
     optionService = new OptionService(configServiceSpy, {} as GistService)
@@ -16,7 +18,7 @@ describe('Set', () => {
 
     configServiceSpy.getSeparator.and.returnValue('--')
 
-    spyOn(Log, 'info').and.callFake(() => {})
+    infoSpy = spyOn(Log, 'info').and.callFake(() => ({}))
   })
 
   it('should throw error when no separator', async () => {
@@ -49,7 +51,7 @@ describe('Set', () => {
 
   it('should set new alias', async () => {
     configServiceSpy.getAlias.and.returnValue(undefined)
-    configServiceSpy.setAlias.and.callFake(() => ({}))
+    const spy = configServiceSpy.setAlias.and.callFake(() => ({}))
 
     await action({
       args: ['echo', '--', 'test'],
@@ -57,8 +59,8 @@ describe('Set', () => {
       modifiers: {}
     })
 
-    expect(configServiceSpy.setAlias).toHaveBeenCalled()
-    expect(Log.info).toHaveBeenCalled()
+    expect(spy).toHaveBeenCalled()
+    expect(infoSpy).toHaveBeenCalled()
   })
 
   it('should update existing alias', async () => {
@@ -68,7 +70,8 @@ describe('Set', () => {
       },
       command: ['echo', '--', 'test']
     })
-    configServiceSpy.setAlias.and.callFake(() => ({}))
+
+    const spy = configServiceSpy.setAlias.and.callFake(() => ({}))
 
     await action({
       args: ['echo', '--', 'other'],
@@ -76,13 +79,13 @@ describe('Set', () => {
       modifiers: {}
     })
 
-    expect(configServiceSpy.setAlias).toHaveBeenCalled()
-    expect(Log.info).toHaveBeenCalledTimes(2)
+    expect(spy).toHaveBeenCalled()
+    expect(infoSpy).toHaveBeenCalledTimes(2)
   })
 
   it('should set alias with env variable', async () => {
     configServiceSpy.getAlias.and.returnValue(undefined)
-    configServiceSpy.setAlias.and.callFake(() => ({}))
+    const spy = configServiceSpy.setAlias.and.callFake(() => ({}))
     process.env = {}
 
     await action({
@@ -96,7 +99,7 @@ describe('Set', () => {
       }
     })
 
-    expect(configServiceSpy.setAlias).toHaveBeenCalledOnceWith('echo', {
+    expect(spy).toHaveBeenCalledOnceWith('echo', {
       options: {
         shell: true,
         env: {
@@ -105,6 +108,6 @@ describe('Set', () => {
       },
       command: ['other']
     })
-    expect(Log.info).toHaveBeenCalledTimes(3)
+    expect(infoSpy).toHaveBeenCalledTimes(3)
   })
 })

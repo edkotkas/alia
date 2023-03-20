@@ -1,10 +1,11 @@
 import type Mocker from 'http-request-mock/src/mocker/mocker-for-node'
 import HttpRequestMock from 'http-request-mock'
 
-import { Log } from '../src/logger'
 import type { ConfigService} from '../src/services'
+import type { Config, MetaData } from '../src/models'
+
+import Log from '../src/logger'
 import { GistService } from '../src/services'
-import { Config, MetaData } from '../src/models'
 
 describe('GistService', () => {
 
@@ -14,7 +15,8 @@ describe('GistService', () => {
   let configService: jasmine.SpyObj<ConfigService>
   let mocker: Mocker
   let configSpy: jasmine.SpyObj<Config>
-  let logSpy: jasmine.Spy
+  let infoSpy: jasmine.Spy
+  let saveSpy: jasmine.Spy
 
   beforeAll(() => {
     mocker = HttpRequestMock.setup()
@@ -32,14 +34,14 @@ describe('GistService', () => {
 
     configService.getGistId.and.returnValue('gistId')
     configService.getToken.and.returnValue('token')
-    configService.save.and.callFake(() => ({}))
+    saveSpy = configService.save.and.callFake(() => ({}))
     configService.fileName = 'fileName'
     configService.filePath = 'filePath'
 
 
     gistService = new GistService(configService)
 
-    logSpy = spyOn(Log, 'info').and.callFake(() => ({}))
+    infoSpy = spyOn(Log, 'info').and.callFake(() => ({}))
   })
 
   describe('Pull', () => {
@@ -106,14 +108,14 @@ describe('GistService', () => {
       })
   
       await expectAsync(gistService.pull()).toBeResolved()
-      expect(configService.save).toHaveBeenCalled()
+      expect(saveSpy).toHaveBeenCalled()
     })
   })
 
   describe('Push', () => {
     beforeEach(() => {
       configSpy.meta = {} as MetaData
-      logSpy.calls.reset()
+      infoSpy.calls.reset()
     })
 
     it('should fail to push to gist', async () => {
@@ -136,7 +138,7 @@ describe('GistService', () => {
 
       await gistService.push()
   
-      expect(Log.info).toHaveBeenCalledWith('...Done:', 'test')
+      expect(infoSpy).toHaveBeenCalledWith('...Done:', 'test')
     })
   })
 })

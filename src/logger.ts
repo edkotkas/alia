@@ -1,9 +1,10 @@
-export abstract class Log {
-  public static info(...data: unknown[]): void {
-    console.info(...data)
-  }
-
-  public static error(...data: unknown[]): void {
-    console.error(...data)
-  }
+export function info(...data: unknown[]): void {
+  console.info(...data)
 }
+
+export function error(...data: unknown[]): void {
+  console.error(...data)
+}
+
+
+export default { info, error }

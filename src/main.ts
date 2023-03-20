@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { Log } from './logger.js'
+import Log from './logger.js'
 import { CommandService, ConfigService, GistService, InputService, OptionService } from './services/index.js'
 
 async function start(): Promise<void> {

@@ -1,4 +1,4 @@
-import { Log } from '../src/logger'
+import Log from '../src/logger'
 
 describe('Logger', () => {
 
