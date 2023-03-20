@@ -1,9 +1,9 @@
-import type { Config } from '../src/models'
-import { Log } from '../src/logger'
-import { ConfigService } from '../src/services/config.service'
 import path from 'node:path'
 import nfs from 'node:fs'
-import { Readline, Interface } from 'node:readline/promises'
+import type { Config } from '../src/models'
+import type { Interface } from 'node:readline/promises'
+import Log from '../src/logger'
+import { ConfigService } from '../src/services/config.service'
 
 describe('ConfigService', () => {
 
@@ -34,6 +34,8 @@ describe('ConfigService', () => {
     }
   }
 
+  let infoSpy: jasmine.Spy
+
   beforeEach(() => {
     configService = new ConfigService()
     configService.fs = fs
@@ -44,7 +46,7 @@ describe('ConfigService', () => {
       testConfig = data
     })
 
-    spyOn(Log, 'info').and.callFake(() => ({}))
+    infoSpy = spyOn(Log, 'info').and.callFake(() => ({}))
   })
 
   describe('Wrappers', () => {
@@ -70,11 +72,11 @@ describe('ConfigService', () => {
 
     it('should prompt for answer from cli', async () => {
       const rli = jasmine.createSpyObj<Interface>('Interface', ['question'])
-      rli.question.and.resolveTo()
+      const spy = rli.question.and.resolveTo()
       
       await cs.rl.question(rli, 'Test')
 
-      expect(rli.question).toHaveBeenCalled()
+      expect(spy).toHaveBeenCalled()
     })
 
     afterAll(() => {
@@ -90,7 +92,7 @@ describe('ConfigService', () => {
   it('should initialise new config', async () => {
     fs.exists.and.returnValue(false)
     await configService.init()
-    expect(Log.info).toHaveBeenCalledOnceWith('Created config:', configService.filePath)
+    expect(infoSpy).toHaveBeenCalledOnceWith('Created config:', configService.filePath)
   })
 
   it('should not overwrite existing config', async () => {
@@ -99,7 +101,7 @@ describe('ConfigService', () => {
 
     await configService.init()
 
-    expect(Log.info).toHaveBeenCalled()
+    expect(infoSpy).toHaveBeenCalled()
   })
 
   it('should overwrite existing config', async () => {
@@ -108,7 +110,7 @@ describe('ConfigService', () => {
     
     await configService.init()
 
-    expect(Log.info).not.toHaveBeenCalled()
+    expect(infoSpy).not.toHaveBeenCalled()
   })
 
   it('should get alias', () => {

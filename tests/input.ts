@@ -87,9 +87,11 @@ describe('InputService', () => {
   })
 
   it('should show help with no params', async () => {
+    const spy = optionServiceSpy.help.and.callThrough()
     await inputService.read()
 
-    expect(optionServiceSpy.help).toHaveBeenCalled()
+
+    expect(spy).toHaveBeenCalled()
   })
 
   it('should throw exception with invalid params', async () => {
@@ -99,11 +101,12 @@ describe('InputService', () => {
   })
 
   it('should send to command service', async () => {
+    const spy = commandServiceSpy.run.and.callThrough()
     process.argv.push('test')
 
     await inputService.read()
 
-    expect(commandServiceSpy.run).toHaveBeenCalled()
+    expect(spy).toHaveBeenCalled()
   })
 
   it('should read short options', async () => {

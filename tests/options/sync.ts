@@ -15,7 +15,7 @@ describe('Sync', () => {
   })
 
   it('should pull when no arguments passed', async () => {
-    gistServiceSpy.pull.and.resolveTo()
+    const spy = gistServiceSpy.pull.and.resolveTo()
 
     await action({
       args: [],
@@ -23,11 +23,11 @@ describe('Sync', () => {
       modifiers: {}
     })
 
-    expect(gistServiceSpy.pull).toHaveBeenCalled()
+    expect(spy).toHaveBeenCalled()
   })
 
   it('should pull', async () => {
-    gistServiceSpy.pull.and.resolveTo()
+    const spy = gistServiceSpy.pull.and.resolveTo()
 
     await action({
       args: [],
@@ -37,11 +37,11 @@ describe('Sync', () => {
       }
     })
 
-    expect(gistServiceSpy.pull).toHaveBeenCalled()
+    expect(spy).toHaveBeenCalled()
   })
 
   it('should push', async () => {
-    gistServiceSpy.push.and.resolveTo()
+    const spy = gistServiceSpy.push.and.resolveTo()
 
     await action({
       args: [],
@@ -51,7 +51,7 @@ describe('Sync', () => {
       }
     })
 
-    expect(gistServiceSpy.push).toHaveBeenCalled()
+    expect(spy).toHaveBeenCalled()
   })
 
   it('should throw error', async () => {

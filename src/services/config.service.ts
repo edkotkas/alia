@@ -7,7 +7,7 @@ import { stdin as input, stdout as output } from 'process'
 
 import type { Config, Command, MetaData, FSWrapper, RLWrapper } from '../models'
 
-import { Log } from '../logger.js'
+import Log from '../logger.js'
 
 export class ConfigService {
 

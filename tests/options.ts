@@ -1,7 +1,7 @@
-import type { ConfigService, GistService} from '../src/services'
+import type { ConfigService, GistService } from '../src/services'
 import type { Action, ActionParameters } from '../src/models'
 import { OptionService } from '../src/services'
-import { Log } from '../src/logger'
+import Log from '../src/logger'
 import pkg from '../package.json' assert { type: 'json' }
 
 describe('OptionService', () => {
@@ -9,16 +9,22 @@ describe('OptionService', () => {
   let optionService: OptionService
   let helpAction: Action
   let versionAction: Action
+  let initAction: Action
+
+  let configServiceSpy: jasmine.SpyObj<ConfigService>
+
+  let infoSpy: jasmine.Spy
 
   beforeEach(() => {
-    const configService = jasmine.createSpyObj<ConfigService>('ConfigService', ['getSeparator'])
+    configServiceSpy = jasmine.createSpyObj<ConfigService>('ConfigService', ['getSeparator', 'init'])
     const gistService = jasmine.createSpyObj<GistService>('GistService', ['push', 'pull'])
-    optionService = new OptionService(configService, gistService)
+    optionService = new OptionService(configServiceSpy, gistService)
 
     helpAction = optionService.flags.find(f => f.key === 'help')?.action as unknown as Action
     versionAction = optionService.flags.find(f => f.key === 'version')?.action as unknown as Action
+    initAction = optionService.flags.find(f => f.key === 'init')?.action as unknown as Action
 
-    spyOn(Log, 'info').and.callFake(() => ({}))
+    infoSpy = spyOn(Log, 'info').and.callFake(() => ({}))
   })
 
   it('should have flags', () => {
@@ -28,13 +34,21 @@ describe('OptionService', () => {
   it('should show correct version', async () => {
     await versionAction({} as ActionParameters)
 
-    expect(Log.info).toHaveBeenCalledOnceWith(pkg.version)
+    expect(infoSpy).toHaveBeenCalledOnceWith(pkg.version)
   })
 
   it('should show help', async () => {
     await helpAction({} as ActionParameters)
 
-    expect(Log.info).toHaveBeenCalled()
+    expect(infoSpy).toHaveBeenCalled()
+  })
+
+  it('should call init', async () => {
+    await initAction({} as ActionParameters)
+
+    const spy = configServiceSpy.init.and.resolveTo()
+
+    expect(spy).toHaveBeenCalled()
   })
 
 
@@ -48,6 +62,6 @@ describe('OptionService', () => {
 
     await helpAction({} as ActionParameters)
 
-    expect(Log.info).toHaveBeenCalledWith(`\t--noshort`)
+    expect(infoSpy).toHaveBeenCalledWith(`\t--noshort`)
   })
 })

@@ -5,7 +5,7 @@ import type {
   Alias, ModifierData 
 } from '../models'
 
-import { Log } from '../logger.js'
+import Log from '../logger.js'
 import type { ConfigService, GistService } from './index.js'
 
 export class OptionService {
@@ -27,6 +27,12 @@ export class OptionService {
       short: 'h',
       description: 'show help',
       action: (): Promise<void> => Promise.resolve(this.help())
+    },
+    {
+      key: 'init',
+      short: 'i',
+      description: 'initialize config',
+      action: (): Promise<void> => this.init()
     },
     {
       key: 'set',
@@ -151,6 +157,10 @@ export class OptionService {
         $ al -r gp
           > Removed: gp
     `)
+  }
+
+  public async init(): Promise<void> {
+    await this.configService.init()
   }
 
   public set({ args, modifiers, data }: ActionParameters<SetModifiers>): void {
