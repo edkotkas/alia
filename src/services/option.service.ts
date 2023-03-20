@@ -45,7 +45,8 @@ export class OptionService {
         },
         {
           key: 'env',
-          format: /\w+=\w+/
+          format: /\w+=\w+/,
+          description: 'add environment variables'
         }
       ],
       action: (params): Promise<void> => Promise.resolve(this.set(params))
@@ -137,7 +138,7 @@ export class OptionService {
         const mods = (flag.modifiers?.filter(m => m.description) ?? [])
         if (mods.length) {
           mods.forEach(m => {
-            Log.info(`\t  --${m.key}${desc(m)}}`)
+            Log.info(`\t  --${m.key}${desc(m)}`)
           })
         }
         Log.info('')

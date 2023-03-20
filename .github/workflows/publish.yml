@@ -59,14 +59,14 @@ jobs:
         - uses: actions/setup-node@v3
           with:
             node-version: 19
-            registry-url: https://npm.pkg.github.com/
-            scope: '@edkotkas'
         - name: Download Dist
           uses: actions/download-artifact@v3
           with:
             name: dist
             path: ./dist
+        - run: npm config set @edkotkas:registry https://npm.pkg.github.com/
+        - run: npm config set //npm.pkg.github.com/:_authToken=${{secrets.GPR_TOKEN}}
         - name: Publish GHR
-          run: npm publish
+          run: npm publish --registry=https://npm.pkg.github.com/ @edkotkas/alia
           env:
             NODE_AUTH_TOKEN: ${{secrets.GPR_TOKEN}}
