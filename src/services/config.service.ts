@@ -31,7 +31,8 @@ export class ConfigService {
       }
     },
     options: {
-      separator: "@"
+      separator: "@",
+      shell: false
     },
     alias: {
       test: {
@@ -93,6 +94,14 @@ export class ConfigService {
       : this.defaultConfig.options.separator
 
     this.save(this.config)
+  }
+
+  public getShell(): boolean {
+    return this.config.options.shell
+  }
+
+  public setShell(value: boolean): void {
+    this.config.options.shell = value
   }
 
   public getToken(): string {

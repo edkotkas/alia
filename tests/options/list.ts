@@ -1,7 +1,7 @@
 import Log from '../../src/logger'
 import type { Action } from '../../src/models'
-import type { ConfigService, GistService} from '../../src/services'
-import {  OptionService } from '../../src/services'
+import type { ConfigService, GistService } from '../../src/services'
+import { OptionService } from '../../src/services'
 
 describe('List', () => {
 
@@ -10,10 +10,10 @@ describe('List', () => {
   let action: Action
 
   let infoSpy: jasmine.Spy
-  
+
   beforeEach(() => {
     configServiceSpy = jasmine.createSpyObj<ConfigService>('ConfigService', ['getSeparator'], {
-      config: { 
+      config: {
         version: 1,
         meta: {
           gist: {
@@ -22,21 +22,23 @@ describe('List', () => {
           }
         },
         options: {
-          separator: ''
+          separator: '',
+          shell: false
         },
-        alias: { 
-          b: { 
-            options: { 
-              shell: false 
-            }, 
-            command: ['b'] }, 
-            a: { 
-              options: { 
-                shell: false 
-              },  
-              command: ['a'] 
-            }
-          } 
+        alias: {
+          b: {
+            options: {
+              shell: false
+            },
+            command: ['b']
+          },
+          a: {
+            options: {
+              shell: false
+            },
+            command: ['a']
+          }
+        }
       }
     })
 

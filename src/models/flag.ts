@@ -16,7 +16,7 @@ export interface ActionParameters<T = FlagModifiers> {
 }
 
 export type ActionData<T> = {
-  [key in keyof T]?: string | string[]
+  [key in keyof T]?: string | string[] | boolean
 }
 
 export type FlagModifier = keyof ConfModifiers | keyof SyncModifiers | keyof SetModifiers | keyof ListModifiers
@@ -29,6 +29,7 @@ export interface ConfModifiers {
   token?: string
   gist?: string
   path?: string
+  shell?: string
 }
 
 export interface SyncModifiers {

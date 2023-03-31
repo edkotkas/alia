@@ -20,11 +20,13 @@ export class CommandService {
       throw new Error(`Alias not set: ${key}`)
     }
 
+    const shell = this.configService.getShell()
+
     const [command, ...parameters] = al.command.concat(args)
     const options: SpawnOptions = {
       cwd: process.cwd(),
       stdio: 'inherit',
-      shell: al.options.shell,
+      shell: shell || al.options.shell,
       env: Object.assign(process.env, al.options.env ?? {})
     }
 

@@ -273,6 +273,14 @@ export class OptionService {
       this.configService.setToken(data.token as string)
     }
 
+    if (modifiers.shell) {
+      if (!data.shell) {
+        throw new Error('No shell value provided')
+      }
+
+      this.configService.setShell(Boolean(data.shell))
+    }
+
     if (modifiers.path) {
       Log.info('Config path:', this.configService.filePath)
     }

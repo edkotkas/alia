@@ -9,8 +9,10 @@ describe('CommandService', () => {
   let configService: jasmine.SpyObj<ConfigService>
 
   beforeEach(() => {
-    configService = jasmine.createSpyObj<ConfigService>('ConfigService', ['getAlias'])
+    configService = jasmine.createSpyObj<ConfigService>('ConfigService', ['getAlias', 'getShell'])
     commandService = new CommandService(configService)
+
+    configService.getShell.and.returnValue(false)
   })
 
   it ('should throw exception with invalid params', () => {
@@ -35,5 +37,26 @@ describe('CommandService', () => {
     commandService.run(['test'])
 
     expect(child.spawnSync).toHaveBeenCalled()
+  })
+
+  it ('should spawn command with shell', () => {
+    configService.getShell.and.returnValue(true)
+    configService.getAlias.and.returnValue({
+      command: [''],
+      options: {
+        shell: false
+      }
+    })
+
+    const spy = spyOn(child, 'spawnSync').and.returnValue({} as SpawnSyncReturns<Buffer>)
+
+    commandService.run(['test'])
+
+    expect(spy).toHaveBeenCalledOnceWith('', [], {
+      cwd: process.cwd(),
+      stdio: 'inherit',
+      shell: true,
+      env: process.env
+    })
   })
 })

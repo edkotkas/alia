@@ -12,7 +12,7 @@ describe('Conf', () => {
   let infoSpy: jasmine.Spy
 
   beforeEach(() => {
-    configServiceSpy = jasmine.createSpyObj<ConfigService>('ConfigService', ['getSeparator', 'setSeparator', 'setGistId', 'setToken'])
+    configServiceSpy = jasmine.createSpyObj<ConfigService>('ConfigService', ['getSeparator', 'setSeparator', 'setGistId', 'setToken', 'setShell'])
     optionService = new OptionService(configServiceSpy, {} as GistService)
 
     action = optionService.flags.find(f => f.key === 'conf')?.action as unknown as Action
@@ -140,6 +140,36 @@ describe('Conf', () => {
       })
 
       expect(spy).toHaveBeenCalledWith('hgf1d56h159f1651')
+    })
+
+    it('should set shell default option', async () => {
+      const spy = configServiceSpy.setShell.and.callFake(() => ({}))
+
+      await action({
+        args: [],
+        data: {
+          shell: 'true'
+        },
+        modifiers: {
+          shell: '--shell=true'
+        }
+      })
+
+      expect(spy).toHaveBeenCalledOnceWith(true)
+    })
+
+    it('should throw error when no shell value provided', async () => {
+      try {
+        await action({
+          args: [],
+          data: {},
+          modifiers: {
+            shell: '--shell'
+          }
+        })
+      } catch (e) {
+        expect(e).toEqual(new Error('No shell value provided'))
+      }
     })
   })
 })
