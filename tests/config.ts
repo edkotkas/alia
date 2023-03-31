@@ -28,7 +28,8 @@ describe('ConfigService', () => {
       }
     },
     options: {
-      separator: "@"
+      separator: "@",
+      shell: false
     },
     alias: {
     }
@@ -189,7 +190,8 @@ describe('ConfigService', () => {
         }
       },
       options: {
-        separator: 'test'
+        separator: 'test',
+        shell: false
       },
       version: 12
     }
@@ -197,5 +199,17 @@ describe('ConfigService', () => {
     configService.save(expectedConfig)
 
     expect(fs.write).toHaveBeenCalled()
+  })
+
+  it('should get shell option', () => {
+    const shell = configService.getShell()
+    expect(shell).toBeFalse()
+  })
+
+  it('should set shell option', () => {
+    expect(configService.config.options.shell).toBeFalse()
+    configService.setShell(true)
+
+    expect(configService.getShell()).toBeTrue()
   })
 })
