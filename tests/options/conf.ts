@@ -39,7 +39,7 @@ describe('Conf', () => {
       }
     })
 
-    expect(infoSpy).toHaveBeenCalledOnceWith('Config path:', configServiceSpy.filePath)
+    expect(infoSpy).toHaveBeenCalledOnceWith(configServiceSpy.filePath)
   })
 
   describe('Separator', () => {

@@ -16,7 +16,10 @@ export class InputService {
       return this.optionService.help()
     }
 
-    await this.processFlags(argv) || this.commandService.run(argv)
+    process.env.ALIA_DEBUG = !!argv.find(a => a === '--debug') ? 'true' : 'false'
+    const args = argv.filter(a => a !== '--debug')
+
+    await this.processFlags(args) || this.commandService.run(args)
   }
 
   private async processFlags([arg, ...args]: string[]): Promise<boolean> {

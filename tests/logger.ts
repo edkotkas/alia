@@ -14,8 +14,27 @@ describe('Logger', () => {
     })
 
     it('should call console error', () => {
-        Log.error('test')
+      const err = new Error('test')
+      Log.error(err)
 
-        expect(console.error).toHaveBeenCalledOnceWith('test')
+      expect(console.error).toHaveBeenCalledOnceWith(err)
     })
+
+    it('should log error message with stack trace', () => {
+      process.env.ALIA_DEBUG = 'true'
+      const error = new Error('error')
+      Log.error(error)
+
+      expect(console.error).toHaveBeenCalledOnceWith(error)
+    })
+
+    it('should log error message w/o stack trace', () => {
+      process.env.ALIA_DEBUG = 'false'
+
+      const error = new Error('error')
+      Log.error(error)
+    
+      expect(console.error).toHaveBeenCalledOnceWith('error')
+    })
+    
 })

@@ -74,4 +74,66 @@ describe('List', () => {
 
     expect(infoSpy).toHaveBeenCalledWith(`a \t-- \ta\nb \t-- \tb`)
   })
+
+  
+  it('should list filtered alias', async () => {
+    configServiceSpy.getSeparator.and.returnValue('--')
+
+    await action({
+      args: [],
+      data: {
+        filter: ['a']
+      },
+      modifiers: {
+        filter: '--filter'
+      }
+    })
+
+    expect(infoSpy).toHaveBeenCalledWith(`a \t-- \ta`)
+  })
+
+  it('should throw exception when no filter provided', async () => {
+    configServiceSpy.getSeparator.and.returnValue('--')
+
+    try {
+      await action({
+        args: [],
+        data: {},
+        modifiers: {
+          filter: '--filter'
+        }
+      })
+    } catch(e) {
+      expect(e).toEqual(new Error('No filter provided'))
+    }
+  })
+
+  it('should list raw alias', async () => {
+    configServiceSpy.getSeparator.and.returnValue('--')
+
+    await action({
+      args: [],
+      data: {},
+      modifiers: {
+        raw: '--raw'
+      }
+    })
+
+    const result = JSON.stringify({
+      b: {
+        options: {
+          shell: false
+        },
+        command: ['b']
+      },
+      a: {
+        options: {
+          shell: false
+        },
+        command: ['a']
+      }
+    }, null, 2)
+
+    expect(infoSpy).toHaveBeenCalledWith(result)
+  })
 })

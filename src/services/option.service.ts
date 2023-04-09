@@ -65,6 +65,15 @@ export class OptionService {
         {
           key: 'sort',
           description: 'sort alphabetically'
+        },
+        {
+          key: 'raw',
+          description: 'list raw alias info'
+        },
+        {
+          key: 'filter',
+          format: /^\w+/,
+          description: 'filter alias list'
         }
       ],
       action: (params): Promise<void> => Promise.resolve(this.list(params))
@@ -230,9 +239,33 @@ export class OptionService {
       .map(key => `${key} \t${this.configService.getSeparator()} \t${alias[key].command.join(' ')}`)
   }
 
-  public list({ modifiers }: ActionParameters<ListModifiers>): void {
-    const l = this.mapList(this.configService.config.alias)
-    Log.info((modifiers.sort ? l.sort() : l).join('\n'))
+  public list({ modifiers, data }: ActionParameters<ListModifiers>): void {
+    let alias = this.configService.config.alias
+    let aliaKeys = Object.keys(alias)
+
+    if (modifiers.filter) {
+      const filters = (data.filter ?? []) as string[]
+      if (filters.length === 0) {
+        throw new Error('No filter provided')
+      }
+
+      aliaKeys = aliaKeys.filter(a => filters.includes(a))
+    }
+
+    if (modifiers.sort) {
+      aliaKeys = aliaKeys.sort()
+    }
+
+    alias = aliaKeys.reduce<Alias>((acc, val) => {
+      acc[val] = alias[val]
+      return acc
+    }, {})
+
+    if (modifiers.raw) {
+      return Log.info(JSON.stringify(alias, null, 2))
+    }
+
+    Log.info((this.mapList(alias)).join('\n'))
   }
 
   public async sync({ modifiers }: ActionParameters<SyncModifiers>): Promise<void> {
@@ -282,7 +315,7 @@ export class OptionService {
     }
 
     if (modifiers.path) {
-      Log.info('Config path:', this.configService.filePath)
+      Log.info(this.configService.filePath)
     }
   }
 }

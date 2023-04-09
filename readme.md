@@ -2,6 +2,10 @@
 [![install size](https://packagephobia.com/badge?p=alia)](https://packagephobia.com/result?p=alia)
 [![c8 config on GitHub](https://img.shields.io/nycrc/edkotkas/alia?config=.c8rc.json)](coverage\index.html)
 [![Snyk Vulnerabilities for npm package](https://img.shields.io/snyk/vulnerabilities/npm/alia)](https://img.shields.io/snyk/vulnerabilities/npm/alia)
+
+[![Node.js CI](https://github.com/edkotkas/alia/actions/workflows/ci.yml/badge.svg)](https://github.com/edkotkas/alia/actions/workflows/ci.yml)
+[![Node.js Package](https://github.com/edkotkas/alia/actions/workflows/publish.yml/badge.svg)](https://github.com/edkotkas/alia/actions/workflows/publish.yml)
+
 [![npm](https://img.shields.io/npm/v/alia)](https://www.npmjs.com/package/alia)
 
 ## Alias To Go

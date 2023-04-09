@@ -14,7 +14,7 @@ async function start(): Promise<void> {
   try {
     await inputService.read()
   } catch (e) {
-    Log.error(e)
+    Log.error(e as Error)
   }
 }
 

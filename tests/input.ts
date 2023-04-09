@@ -160,4 +160,12 @@ describe('InputService', () => {
         modifiers: { token: '--token' }
       })
   })
+
+  it('should set debug env variable', async () => {
+    process.argv.push('-v', '--debug')
+
+    await inputService.read()
+
+    expect(process.env.ALIA_DEBUG).toEqual('true')
+  })
 })

@@ -44,6 +44,8 @@ export interface SetModifiers {
 
 export interface ListModifiers {
   sort?: string
+  raw?: string
+  filter?: string
 }
 
 export interface ModifierData {
