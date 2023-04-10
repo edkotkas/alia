@@ -1,4 +1,4 @@
-import type { CommandService, OptionService } from '../src/services'
+import type { CommandService, ConfigService, OptionService } from '../src/services'
 import { InputService } from '../src/services'
 
 describe('InputService', () => {
@@ -6,11 +6,12 @@ describe('InputService', () => {
   let inputService: InputService
   let optionServiceSpy: jasmine.SpyObj<OptionService>
   let commandServiceSpy: jasmine.SpyObj<CommandService>
+  let configServiceSpy: jasmine.SpyObj<ConfigService>
 
   let confActionSpy: jasmine.Spy
   let envActionSpy: jasmine.Spy
   let versionActionSpy: jasmine.Spy
-
+  
   beforeEach(() => {
     process.argv = ['', '']
 
@@ -41,10 +42,14 @@ describe('InputService', () => {
       ]
     })
 
+    configServiceSpy = jasmine.createSpyObj('ConfigService', ['getSeparator'])
+
+    configServiceSpy.getSeparator.and.returnValue('--')
+
     commandServiceSpy = jasmine.createSpyObj<CommandService>('CommandService', ['run'])
     commandServiceSpy.run.and.callFake(() => undefined)
 
-    inputService = new InputService(optionServiceSpy, commandServiceSpy)
+    inputService = new InputService(optionServiceSpy, commandServiceSpy, configServiceSpy)
   })
 
   it('should process single params', async () => {
@@ -129,7 +134,20 @@ describe('InputService', () => {
 
     expect(envActionSpy)
       .toHaveBeenCalledOnceWith({
-        args: ['--env', 'test=123', 'abc=321', 'env', '--', 'echo', '%test%', '%abc%'],
+        args: ['--env', 'test=123', 'abc=321',],
+        data: { env: ['test=123', 'abc=321'] },
+        modifiers: { env: '--env' }
+      })
+  })
+
+  it('should read env modifier only for alia and not command', async () => {
+    process.argv.push('-s', '--env', 'test=123', 'abc=321', 'env', '--', 'echo', 'stuff=test', '%abc%')
+
+    await inputService.read()
+
+    expect(envActionSpy)
+      .toHaveBeenCalledOnceWith({
+        args: ['--env', 'test=123', 'abc=321'],
         data: { env: ['test=123', 'abc=321'] },
         modifiers: { env: '--env' }
       })

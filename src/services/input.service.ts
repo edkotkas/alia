@@ -1,11 +1,12 @@
 import type { ActionParameters, FlagModifiers } from '../models'
-import type { OptionService, CommandService } from './index.js'
+import type { OptionService, CommandService, ConfigService } from './index.js'
 
 export class InputService {
 
   constructor(
     private optionService: OptionService,
-    private commandService: CommandService
+    private commandService: CommandService,
+    private configService: ConfigService
   ) {
   }
 
@@ -17,9 +18,8 @@ export class InputService {
     }
 
     process.env.ALIA_DEBUG = !!argv.find(a => a === '--debug') ? 'true' : 'false'
-    const args = argv.filter(a => a !== '--debug')
 
-    await this.processFlags(args) || this.commandService.run(args)
+    await this.processFlags(argv) || this.commandService.run(argv)
   }
 
   private async processFlags([arg, ...args]: string[]): Promise<boolean> {
@@ -36,11 +36,17 @@ export class InputService {
       throw new Error(`Invalid flag provided: ${arg}`)
     }
 
+    const separator = this.configService.getSeparator()
+    const sepIndex = args.findIndex(a => a === separator)
+    const flargs = sepIndex > 0 
+      ? args.slice(0, sepIndex - 1)
+      : args
+
     const params: ActionParameters = { args, data: {}, modifiers: {} }
 
     params.modifiers = flag.modifiers?.reduce<FlagModifiers>((acc, { key, format }) => {
       const modRegex = new RegExp(`^--(?:${key})=?(.+)?`)
-      const param = args.find(a => modRegex.test(a))
+      const param = flargs.find(a => modRegex.test(a))
 
       if (!param) {
         return acc
@@ -50,7 +56,7 @@ export class InputService {
 
       const result = !format
         ? modRegex.exec(param)?.at(1)
-        : args.filter(a => format.test(a))
+        : flargs.filter(a => format.test(a))
 
       if (result) {
         params.data = {
