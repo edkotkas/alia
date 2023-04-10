@@ -134,7 +134,7 @@ describe('InputService', () => {
 
     expect(envActionSpy)
       .toHaveBeenCalledOnceWith({
-        args: ['--env', 'test=123', 'abc=321',],
+        args: ['--env', 'test=123', 'abc=321', 'env', '--', 'echo', '%test%', '%abc%'],
         data: { env: ['test=123', 'abc=321'] },
         modifiers: { env: '--env' }
       })
@@ -147,7 +147,7 @@ describe('InputService', () => {
 
     expect(envActionSpy)
       .toHaveBeenCalledOnceWith({
-        args: ['--env', 'test=123', 'abc=321'],
+        args: ['--env', 'test=123', 'abc=321', 'env', '--', 'echo', 'stuff=test', '%abc%'],
         data: { env: ['test=123', 'abc=321'] },
         modifiers: { env: '--env' }
       })
