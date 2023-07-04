@@ -17,8 +17,7 @@ describe('OptionService', () => {
 
   beforeEach(() => {
     configServiceSpy = jasmine.createSpyObj<ConfigService>('ConfigService', ['getSeparator', 'init'])
-    const gistService = jasmine.createSpyObj<GistService>('GistService', ['push', 'pull'])
-    optionService = new OptionService(configServiceSpy, gistService)
+    optionService = new OptionService(configServiceSpy)
 
     helpAction = optionService.flags.find(f => f.key === 'help')?.action as unknown as Action
     versionAction = optionService.flags.find(f => f.key === 'version')?.action as unknown as Action
@@ -44,7 +43,7 @@ describe('OptionService', () => {
   })
 
   it('should call init', async () => {
-    await initAction({} as ActionParameters)
+    await initAction({} as ActionParameters, configServiceSpy)
 
     const spy = configServiceSpy.init.and.resolveTo()
 

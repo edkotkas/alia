@@ -23,7 +23,8 @@ describe('List', () => {
         },
         options: {
           separator: '',
-          shell: false
+          shell: false,
+          verbose: false
         },
         alias: {
           b: {
@@ -42,7 +43,7 @@ describe('List', () => {
       }
     })
 
-    optionService = new OptionService(configServiceSpy, {} as GistService)
+    optionService = new OptionService(configServiceSpy)
 
     action = optionService.flags.find(f => f.key === 'list')?.action as unknown as Action
 
@@ -56,7 +57,7 @@ describe('List', () => {
       args: [],
       data: {},
       modifiers: {}
-    })
+    }, configServiceSpy)
 
     expect(infoSpy).toHaveBeenCalledWith(`b \t-- \tb\na \t-- \ta`)
   })
@@ -70,7 +71,7 @@ describe('List', () => {
       modifiers: {
         sort: '--sort'
       }
-    })
+    }, configServiceSpy)
 
     expect(infoSpy).toHaveBeenCalledWith(`a \t-- \ta\nb \t-- \tb`)
   })
@@ -87,7 +88,7 @@ describe('List', () => {
       modifiers: {
         filter: '--filter'
       }
-    })
+    }, configServiceSpy)
 
     expect(infoSpy).toHaveBeenCalledWith(`a \t-- \ta`)
   })
@@ -102,7 +103,7 @@ describe('List', () => {
         modifiers: {
           filter: '--filter'
         }
-      })
+      }, configServiceSpy)
     } catch(e) {
       expect(e).toEqual(new Error('No filter provided'))
     }
@@ -117,7 +118,7 @@ describe('List', () => {
       modifiers: {
         raw: '--raw'
       }
-    })
+    }, configServiceSpy)
 
     const result = JSON.stringify({
       b: {

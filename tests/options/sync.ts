@@ -10,7 +10,7 @@ describe('Sync', () => {
 
   beforeEach(() => {
     gistServiceSpy = jasmine.createSpyObj<GistService>('GistService', ['pull', 'push'])
-    optionService = new OptionService({} as ConfigService, gistServiceSpy)
+    optionService = new OptionService({} as ConfigService)
     action = optionService.flags.find(f => f.key === 'sync')?.action as unknown as Action
   })
 
@@ -21,7 +21,7 @@ describe('Sync', () => {
       args: [],
       data: {},
       modifiers: {}
-    })
+    }, undefined, gistServiceSpy)
 
     expect(spy).toHaveBeenCalled()
   })
@@ -35,7 +35,7 @@ describe('Sync', () => {
       modifiers: {
         pull: '--pull'
       }
-    })
+    }, undefined, gistServiceSpy)
 
     expect(spy).toHaveBeenCalled()
   })
@@ -49,7 +49,7 @@ describe('Sync', () => {
       modifiers: {
         push: '--push'
       }
-    })
+    }, undefined, gistServiceSpy)
 
     expect(spy).toHaveBeenCalled()
   })
@@ -64,7 +64,7 @@ describe('Sync', () => {
         modifiers: {
           a: '--a'
         }
-      } as ActionParameters)
+      } as ActionParameters, undefined, gistServiceSpy)
 
       fail()
     } catch (e) {

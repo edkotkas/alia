@@ -13,7 +13,7 @@ describe('Set', () => {
 
   beforeEach(() => {
     configServiceSpy = jasmine.createSpyObj<ConfigService>('ConfigService', ['getSeparator', 'getAlias', 'setAlias'])
-    optionService = new OptionService(configServiceSpy, {} as GistService)
+    optionService = new OptionService(configServiceSpy)
     action = optionService.flags.find(f => f.key === 'set')?.action as unknown as Action
 
     configServiceSpy.getSeparator.and.returnValue('--')
@@ -27,7 +27,7 @@ describe('Set', () => {
         args: [''],
         data: {},
         modifiers: {}
-      })
+      }, configServiceSpy)
 
       fail()
     } catch(e) { 
@@ -41,7 +41,7 @@ describe('Set', () => {
         args: ['--'],
         data: {},
         modifiers: {}
-      })
+      }, configServiceSpy)
 
       fail()
     } catch(e) { 
@@ -57,7 +57,7 @@ describe('Set', () => {
       args: ['echo', '--', 'test'],
       data: {},
       modifiers: {}
-    })
+    }, configServiceSpy)
 
     expect(spy).toHaveBeenCalled()
     expect(infoSpy).toHaveBeenCalled()
@@ -77,7 +77,7 @@ describe('Set', () => {
       args: ['echo', '--', 'other'],
       data: {},
       modifiers: {}
-    })
+    }, configServiceSpy)
 
     expect(spy).toHaveBeenCalled()
     expect(infoSpy).toHaveBeenCalledTimes(2)
@@ -97,7 +97,7 @@ describe('Set', () => {
         env: '--env',
         shell: '--shell'
       }
-    })
+    }, configServiceSpy)
 
     expect(spy).toHaveBeenCalledOnceWith('echo', {
       options: {

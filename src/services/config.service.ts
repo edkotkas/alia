@@ -32,7 +32,8 @@ export class ConfigService {
     },
     options: {
       separator: "@",
-      shell: false
+      shell: false,
+      verbose: false
     },
     alias: {
       test: {
@@ -119,6 +120,15 @@ export class ConfigService {
 
   public setGistId(id: string): void {
     this.config.meta.gist.id = id
+    this.save(this.config)
+  }
+
+  public getVerbose(): boolean {
+    return this.config.options.verbose
+  }
+
+  public setVerbose(value: boolean): void {
+    this.config.options.verbose = value
     this.save(this.config)
   }
 

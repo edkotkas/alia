@@ -1,3 +1,5 @@
+import type { ConfigService, GistService } from '../services'
+
 export interface Flag {
   key: string
   short?: string
@@ -7,7 +9,7 @@ export interface Flag {
   action: Action
 }
 
-export type Action<T = FlagModifiers> = (params: ActionParameters<T>) => Promise<void>
+export type Action<T = FlagModifiers> = (params: ActionParameters<T>, config: ConfigService, gist: GistService) => void | Promise<void> 
 
 export interface ActionParameters<T = FlagModifiers> {
   args: string[]
@@ -30,6 +32,7 @@ export interface ConfModifiers {
   gist?: string
   path?: string
   shell?: string
+  verbose?: string
 }
 
 export interface SyncModifiers {

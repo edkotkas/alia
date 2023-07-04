@@ -15,12 +15,13 @@ export interface Gist {
 }
 
 export interface Options {
-  separator: string,
+  separator: string
   shell: boolean
+  verbose: boolean
 }
 
 export interface AliasOptions {
-  shell?: boolean,
+  shell?: boolean
   env?: NodeJS.ProcessEnv
 }
 

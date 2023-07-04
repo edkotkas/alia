@@ -1,3 +1,4 @@
+import env from '../src/env'
 import Log from '../src/logger'
 
 describe('Logger', () => {
@@ -5,6 +6,8 @@ describe('Logger', () => {
     beforeEach(() => {
         spyOn(console, 'info').and.callFake(() => ({}))
         spyOn(console, 'error').and.callFake(() => ({}))
+
+        env.verbose = false
     })
 
     it('should call console info', () => {
@@ -17,11 +20,11 @@ describe('Logger', () => {
       const err = new Error('test')
       Log.error(err)
 
-      expect(console.error).toHaveBeenCalledOnceWith(err)
+      expect(console.error).toHaveBeenCalledOnceWith('test')
     })
 
     it('should log error message with stack trace', () => {
-      process.env.ALIA_DEBUG = 'true'
+      env.verbose = true
       const error = new Error('error')
       Log.error(error)
 
@@ -29,7 +32,7 @@ describe('Logger', () => {
     })
 
     it('should log error message w/o stack trace', () => {
-      process.env.ALIA_DEBUG = 'false'
+      env.verbose = false
 
       const error = new Error('error')
       Log.error(error)
