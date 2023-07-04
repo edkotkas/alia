@@ -12,11 +12,13 @@ describe('OptionService', () => {
   let initAction: Action
 
   let configServiceSpy: jasmine.SpyObj<ConfigService>
+  let gistServiceSpy: jasmine.SpyObj<GistService>
 
   let infoSpy: jasmine.Spy
 
   beforeEach(() => {
     configServiceSpy = jasmine.createSpyObj<ConfigService>('ConfigService', ['getSeparator', 'init'])
+    gistServiceSpy = jasmine.createSpyObj<GistService>('GistService', ['pull', 'push'])
     optionService = new OptionService(configServiceSpy)
 
     helpAction = optionService.flags.find(f => f.key === 'help')?.action as unknown as Action
@@ -31,19 +33,19 @@ describe('OptionService', () => {
   })
 
   it('should show correct version', async () => {
-    await versionAction({} as ActionParameters)
+    await versionAction({} as ActionParameters, configServiceSpy, gistServiceSpy)
 
     expect(infoSpy).toHaveBeenCalledOnceWith(pkg.version)
   })
 
   it('should show help', async () => {
-    await helpAction({} as ActionParameters)
+    await helpAction({} as ActionParameters, configServiceSpy, gistServiceSpy)
 
     expect(infoSpy).toHaveBeenCalled()
   })
 
   it('should call init', async () => {
-    await initAction({} as ActionParameters, configServiceSpy)
+    await initAction({} as ActionParameters, configServiceSpy, gistServiceSpy)
 
     const spy = configServiceSpy.init.and.resolveTo()
 
@@ -59,7 +61,7 @@ describe('OptionService', () => {
       }
     ]
 
-    await helpAction({} as ActionParameters)
+    await helpAction({} as ActionParameters, configServiceSpy, gistServiceSpy)
 
     expect(infoSpy).toHaveBeenCalledWith(`\t--noshort`)
   })

@@ -30,7 +30,7 @@ describe('Remove', () => {
       args: [''],
       data: {},
       modifiers: {}
-    } as ActionParameters, configServiceSpy)
+    } as ActionParameters, configServiceSpy, {} as GistService)
 
     expect(spy).toHaveBeenCalled()
   })
@@ -44,7 +44,7 @@ describe('Remove', () => {
         args: [''],
         data: {},
         modifiers: {}
-      } as ActionParameters, configServiceSpy)
+      } as ActionParameters, configServiceSpy, {} as GistService)
 
       fail()
     } catch (e) {

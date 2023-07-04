@@ -27,7 +27,7 @@ describe('Set', () => {
         args: [''],
         data: {},
         modifiers: {}
-      }, configServiceSpy)
+      }, configServiceSpy, {} as GistService)
 
       fail()
     } catch(e) { 
@@ -41,7 +41,7 @@ describe('Set', () => {
         args: ['--'],
         data: {},
         modifiers: {}
-      }, configServiceSpy)
+      }, configServiceSpy, {} as GistService)
 
       fail()
     } catch(e) { 
@@ -57,7 +57,7 @@ describe('Set', () => {
       args: ['echo', '--', 'test'],
       data: {},
       modifiers: {}
-    }, configServiceSpy)
+    }, configServiceSpy, {} as GistService)
 
     expect(spy).toHaveBeenCalled()
     expect(infoSpy).toHaveBeenCalled()
@@ -77,7 +77,7 @@ describe('Set', () => {
       args: ['echo', '--', 'other'],
       data: {},
       modifiers: {}
-    }, configServiceSpy)
+    }, configServiceSpy, {} as GistService)
 
     expect(spy).toHaveBeenCalled()
     expect(infoSpy).toHaveBeenCalledTimes(2)
@@ -97,7 +97,7 @@ describe('Set', () => {
         env: '--env',
         shell: '--shell'
       }
-    }, configServiceSpy)
+    }, configServiceSpy, {} as GistService)
 
     expect(spy).toHaveBeenCalledOnceWith('echo', {
       options: {

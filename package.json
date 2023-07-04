@@ -14,14 +14,14 @@
     "al": "dist/main.js"
   },
   "scripts": {
-    "postinstall": "echo Alia is an experimental tool, use at your own discretion. Thank you!",
     "start": "tsx src/main.ts",
     "prebuild": "node ./node_modules/del-cli/cli.js dist/",
     "build": "tsc --build src",
     "postbuild": "node ./node_modules/del-cli/cli.js dist/models",
     "test": "tsx tests",
     "test:watch": "tsx --watch tests",
-    "test:coverage": "c8 npm run test"
+    "test:coverage": "c8 npm run test",
+    "lint": "eslint . --ext .ts"
   },
   "keywords": [
     "alias",
@@ -35,21 +35,21 @@
   "author": "Eduard Kotkas",
   "license": "ISC",
   "devDependencies": {
-    "@types/jasmine": "^4.3.1",
-    "@types/node": "^18.15.3",
-    "@typescript-eslint/eslint-plugin": "^5.56.0",
-    "@typescript-eslint/parser": "^5.56.0",
-    "c8": "^7.13.0",
+    "@types/jasmine": "^4.3.5",
+    "@types/node": "^20.3.3",
+    "@typescript-eslint/eslint-plugin": "^5.61.0",
+    "@typescript-eslint/parser": "^5.61.0",
+    "c8": "^8.0.0",
     "del-cli": "^5.0.0",
-    "eslint": "^8.36.0",
-    "eslint-config-standard-with-typescript": "^34.0.1",
+    "eslint": "^8.44.0",
+    "eslint-config-standard-with-typescript": "^36.0.0",
     "eslint-plugin-import": "^2.27.5",
-    "eslint-plugin-n": "^15.6.1",
+    "eslint-plugin-n": "^15.0.0",
     "eslint-plugin-promise": "^6.1.1",
-    "http-request-mock": "^1.8.14",
-    "jasmine": "^4.6.0",
-    "tsx": "^3.12.5",
-    "typescript": "^5.0.2"
+    "http-request-mock": "^1.8.15",
+    "jasmine": "^5.0.2",
+    "tsx": "^3.12.7",
+    "typescript": "^5.1.6"
   },
   "repository": {
     "type": "git",

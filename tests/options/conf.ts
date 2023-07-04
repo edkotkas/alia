@@ -25,7 +25,7 @@ describe('Conf', () => {
       args: [],
       data: {},
       modifiers: {}
-    })).toThrowError()
+    }, {} as ConfigService, {} as GistService)).toThrowError()
   })
 
   it('should log path', async () => {
@@ -37,7 +37,7 @@ describe('Conf', () => {
       modifiers: {
         path: '--path'
       }
-    }, configServiceSpy)
+    }, configServiceSpy, {} as GistService)
 
     expect(infoSpy).toHaveBeenCalledOnceWith(configServiceSpy.filePath)
   })
@@ -53,7 +53,7 @@ describe('Conf', () => {
         modifiers: {
           separator: '--separator'
         }
-      }, configServiceSpy)
+      }, configServiceSpy, {} as GistService)
 
       expect(spy).toHaveBeenCalledWith(undefined)
     })
@@ -69,7 +69,7 @@ describe('Conf', () => {
         modifiers: {
           separator: '--separator=--'
         }
-      }, configServiceSpy)
+      }, configServiceSpy, {} as GistService)
 
       expect(spy).toHaveBeenCalledWith('--')
     })
@@ -84,7 +84,7 @@ describe('Conf', () => {
           modifiers: {
             gist: '--gist'
           }
-        }, configServiceSpy)
+        }, configServiceSpy, {} as GistService)
 
         fail()
       } catch(e) {
@@ -103,7 +103,7 @@ describe('Conf', () => {
         modifiers: {
           gist: '--gist=hgf1d56h159f1651'
         }
-      }, configServiceSpy)
+      }, configServiceSpy, {} as GistService)
 
       expect(spy).toHaveBeenCalledWith('hgf1d56h159f1651')
     })
@@ -118,7 +118,7 @@ describe('Conf', () => {
           modifiers: {
             token: '--token'
           }
-        }, configServiceSpy)
+        }, configServiceSpy, {} as GistService)
 
         fail()
       } catch(e) {
@@ -137,7 +137,7 @@ describe('Conf', () => {
         modifiers: {
           token: '--token=hgf1d56h159f1651'
         }
-      }, configServiceSpy)
+      }, configServiceSpy, {} as GistService)
 
       expect(spy).toHaveBeenCalledWith('hgf1d56h159f1651')
     })
@@ -153,7 +153,7 @@ describe('Conf', () => {
         modifiers: {
           shell: '--shell=true'
         }
-      }, configServiceSpy)
+      }, configServiceSpy, {} as GistService)
 
       expect(spy).toHaveBeenCalledOnceWith(true)
     })
@@ -166,7 +166,7 @@ describe('Conf', () => {
           modifiers: {
             shell: '--shell'
           }
-        }, configServiceSpy)
+        }, configServiceSpy, {} as GistService)
       } catch (e) {
         expect(e).toEqual(new Error('No shell value provided'))
       }
@@ -183,7 +183,7 @@ describe('Conf', () => {
         modifiers: {
           verbose: '--verbose=true'
         }
-      }, configServiceSpy)
+      }, configServiceSpy, {} as GistService)
 
       expect(spy).toHaveBeenCalledOnceWith(true)
     })
@@ -196,7 +196,7 @@ describe('Conf', () => {
           modifiers: {
             verbose: '--verbose'
           }
-        }, configServiceSpy)
+        }, configServiceSpy, {} as GistService)
       } catch (e) {
         expect(e).toEqual(new Error('No verbose value provided'))
       }
