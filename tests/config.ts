@@ -29,7 +29,8 @@ describe('ConfigService', () => {
     },
     options: {
       separator: "@",
-      shell: false
+      shell: false,
+      verbose: false
     },
     alias: {
     }
@@ -191,7 +192,8 @@ describe('ConfigService', () => {
       },
       options: {
         separator: 'test',
-        shell: false
+        shell: false,
+        verbose: false
       },
       version: 12
     }
@@ -211,5 +213,18 @@ describe('ConfigService', () => {
     configService.setShell(true)
 
     expect(configService.getShell()).toBeTrue()
+  })
+
+
+  it('should get verbose option', () => {
+    const shell = configService.getVerbose()
+    expect(shell).toBeFalse()
+  })
+
+  it('should set verbose option', () => {
+    expect(configService.config.options.verbose).toBeFalse()
+    configService.setVerbose(true)
+
+    expect(configService.getVerbose()).toBeTrue()
   })
 })

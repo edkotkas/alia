@@ -1,128 +1,39 @@
-import pkg from '../../package.json' assert { type: 'json' }
-import type { 
-  Flag, ActionParameters, ConfModifiers, 
-  SetModifiers, SyncModifiers, ListModifiers, 
-  Alias, ModifierData 
+import type {
+  Flag, ModifierData
 } from '../models'
+import type { ConfigService } from './index.js'
+
+import { 
+  VersionFlag, InitFlag, SetFlag, 
+  ListFlag, RemoveFlag, ConfFlag, 
+  SyncFlag 
+} from '../flags/index.js'
 
 import Log from '../logger.js'
-import type { ConfigService, GistService } from './index.js'
 
 export class OptionService {
   constructor(
-    private configService: ConfigService,
-    private gistService: GistService
+    private configService: ConfigService
   ) {
   }
 
   public flags: Flag[] = [
     {
-      key: 'version',
-      short: 'v',
-      description: 'show version',
-      action: (): Promise<void> => Promise.resolve(this.version())
-    },
-    {
       key: 'help',
       short: 'h',
       description: 'show help',
-      action: (): Promise<void> => Promise.resolve(this.help())
+      action: (): void => {
+        this.help()
+      }
     },
-    {
-      key: 'init',
-      short: 'i',
-      description: 'initialize config',
-      action: (): Promise<void> => this.init()
-    },
-    {
-      key: 'set',
-      short: 's',
-      description: 'set an alias',
-      modifiers: [
-        {
-          key: 'shell',
-          description: 'enable shell mode'
-        },
-        {
-          key: 'env',
-          format: /\w+=\w+/,
-          description: 'add environment variables'
-        }
-      ],
-      action: (params): Promise<void> => Promise.resolve(this.set(params))
-    },
-    {
-      key: 'remove',
-      short: 'r',
-      description: 'remove an alias',
-      action: (params): Promise<void> => Promise.resolve(this.remove(params))
-    },
-    {
-      key: 'list',
-      short: 'l',
-      description: 'list available alias',
-      modifiers: [
-        {
-          key: 'sort',
-          description: 'sort alphabetically'
-        },
-        {
-          key: 'raw',
-          description: 'list raw alias info'
-        },
-        {
-          key: 'filter',
-          format: /^\w+/,
-          description: 'filter alias list'
-        }
-      ],
-      action: (params): Promise<void> => Promise.resolve(this.list(params))
-    },
-    {
-      key: 'conf',
-      short: 'c',
-      description: 'alia config (must use specify option)',
-      modifiers: [
-        {
-          key: 'separator',
-          description: 'set alias separator (default: @)'
-        },
-        {
-          key: 'token',
-          description: 'set the personal access token for gist sync'
-        },
-        {
-          key: 'gist',
-          description: 'set the gist id to use for sync'
-        },
-        {
-          key: 'path',
-          description: 'show config file path'
-        }
-      ],
-      action: (params): Promise<void> => Promise.resolve(this.conf(params))
-    },
-    {
-      key: 'sync',
-      short: 'sy',
-      description: 'backup/restore config from gist (default: restore)',
-      modifiers: [
-        {
-          key: 'push',
-          description: 'backup your current config'
-        },
-        {
-          key: 'pull',
-          description: 'restore latest config from gist'
-        }
-      ],
-      action: (params): Promise<void> => this.sync(params)
-    }
+    VersionFlag,
+    InitFlag,
+    SetFlag,
+    RemoveFlag,
+    ListFlag,
+    ConfFlag,
+    SyncFlag
   ]
-
-  public version(): void {
-    Log.info(pkg.version)
-  }
 
   public help(): void {
     Log.info(`
@@ -135,7 +46,7 @@ export class OptionService {
 
     this.flags
       .forEach((flag) => {
-        const short = flag.short 
+        const short = flag.short
           ? `, -${flag.short}`
           : ''
 
@@ -147,11 +58,11 @@ export class OptionService {
         const mods = (flag.modifiers?.filter(m => m.description) ?? [])
         if (mods.length) {
           mods.forEach(m => {
-            Log.info(`\t  --${m.key}${desc(m)}`)
+            Log.info(`\t  --${m.key} ${desc(m)}`)
           })
         }
         Log.info('')
-    })
+      })
 
     const separator = this.configService.getSeparator()
 
@@ -167,155 +78,5 @@ export class OptionService {
         $ al -r gp
           > Removed: gp
     `)
-  }
-
-  public async init(): Promise<void> {
-    await this.configService.init()
-  }
-
-  public set({ args, modifiers, data }: ActionParameters<SetModifiers>): void {
-    const separator = this.configService.getSeparator()
-    const separatorIndex = args.indexOf(separator)
-    if (separatorIndex === -1) {
-      throw new Error(`Invalid Input, missing separator: '${separator}'`)
-    }
-
-    const key = args[separatorIndex - 1]
-    let command = args.slice(separatorIndex + 1)
-
-    if (!key || command.length === 0) {
-      throw new Error('Invalid arguments passed')
-    }
-
-    if (command.length === 1) {
-      command = command[0].split(' ')
-    }
-
-    const alias = this.configService.getAlias(key)
-
-    const env: NodeJS.ProcessEnv = {}
-    if (data.env && Array.isArray(data.env)) {
-      data.env.reduce((acc, val) => {
-        const [key, value] = val.split('=')
-        acc[key] = value
-        return acc
-      }, env)
-    }
-
-    if (alias) {
-      Log.info(`Unset alias: ${key} ${separator} ${alias.command.join(' ')}`)
-    }
-
-    this.configService.setAlias(key, {
-      options: {
-        shell: !!modifiers.shell,
-        env
-      },
-      command
-    })
-
-    Log.info(`Set alias: ${key} ${separator} ${command.join(' ')}`)
-
-    if (!!modifiers.shell) {
-      Log.info(`With SHELL: enabled`)
-    }
-
-    if (Object.values(env).length && Array.isArray(data.env)) {
-      Log.info(`With ENV:\n\t${data.env.join('\n\t')}`)
-    }
-  }
-
-  public remove({ args: [key] }: ActionParameters): void {
-    if (!this.configService.getAlias(key)) {
-      throw new Error(`Alias '${key}' does not exist`)
-    }
-
-    this.configService.removeAlias(key)
-    Log.info(`Removed alias: ${key}`)
-  }
-
-  private mapList(alias: Alias): string[] {
-    return Object.keys(alias)
-      .map(key => `${key} \t${this.configService.getSeparator()} \t${alias[key].command.join(' ')}`)
-  }
-
-  public list({ modifiers, data }: ActionParameters<ListModifiers>): void {
-    let alias = this.configService.config.alias
-    let aliaKeys = Object.keys(alias)
-
-    if (modifiers.filter) {
-      const filters = (data.filter ?? []) as string[]
-      if (filters.length === 0) {
-        throw new Error('No filter provided')
-      }
-
-      aliaKeys = aliaKeys.filter(a => filters.includes(a))
-    }
-
-    if (modifiers.sort) {
-      aliaKeys = aliaKeys.sort()
-    }
-
-    alias = aliaKeys.reduce<Alias>((acc, val) => {
-      acc[val] = alias[val]
-      return acc
-    }, {})
-
-    if (modifiers.raw) {
-      return Log.info(JSON.stringify(alias, null, 2))
-    }
-
-    Log.info((this.mapList(alias)).join('\n'))
-  }
-
-  public async sync({ modifiers }: ActionParameters<SyncModifiers>): Promise<void> {
-    if (Object.keys(modifiers).length === 0 || modifiers.pull) {
-      return await this.gistService.pull()
-    }
-
-    if (modifiers.push) {
-      return await this.gistService.push()
-    }
-
-    throw new Error('Invalid arguments passed')
-  }
-
-  public conf({ modifiers, data }: ActionParameters<ConfModifiers>): void {
-    if (Object.keys(modifiers).length === 0) {
-      throw new Error('Invalid arguments passed')
-    }
-
-    if (modifiers.separator) {
-      this.configService.setSeparator(data.separator as string)
-      Log.info(`Set the separator to:`, this.configService.getSeparator())
-    }
-
-    if (modifiers.gist) {
-      if (!data.gist) {
-        throw new Error('No gist id provided')
-      }
-
-      this.configService.setGistId(data.gist as string)
-    }
-
-    if (modifiers.token) {
-      if (!data.token) {
-        throw new Error('No token provided')
-      }
-
-      this.configService.setToken(data.token as string)
-    }
-
-    if (modifiers.shell) {
-      if (!data.shell) {
-        throw new Error('No shell value provided')
-      }
-
-      this.configService.setShell(Boolean(data.shell))
-    }
-
-    if (modifiers.path) {
-      Log.info(this.configService.filePath)
-    }
   }
 }

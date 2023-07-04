@@ -1,5 +1,6 @@
-import type { CommandService, ConfigService, OptionService } from '../src/services'
+import type { CommandService, ConfigService, GistService, OptionService } from '../src/services'
 import { InputService } from '../src/services'
+import env from '../src/env'
 
 describe('InputService', () => {
 
@@ -42,14 +43,15 @@ describe('InputService', () => {
       ]
     })
 
-    configServiceSpy = jasmine.createSpyObj('ConfigService', ['getSeparator'])
+    configServiceSpy = jasmine.createSpyObj('ConfigService', ['getSeparator', 'getVerbose'])
 
     configServiceSpy.getSeparator.and.returnValue('--')
+    configServiceSpy.getVerbose.and.returnValue(false)
 
     commandServiceSpy = jasmine.createSpyObj<CommandService>('CommandService', ['run'])
     commandServiceSpy.run.and.callFake(() => undefined)
 
-    inputService = new InputService(optionServiceSpy, commandServiceSpy, configServiceSpy)
+    inputService = new InputService(optionServiceSpy, commandServiceSpy, configServiceSpy, {} as GistService)
   })
 
   it('should process single params', async () => {
@@ -62,7 +64,7 @@ describe('InputService', () => {
         args: ['--token=43243gfdsbfdg433g43'],
         data: { token: '43243gfdsbfdg433g43' },
         modifiers: { token: '--token=43243gfdsbfdg433g43' }
-      })
+      }, configServiceSpy, {})
   })
 
   it('should process multiple params', async () => {
@@ -75,7 +77,7 @@ describe('InputService', () => {
         args: ['--token=43243gfdsbfdg433g43', '--gist=gh_r422g4g2g'],
         data: { token: '43243gfdsbfdg433g43', gist: 'gh_r422g4g2g' },
         modifiers: { token: '--token=43243gfdsbfdg433g43', gist: '--gist=gh_r422g4g2g' }
-      })
+      }, configServiceSpy, {})
   })
 
   it('should only process valid params', async () => {
@@ -88,7 +90,7 @@ describe('InputService', () => {
         args: ['--fake=43243gfdsbfdg433g43', '--gist=gh_r422g4g2g'],
         data: { gist: 'gh_r422g4g2g' },
         modifiers: { gist: '--gist=gh_r422g4g2g' }
-      })
+      }, configServiceSpy, {})
   })
 
   it('should show help with no params', async () => {
@@ -124,7 +126,7 @@ describe('InputService', () => {
         args: ['--token=43243gfdsbfdg433g43', '--gist=gh_r422g4g2g'],
         data: { token: '43243gfdsbfdg433g43', gist: 'gh_r422g4g2g' },
         modifiers: { token: '--token=43243gfdsbfdg433g43', gist: '--gist=gh_r422g4g2g' }
-      })
+      }, configServiceSpy, {})
   })
 
   it('should read env modifier', async () => {
@@ -137,7 +139,7 @@ describe('InputService', () => {
         args: ['--env', 'test=123', 'abc=321', 'env', '--', 'echo', '%test%', '%abc%'],
         data: { env: ['test=123', 'abc=321'] },
         modifiers: { env: '--env' }
-      })
+      }, configServiceSpy, {})
   })
 
   it('should read env modifier only for alia and not command', async () => {
@@ -150,7 +152,7 @@ describe('InputService', () => {
         args: ['--env', 'test=123', 'abc=321', 'env', '--', 'echo', 'stuff=test', '%abc%'],
         data: { env: ['test=123', 'abc=321'] },
         modifiers: { env: '--env' }
-      })
+      }, configServiceSpy, {})
   })
 
   it('should pass with no modifiers', async () => {
@@ -163,7 +165,7 @@ describe('InputService', () => {
         args: [],
         data: {},
         modifiers: {}
-      })
+      }, configServiceSpy, {})
   })
 
   it('should pass return empty data when no modifier data matches', async () => {
@@ -176,14 +178,14 @@ describe('InputService', () => {
         args: ['--token'],
         data: { },
         modifiers: { token: '--token' }
-      })
+      }, configServiceSpy, {})
   })
 
-  it('should set debug env variable', async () => {
-    process.argv.push('-v', '--debug')
+  it('should set verbose env variable', async () => {
+    process.argv.push('-v', '--verbose')
 
     await inputService.read()
 
-    expect(process.env.ALIA_DEBUG).toEqual('true')
+    expect(env.verbose).toEqual(true)
   })
 })

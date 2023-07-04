@@ -12,8 +12,8 @@ describe('Conf', () => {
   let infoSpy: jasmine.Spy
 
   beforeEach(() => {
-    configServiceSpy = jasmine.createSpyObj<ConfigService>('ConfigService', ['getSeparator', 'setSeparator', 'setGistId', 'setToken', 'setShell'])
-    optionService = new OptionService(configServiceSpy, {} as GistService)
+    configServiceSpy = jasmine.createSpyObj<ConfigService>('ConfigService', ['getSeparator', 'setSeparator', 'setGistId', 'setToken', 'setShell', 'setVerbose'])
+    optionService = new OptionService(configServiceSpy)
 
     action = optionService.flags.find(f => f.key === 'conf')?.action as unknown as Action
 
@@ -37,7 +37,7 @@ describe('Conf', () => {
       modifiers: {
         path: '--path'
       }
-    })
+    }, configServiceSpy)
 
     expect(infoSpy).toHaveBeenCalledOnceWith(configServiceSpy.filePath)
   })
@@ -53,7 +53,7 @@ describe('Conf', () => {
         modifiers: {
           separator: '--separator'
         }
-      })
+      }, configServiceSpy)
 
       expect(spy).toHaveBeenCalledWith(undefined)
     })
@@ -69,7 +69,7 @@ describe('Conf', () => {
         modifiers: {
           separator: '--separator=--'
         }
-      })
+      }, configServiceSpy)
 
       expect(spy).toHaveBeenCalledWith('--')
     })
@@ -84,7 +84,7 @@ describe('Conf', () => {
           modifiers: {
             gist: '--gist'
           }
-        })
+        }, configServiceSpy)
 
         fail()
       } catch(e) {
@@ -103,7 +103,7 @@ describe('Conf', () => {
         modifiers: {
           gist: '--gist=hgf1d56h159f1651'
         }
-      })
+      }, configServiceSpy)
 
       expect(spy).toHaveBeenCalledWith('hgf1d56h159f1651')
     })
@@ -118,7 +118,7 @@ describe('Conf', () => {
           modifiers: {
             token: '--token'
           }
-        })
+        }, configServiceSpy)
 
         fail()
       } catch(e) {
@@ -137,7 +137,7 @@ describe('Conf', () => {
         modifiers: {
           token: '--token=hgf1d56h159f1651'
         }
-      })
+      }, configServiceSpy)
 
       expect(spy).toHaveBeenCalledWith('hgf1d56h159f1651')
     })
@@ -153,7 +153,7 @@ describe('Conf', () => {
         modifiers: {
           shell: '--shell=true'
         }
-      })
+      }, configServiceSpy)
 
       expect(spy).toHaveBeenCalledOnceWith(true)
     })
@@ -166,10 +166,41 @@ describe('Conf', () => {
           modifiers: {
             shell: '--shell'
           }
-        })
+        }, configServiceSpy)
       } catch (e) {
         expect(e).toEqual(new Error('No shell value provided'))
       }
     })
+
+    it('should set verbose default option', async () => {
+      const spy = configServiceSpy.setVerbose.and.callFake(() => ({}))
+
+      await action({
+        args: [],
+        data: {
+          verbose: 'true'
+        },
+        modifiers: {
+          verbose: '--verbose=true'
+        }
+      }, configServiceSpy)
+
+      expect(spy).toHaveBeenCalledOnceWith(true)
+    })
+
+    it('should throw error when no verbose value provided', async () => {
+      try {
+        await action({
+          args: [],
+          data: {},
+          modifiers: {
+            verbose: '--verbose'
+          }
+        }, configServiceSpy)
+      } catch (e) {
+        expect(e).toEqual(new Error('No verbose value provided'))
+      }
+    })
+
   })
 })

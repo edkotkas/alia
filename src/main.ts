@@ -7,9 +7,14 @@ async function start(): Promise<void> {
 
   const configService = new ConfigService()
   const gistService = new GistService(configService)
-  const optionService = new OptionService(configService, gistService)
+  const optionService = new OptionService(configService)
   const commandService = new CommandService(configService)
-  const inputService = new InputService(optionService, commandService, configService)
+  const inputService = new InputService(
+    optionService, 
+    commandService, 
+    configService, 
+    gistService
+  )
 
   try {
     await inputService.read()

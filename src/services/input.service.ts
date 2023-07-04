@@ -1,23 +1,26 @@
 import type { ActionParameters, FlagModifiers } from '../models'
-import type { OptionService, CommandService, ConfigService } from './index.js'
+import type { OptionService, CommandService, ConfigService, GistService } from './index.js'
+import env from '../env.js'
 
 export class InputService {
 
   constructor(
     private optionService: OptionService,
     private commandService: CommandService,
-    private configService: ConfigService
+    private configService: ConfigService,
+    private gistService: GistService
   ) {
   }
 
   public async read(): Promise<void> {
-    const argv: string[] = process.argv.slice(2)
+    let argv: string[] = process.argv.slice(2)
+    env.verbose = this.configService.getVerbose() || !!argv.find(a => a === '--verbose')
+    argv = argv.filter(a => a !== '--verbose')
 
     if (argv.length === 0) {
       return this.optionService.help()
     }
 
-    process.env.ALIA_DEBUG = !!argv.find(a => a === '--debug') ? 'true' : 'false'
 
     await this.processFlags(argv) || this.commandService.run(argv)
   }
@@ -68,7 +71,7 @@ export class InputService {
       return acc
     }, {}) ?? {}
 
-    await flag.action(params)
+    await flag.action(params, this.configService, this.gistService)
 
     return true
   }
