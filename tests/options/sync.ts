@@ -1,4 +1,4 @@
-import type { Action, ActionParameters } from '../../src/models'
+import type { Action, ActionParameters, Config } from '../../src/models'
 import type { ConfigService, GistService} from '../../src/services'
 import { OptionService } from '../../src/services'
 
@@ -21,7 +21,7 @@ describe('Sync', () => {
       args: [],
       data: {},
       modifiers: {}
-    }, undefined, gistServiceSpy)
+    }, {} as ConfigService, gistServiceSpy)
 
     expect(spy).toHaveBeenCalled()
   })
@@ -35,7 +35,7 @@ describe('Sync', () => {
       modifiers: {
         pull: '--pull'
       }
-    }, undefined, gistServiceSpy)
+    }, {} as ConfigService, gistServiceSpy)
 
     expect(spy).toHaveBeenCalled()
   })
@@ -49,7 +49,7 @@ describe('Sync', () => {
       modifiers: {
         push: '--push'
       }
-    }, undefined, gistServiceSpy)
+    }, {} as ConfigService, gistServiceSpy)
 
     expect(spy).toHaveBeenCalled()
   })
@@ -64,7 +64,7 @@ describe('Sync', () => {
         modifiers: {
           a: '--a'
         }
-      } as ActionParameters, undefined, gistServiceSpy)
+      } as ActionParameters, {} as ConfigService, gistServiceSpy)
 
       fail()
     } catch (e) {

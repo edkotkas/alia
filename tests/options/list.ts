@@ -57,7 +57,7 @@ describe('List', () => {
       args: [],
       data: {},
       modifiers: {}
-    }, configServiceSpy)
+    }, configServiceSpy, {} as GistService)
 
     expect(infoSpy).toHaveBeenCalledWith(`b \t-- \tb\na \t-- \ta`)
   })
@@ -71,7 +71,7 @@ describe('List', () => {
       modifiers: {
         sort: '--sort'
       }
-    }, configServiceSpy)
+    }, configServiceSpy, {} as GistService)
 
     expect(infoSpy).toHaveBeenCalledWith(`a \t-- \ta\nb \t-- \tb`)
   })
@@ -88,7 +88,7 @@ describe('List', () => {
       modifiers: {
         filter: '--filter'
       }
-    }, configServiceSpy)
+    }, configServiceSpy, {} as GistService)
 
     expect(infoSpy).toHaveBeenCalledWith(`a \t-- \ta`)
   })
@@ -103,7 +103,7 @@ describe('List', () => {
         modifiers: {
           filter: '--filter'
         }
-      }, configServiceSpy)
+      }, configServiceSpy, {} as GistService)
     } catch(e) {
       expect(e).toEqual(new Error('No filter provided'))
     }
@@ -118,7 +118,7 @@ describe('List', () => {
       modifiers: {
         raw: '--raw'
       }
-    }, configServiceSpy)
+    }, configServiceSpy, {} as GistService)
 
     const result = JSON.stringify({
       b: {
