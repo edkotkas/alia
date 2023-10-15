@@ -1,51 +1,52 @@
-import https from 'node:https'
-import type { Config, GistResponse, MetaData } from '../models'
-import type { ConfigService } from './index.js'
+import type { MetaData, Config } from '../models/config.model.js'
+import type { GistResponse } from '../models/gist-response.model.js'
+import type { ConfigService } from './config.service.js'
 
-import Log from '../logger.js'
+import https from 'node:https'
+import logger from '../logger.js'
 
 export class GistService {
-
-  constructor(
-    private configService: ConfigService
-  ) {
-  }
+  constructor(private configService: ConfigService) {}
 
   private baseUrl = `https://api.github.com/gists/`
 
   private async request(url: string, options: https.RequestOptions, data?: Config): Promise<GistResponse> {
     return new Promise((resolve, reject) => {
-      const hr = https.request(url, options, res => {
-        if (res.statusCode !== 200) {
-          return reject(new Error(res.statusMessage))
-        }
+      const hr = https
+        .request(url, options, (res) => {
+          if (res.statusCode !== 200) {
+            return reject(new Error(res.statusMessage))
+          }
 
-        res.setEncoding('utf8')
-        const body: string[] = []
+          res.setEncoding('utf8')
+          const body: string[] = []
 
-        res.on('data', (data: string) => body.push(data))
-        res.on('end', () => resolve(JSON.parse(body.join('')) as GistResponse))
-      }).on('error', err => reject(err))
+          res.on('data', (data: string) => body.push(data))
+          res.on('end', () => resolve(JSON.parse(body.join('')) as GistResponse))
+        })
+        .on('error', (err) => reject(err))
 
       if (data ?? false) {
-        hr.write(JSON.stringify({
-          description: 'Alia Config',
-          files: {
-            [this.configService.fileName]: {
-              content: JSON.stringify(data, null, 2)
+        hr.write(
+          JSON.stringify({
+            description: 'Alia Config',
+            files: {
+              [this.configService.fileName]: {
+                content: JSON.stringify(data, null, 2)
+              }
             }
-          }
-        }))
+          })
+        )
       }
 
       hr.end()
     })
   }
 
-  public async pull(): Promise<void> {
-    Log.info('Pulling config from Gist...')
+  public async restore(): Promise<void> {
+    logger.info('Restore config from Gist...')
 
-    const gistId = this.configService.getGistId()
+    const gistId = this.configService.gistId
     let data = {} as GistResponse
 
     try {
@@ -53,13 +54,13 @@ export class GistService {
         method: 'GET',
         headers: { 'User-Agent': 'nodejs' }
       })
-    } catch(e) {
+    } catch (e) {
       throw e
     }
 
     const { updated_at, files } = data
 
-    Log.info(`Fetched: ${updated_at}`)
+    logger.info(`Fetched: ${updated_at}`)
 
     const gistFile = files[this.configService.fileName]
     if (!gistFile) {
@@ -69,33 +70,37 @@ export class GistService {
     try {
       const aliaConfig = JSON.parse(gistFile.content) as Config
 
-      aliaConfig.meta = this.configService.getMetaData()
+      aliaConfig.meta = this.configService.meta
 
       this.configService.save(aliaConfig)
 
-      Log.info('...Done:', this.configService.filePath)
+      logger.info('...Done:', this.configService.filePath)
     } catch (e) {
       throw e
     }
   }
 
-  public async push(): Promise<void> {
-    Log.info('Pushing local config to Gist...')
-      const gistId = this.configService.getGistId()
-      const token = this.configService.getToken()
+  public async backup(): Promise<void> {
+    logger.info('Backup local config to Gist...')
+    const gistId = this.configService.gistId
+    const token = this.configService.token
 
-      const config = this.configService.config
-      config.meta = {} as MetaData
+    const config = this.configService.config
+    config.meta = {} as MetaData
     try {
-      const { html_url } = await this.request(`${this.baseUrl}${gistId}`, {
-        method: 'PATCH',
-        headers: {
-          'User-Agent': 'nodejs',
-          Authorization: `token ${token}`
-        }
-      }, config)
+      const { html_url } = await this.request(
+        `${this.baseUrl}${gistId}`,
+        {
+          method: 'PATCH',
+          headers: {
+            'User-Agent': 'nodejs',
+            Authorization: `token ${token}`
+          }
+        },
+        config
+      )
 
-      Log.info('...Done:', html_url)
+      logger.info('...Done:', html_url)
     } catch (e) {
       throw e
     }

@@ -1,71 +1,108 @@
-import type { ActionParameters, Flag, SetModifiers } from '../models'
-import type { ConfigService } from '../services'
+import type { AliasOptions } from '../models/config.model.js'
 
-import Log from '../logger.js'
+import path from 'path'
+import logger from '../logger.js'
+import { Flag } from './flag.js'
+import { toBool } from '../utils/to-bool.js'
 
-export const SetFlag = {
-  key: 'set',
-  short: 's',
-  description: 'set an alias',
-  modifiers: [
+export class SetFlag extends Flag {
+  private options: AliasOptions = {}
+
+  flag = {
+    key: 'set',
+    short: 's',
+    desc: 'set an alias',
+    run: (args: string[]): undefined => this.setAlias(args)
+  }
+
+  mods = [
     {
       key: 'shell',
-      description: 'enable shell mode'
+      short: 'sh',
+      desc: 'enable shell mode',
+      run: (args: string[]): boolean | undefined => this.setShell(args)
     },
     {
       key: 'env',
-      format: /\w+=\w+/,
-      description: 'add environment variables'
+      short: 'e',
+      desc: 'add environment variables',
+      run: (args: string[]): boolean | undefined => this.setEnv(args)
+    },
+    {
+      key: 'env-file',
+      short: 'ef',
+      desc: 'add environment variables file',
+      run: (args: string[]): boolean | undefined => this.setEnvFile(args)
     }
-  ],
-  action: function set({ args, modifiers, data }: ActionParameters<SetModifiers>, configService: ConfigService): void {
-    const separator = configService.getSeparator()
-    const separatorIndex = args.indexOf(separator)
+  ]
+
+  private setShell(data: string[]): boolean | undefined {
+    const shell = toBool(data)
+    if (shell === undefined) {
+      logger.info(`invalid value for shell: '${data[0]}'`)
+      return true
+    }
+
+    this.options.shell = shell
+    logger.set('shell', this.options.shell)
+  }
+
+  private setEnv(data: string[]): boolean | undefined {
+    if (!data[0]) {
+      logger.info(`invalid value for env`)
+      return true
+    }
+
+    logger.set('ENV variables', '')
+    data.forEach((val) => {
+      logger.info('\t', val)
+      const [key, value] = val.split('=')
+      this.options.env = {
+        ...(this.options.env ?? {}),
+        [key]: value
+      }
+    })
+  }
+
+  private setEnvFile(data: string[]): boolean | undefined {
+    if (!data[0]) {
+      logger.info(`invalid value for env-file`)
+      return true
+    }
+
+    this.options.envFile = path.resolve(data[0])
+    logger.set('ENV File', this.options.envFile)
+  }
+
+  private setAlias(args: string[]): undefined {
+    const separator = this.confService.separator
+    const separatorIndex = args.findIndex((a) => a === separator)
     if (separatorIndex === -1) {
-      throw new Error(`Invalid Input, missing separator: '${separator}'`)
+      throw new Error(`invalid input, missing separator: '${separator}'`)
     }
 
     const key = args[separatorIndex - 1]
     let command = args.slice(separatorIndex + 1)
 
     if (!key || command.length === 0) {
-      throw new Error('Invalid arguments passed')
+      throw new Error('invalid arguments passed')
     }
 
     if (command.length === 1) {
       command = command[0].split(' ')
     }
 
-    const alias = configService.getAlias(key)
-
-    const env: NodeJS.ProcessEnv = {}
-    if (data.env && Array.isArray(data.env)) {
-      data.env.forEach(val => {
-        const [key, value] = val.split('=')
-        env[key] = value
-      })
-    }
+    const alias = this.confService.getAlias(key)
 
     if (alias) {
-      Log.info(`Unset alias: ${key} ${separator} ${alias.command.join(' ')}`)
+      logger.info(`unset alias: ${key} ${separator} ${alias.command.join(' ')}`)
     }
 
-    configService.setAlias(key, {
-      options: {
-        shell: !!modifiers.shell,
-        env
-      },
+    this.confService.setAlias(key, {
+      options: this.options,
       command
     })
 
-    Log.info(`Set alias: ${key} ${separator} ${command.join(' ')}`)
-
-    if (!!modifiers.shell) {
-      Log.info(`With SHELL: enabled`)
-    }
-
-    if (Object.values(env).length && Array.isArray(data.env)) {
-      Log.info(`With ENV:\n\t${data.env.join('\n\t')}`)
-    }
+    logger.info(`set alias: ${key} ${separator} ${command.join(' ')}`)
   }
-} as Flag
+}

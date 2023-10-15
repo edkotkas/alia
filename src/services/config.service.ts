@@ -1,51 +1,31 @@
-import * as fs from 'node:fs'
+import type { Config, Command, MetaData } from '../models/config.model.js'
+
 import * as path from 'node:path'
 import { homedir } from 'node:os'
 import * as readline from 'node:readline/promises'
-import type { Interface } from 'node:readline/promises'
 import { stdin as input, stdout as output } from 'process'
-
-import type { Config, Command, MetaData, FSWrapper, RLWrapper } from '../models'
-
-import Log from '../logger.js'
+import logger from '../logger.js'
+import { file } from '../utils/file.js'
+import { read } from '../utils/read.js'
 
 export class ConfigService {
-
-  public fs: FSWrapper = {
-    write: (path: string, data: Config): void => fs.writeFileSync(path, JSON.stringify(data, null, 2)),
-    read: (path: string) => fs.readFileSync(path, 'utf-8'),
-    exists: (path: string): boolean => fs.existsSync(path)
-  }
-
-  public rl: RLWrapper = {
-    question: (rli: Interface, question: string): Promise<string> => rli.question(question)
-  }
-
   public fileName = '.alia.json'
   public defaultConfig: Config = {
     version: 1,
     meta: {
       gist: {
-        token: "",
-        id: ""
+        token: '',
+        id: ''
       }
     },
     options: {
-      separator: "@",
-      shell: false,
-      verbose: false
+      separator: '@',
+      shell: false
     },
     alias: {
       test: {
-        options: {
-          shell: false
-        },
-        command: [
-          "echo",
-          "alia",
-          "is",
-          "working!"
-        ]
+        options: {},
+        command: ['echo', 'alia', 'is', 'working!']
       }
     }
   }
@@ -58,14 +38,13 @@ export class ConfigService {
       return this._config
     }
 
-    const config = this.fs.read(this.filePath)
     try {
+      const config = file.read(this.filePath)
       this._config = JSON.parse(config) as Config
       return this._config
-    }
-    catch (e) {
-      Log.info('Failed to load config:', this.filePath)
-      Log.info('Make sure to run: al --init')
+    } catch (e) {
+      logger.info('Failed to load config:', this.filePath)
+      logger.info('Make sure to run: al --init')
       throw e
     }
   }
@@ -85,73 +64,66 @@ export class ConfigService {
     this.save(this.config)
   }
 
-  public getSeparator(): string {
+  public get separator(): string {
     return this.config.options.separator
   }
 
-  public setSeparator(separator?: string): void {
+  public set separator(separator: string) {
     this.config.options.separator = separator
-      ? separator
-      : this.defaultConfig.options.separator
-
     this.save(this.config)
   }
 
-  public getShell(): boolean {
+  public get shell(): boolean {
     return this.config.options.shell
   }
 
-  public setShell(value: boolean): void {
+  public set shell(value: boolean) {
     this.config.options.shell = value
-  }
-
-  public getToken(): string {
-    return this.config.meta.gist.token
-  }
-
-  public setToken(token: string): void {
-    this.config.meta.gist.token = token
     this.save(this.config)
   }
 
-  public getGistId(): string {
-    return this.config.meta.gist.id
+  public get token(): string {
+    return this.meta.gist.token
   }
 
-  public setGistId(id: string): void {
-    this.config.meta.gist.id = id
+  public set token(token: string) {
+    this.meta.gist.token = token
     this.save(this.config)
   }
 
-  public getVerbose(): boolean {
-    return this.config.options.verbose
+  public get gistId(): string {
+    return this.meta.gist.id
   }
 
-  public setVerbose(value: boolean): void {
-    this.config.options.verbose = value
+  public set gistId(id: string) {
+    this.meta.gist.id = id
     this.save(this.config)
   }
 
-  public getMetaData(): MetaData {
+  public get meta(): MetaData {
     return this.config.meta
   }
 
   public async init(): Promise<void> {
-    if (this.fs.exists(this.filePath)) {
-      const answer = await this.rl.question(
-        readline.createInterface({input, output}), 
+    if (file.exists(this.filePath)) {
+      const rli = readline.createInterface({ input, output })
+      const answer = await read.question(
+        rli,
         `Config already exists at: ${this.filePath}\nWould you like to overwrite (y/n): `
       )
-      if (answer.toLowerCase() !== 'y') {
+
+      rli.close()
+
+      if (!/y(es)?/.test(answer.toLowerCase())) {
         return
       }
     }
 
     this.save(this.defaultConfig)
-    Log.info('Created config:', this.filePath)
+    logger.info('Created config:', this.filePath)
   }
 
   public save(config: Config): void {
-    this.fs.write(this.filePath, config)
+    file.write(this.filePath, config)
   }
 }

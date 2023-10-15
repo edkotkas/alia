@@ -1,13 +1,25 @@
-import type { Flag } from '../models'
-import pkg from '../../package.json' assert { type: 'json' }
-import Log from '../logger.js'
+import path from 'path'
+import { fileURLToPath } from 'url'
 
-export const VersionFlag = {
+import logger from '../logger.js'
+import { Flag } from './flag.js'
+import type { FlagInfo } from '../models/flag.model.js'
+import type { PackageJson } from '../models/fs-wrapper.model.js'
+import { file } from '../utils/file.js'
+
+export class VersionFlag extends Flag {
+  flag: FlagInfo = {
     key: 'version',
     short: 'v',
-    description: 'show version',
-    action: function version(): Promise<void> {
-      Log.info(pkg.version)
-      return Promise.resolve()
-    }
-} as Flag
+    desc: 'show version',
+    run: (): undefined => this.version()
+  }
+
+  private version(): undefined {
+    const dirname = fileURLToPath(new URL('.', import.meta.url))
+    const filePath = path.resolve(dirname, '..', '..', 'package.json')
+    const pkg = JSON.parse(file.read(filePath)) as PackageJson
+
+    logger.info(pkg.version)
+  }
+}

@@ -1,17 +1,13 @@
-import env from './env.js'
-
 export function info(...data: unknown[]): void {
   console.info(...data)
 }
 
 export function error(...data: Error[]): void {
-  if (env.verbose) {
-    return console.error(...data)
-  }
-
   console.error(...data.map((d) => d.message))
-  info('Run with `--verbose` for stacktrace')
 }
 
+export function set(key: string, value: string | number | boolean): void {
+  info(key, 'set to:', value)
+}
 
-export default { info, error }
+export default { info, error, set }

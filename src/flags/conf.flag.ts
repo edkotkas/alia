@@ -1,79 +1,86 @@
-import type { ActionParameters, ConfModifiers, Flag } from '../models'
-import type { ConfigService } from '../services'
+import type { FlagInfo } from '../models/flag.model.js'
 
-import Log from '../logger.js'
+import logger from '../logger.js'
+import { Flag } from './flag.js'
+import { toBool } from '../utils/to-bool.js'
 
-export const ConfFlag: Flag = {
-  key: 'conf',
-  short: 'c',
-  description: 'alia config (must use specify option)',
-  modifiers: [
+export class ConfFlag extends Flag {
+  flag = {
+    key: 'conf',
+    short: 'c',
+    desc: 'alia config (must specify an option)'
+  }
+
+  mods: FlagInfo[] = [
     {
       key: 'separator',
-      description: 'set alias separator (default: @)'
+      short: 's',
+      desc: 'set alias separator (default: @)',
+      run: (args: string[]): undefined => this.setSeparator(args)
+    },
+    {
+      key: 'shell',
+      short: 'sh',
+      desc: 'set global shell mode',
+      run: (args: string[]): undefined => this.setShell(args)
     },
     {
       key: 'token',
-      description: 'set the personal access token for gist sync'
+      short: 't',
+      desc: 'set the personal access token for gist sync',
+      run: (args: string[]): undefined => this.setToken(args)
     },
     {
       key: 'gist',
-      description: 'set the gist id to use for sync'
+      short: 'g',
+      desc: 'set the gist id to use for sync',
+      run: (args: string[]): undefined => this.setGist(args)
     },
     {
       key: 'path',
-      description: 'show config file path'
-    },
-    {
-      key: 'verbose',
-      description: 'enable verbose output'
+      short: 'p',
+      desc: 'show this.confservice file path',
+      run: (): undefined => this.showPath()
     }
-  ],
-  action: function conf(params: ActionParameters<ConfModifiers>, config: ConfigService): void {
-    const { modifiers, data } = params
-    if (Object.keys(modifiers).length === 0) {
-      throw new Error('Invalid arguments passed')
-    }
+  ]
 
-    if (modifiers.separator) {
-      config.setSeparator(data.separator as string)
-      Log.info(`Set the separator to:`, config.getSeparator())
-    }
+  private setSeparator(args: string[]): undefined {
+    this.confService.separator = args[0] ?? this.confService.defaultConfig.options.separator
+    logger.set('separator', this.confService.separator)
+  }
 
-    if (modifiers.gist) {
-      if (!data.gist) {
-        throw new Error('No gist id provided')
-      }
-
-      config.setGistId(data.gist as string)
+  private setGist(args: string[]): undefined {
+    if (!args[0]) {
+      logger.info('must specify a gist id')
+      return
     }
 
-    if (modifiers.token) {
-      if (!data.token) {
-        throw new Error('No token provided')
-      }
+    this.confService.gistId = args[0]
+    logger.set('gist', this.confService.gistId)
+  }
 
-      config.setToken(data.token as string)
+  private setToken(args: string[]): undefined {
+    if (!args[0]) {
+      logger.info('must specify a token')
+      return
     }
 
-    if (modifiers.shell) {
-      if (!data.shell) {
-        throw new Error('No shell value provided')
-      }
+    this.confService.token = args[0]
+    logger.set('token', this.confService.token)
+  }
 
-      config.setShell(Boolean(data.shell))
+  private setShell(args: string[]): undefined {
+    const shell = toBool(args)
+    if (shell === undefined) {
+      logger.info(`invalid value for shell: '${args[0]}'`)
+      return
     }
 
-    if (modifiers.path) {
-      Log.info(config.filePath)
-    }
+    this.confService.shell = shell
+    logger.set('shell', this.confService.shell)
+  }
 
-    if (modifiers.verbose) {
-      if (!data.verbose) {
-        throw new Error('No verbose value provided')
-      }
-
-      config.setVerbose(Boolean(data.verbose))
-    }
+  private showPath(): undefined {
+    logger.info(this.confService.filePath)
   }
 }

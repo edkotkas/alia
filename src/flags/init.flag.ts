@@ -1,11 +1,16 @@
-import type { ActionParameters, Flag } from '../models'
-import type { ConfigService } from '../services'
+import type { FlagInfo } from '../models/flag.model.js'
 
-export const InitFlag: Flag = {
-  key: 'init',
-  short: 'i',
-  description: 'initialize config',
-  action: function init(_: ActionParameters, configService: ConfigService): Promise<void> {
-    return configService.init()
+import { Flag } from './flag.js'
+
+export class InitFlag extends Flag {
+  flag: FlagInfo = {
+    key: 'init',
+    short: 'i',
+    desc: 'initialize config',
+    run: (): Promise<undefined> => this.init()
+  }
+
+  private async init(): Promise<undefined> {
+    await this.confService.init()
   }
 }
