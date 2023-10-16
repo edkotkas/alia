@@ -1,7 +1,7 @@
 export interface Config {
   version: number
   options: Options
-  alias: Alias,
+  alias: Alias
   meta: MetaData
 }
 
@@ -17,12 +17,12 @@ export interface Gist {
 export interface Options {
   separator: string
   shell: boolean
-  verbose: boolean
 }
 
 export interface AliasOptions {
   shell?: boolean
   env?: NodeJS.ProcessEnv
+  envFile?: string
 }
 
 export type Alias = Record<string, Command>

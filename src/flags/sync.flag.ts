@@ -1,29 +1,42 @@
-import type { ActionParameters, Flag, SyncModifiers } from '../models'
-import type { ConfigService, GistService } from '../services'
+import type { FlagData } from '../models/flag.model.js'
+import { Flag } from './flag.js'
 
-export const SyncFlag = {
-  key: 'sync',
-  short: 'sy',
-  description: 'backup/restore config from gist (default: restore)',
-  modifiers: [
+export class SyncFlag extends Flag {
+  flag = {
+    key: 'sync',
+    short: 'sy',
+    desc: 'backup/restore config from gist (default: restore)',
+    run: (args: string[], data?: FlagData): Promise<undefined> => this.sync(args, data)
+  }
+
+  mods = [
     {
-      key: 'push',
-      description: 'backup your current config'
+      key: 'backup',
+      short: 'b',
+      desc: 'backup your current config',
+      run: (): Promise<undefined> => this.backup()
     },
     {
-      key: 'pull',
-      description: 'restore latest config from gist'
+      key: 'restore',
+      short: 'r',
+      desc: 'restore latest config from gist',
+      run: (): Promise<undefined> => this.restore()
     }
-  ],
-  action: function sync({ modifiers }: ActionParameters<SyncModifiers>, _: ConfigService, gist: GistService): Promise<void> {
-    if (Object.keys(modifiers).length === 0 || modifiers.pull) {
-      return gist.pull()
+  ]
+
+  private async sync(_: string[], data: FlagData = {}): Promise<undefined> {
+    if (Object.values(data).length) {
+      return
     }
 
-    if (modifiers.push) {
-      return gist.push()
-    }
-
-    throw new Error('Invalid arguments passed')
+    await this.restore()
   }
-} as Flag
+
+  private async restore(): Promise<undefined> {
+    await this.gistService.restore()
+  }
+
+  private async backup(): Promise<undefined> {
+    await this.gistService.backup()
+  }
+}

@@ -1,5 +1,0 @@
-export * from './config.model'
-export * from './flag.model'
-export * from './gist-response.model'
-export * from './fs-wrapper.model'
-export * from './cli-wrapper.model'

@@ -1,7 +1,19 @@
 {
-  "files": [],
-  "references": [
-    { "path": "./src" },
-    { "path": "./tests" }
+  "compilerOptions": {
+    "outDir": "dist",
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "target": "ESNext",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "experimentalDecorators": true,
+    "strict": true,
+    "types": [
+      "node",
+      "jasmine"
+    ]
+  },
+  "exclude": [
+    "node_modules"
   ]
 }

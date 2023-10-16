@@ -1,57 +1,68 @@
-import type { ActionParameters, Alias, Flag, ListModifiers } from '../models'
-import type { ConfigService } from '../services'
-import Log from '../logger.js'
+import type { Alias } from '../models/config.model.js'
+import type { FlagInfo } from '../models/flag.model.js'
 
-function mapList(alias: Alias, config: ConfigService): string[] {
-  return Object.keys(alias)
-    .map(key => `${key} \t${config.getSeparator()} \t${alias[key].command.join(' ')}`)
-}
+import logger from '../logger.js'
+import { Flag } from './flag.js'
 
-export const ListFlag = {
-  key: 'list',
-  short: 'l',
-  description: 'list available alias',
-  modifiers: [
+export class ListFlag extends Flag {
+  private alias = this.confService.config.alias
+  private aliaKeys = Object.keys(this.alias)
+  private jsonFormat = false
+
+  flag: FlagInfo = {
+    key: 'list',
+    short: 'l',
+    desc: 'list available alias',
+    run: (): undefined => this.list()
+  }
+
+  mods: FlagInfo[] = [
     {
       key: 'sort',
-      description: 'sort alphabetically'
+      short: 's',
+      desc: 'sort alphabetically',
+      run: (): undefined => this.sort()
     },
     {
-      key: 'raw',
-      description: 'list raw alias info'
+      key: 'json',
+      short: 'j',
+      desc: 'list alias info as json',
+      run: (): undefined => this.json()
     },
     {
       key: 'filter',
-      format: /^\w+/,
-      description: 'filter alias list'
+      short: 'f',
+      desc: 'filter alias list',
+      run: (args: string[]): undefined => this.filter(args)
     }
-  ],
-  action: function list({ modifiers, data }: ActionParameters<ListModifiers>, config: ConfigService): void {
-    let alias = config.config.alias
-    let aliaKeys = Object.keys(alias)
+  ]
 
-    if (modifiers.filter) {
-      const filters = (data.filter ?? []) as string[]
-      if (filters.length === 0) {
-        throw new Error('No filter provided')
-      }
-
-      aliaKeys = aliaKeys.filter(a => filters.includes(a))
-    }
-
-    if (modifiers.sort) {
-      aliaKeys = aliaKeys.sort()
-    }
-
-    alias = aliaKeys.reduce<Alias>((acc, val) => {
-      acc[val] = alias[val]
-      return acc
-    }, {})
-
-    if (modifiers.raw) {
-      return Log.info(JSON.stringify(alias, null, 2))
-    }
-
-    Log.info((mapList(alias, config)).join('\n'))
+  private sort(): undefined {
+    this.aliaKeys = this.aliaKeys.sort()
   }
-} as Flag
+
+  private json(): undefined {
+    this.jsonFormat = true
+  }
+
+  private filter(data: string[]): undefined {
+    this.aliaKeys = this.aliaKeys.filter((a) => data.includes(a))
+  }
+
+  private list(): undefined {
+    if (this.jsonFormat) {
+      const alias = this.aliaKeys.reduce<Alias>((acc, val) => {
+        acc[val] = this.alias[val]
+        return acc
+      }, {})
+      logger.info(JSON.stringify(alias, null, 2))
+      return
+    }
+
+    const list = this.aliaKeys
+      .map((key) => `${key} \t${this.confService.separator} \t${this.alias[key].command.join(' ')}`)
+      .join('\n')
+
+    logger.info(list)
+  }
+}

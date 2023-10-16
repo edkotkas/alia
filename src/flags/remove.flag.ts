@@ -1,17 +1,22 @@
-import type { ActionParameters, Flag } from '../models'
-import type { ConfigService } from '../services'
-import Log from '../logger.js'
+import logger from '../logger.js'
+import { Flag } from './flag.js'
 
-export const RemoveFlag = {
-  key: 'remove',
-  short: 'r',
-  description: 'remove an alias',
-  action: function remove({ args: [key] }: ActionParameters, configService: ConfigService): void {
-    if (!configService.getAlias(key)) {
-      throw new Error(`Alias '${key}' does not exist`)
+export class RemoveFlag extends Flag {
+  flag = {
+    key: 'remove',
+    short: 'r',
+    desc: 'remove an alias',
+    run: (args: string[]): undefined => this.remove(args)
+  }
+
+  private remove(data: string[]): undefined {
+    const alias = this.confService.getAlias(data[0])
+    if (!alias) {
+      logger.info(`Alias '${data[0]}' does not exist`)
+      return
     }
 
-    configService.removeAlias(key)
-    Log.info(`Removed alias: ${key}`)
+    this.confService.removeAlias(data[0])
+    logger.info(`Removed alias: ${data[0]}`)
   }
-} as Flag
+}
