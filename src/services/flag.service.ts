@@ -18,7 +18,10 @@ export class FlagService {
 
   private help: Flag
 
-  constructor(private confService: ConfigService, private gistService: GistService) {
+  constructor(
+    private confService: ConfigService,
+    private gistService: GistService
+  ) {
     this.flags = [ConfFlag, InitFlag, ListFlag, RemoveFlag, SetFlag, SyncFlag, VersionFlag].map(
       (f) => new f(confService, gistService)
     )
@@ -44,7 +47,8 @@ export class FlagService {
 
     const dashRegex = /^-{1,2}\w/
 
-    let flargs = args
+    const cut = flag.flag.key === 'set' ? args.findIndex((a) => a === this.confService.separator) - 1 : undefined
+    let flargs = args.slice(0, cut)
 
     const mods = flargs.filter((a) => dashRegex.test(a))
     const modData: FlagData = {}
@@ -72,7 +76,7 @@ export class FlagService {
       flargs = Object.values(rest as Record<number, string>)
     }
 
-    return flag.run(flargs, modData)
+    return flag.run(args, modData)
   }
 
   private dashMatch(flagLike: FlagInfo, value: string): boolean {

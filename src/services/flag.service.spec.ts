@@ -90,8 +90,8 @@ describe('FlagService', () => {
   })
 
   it('should throw error with no env variables', async () => {
-    await expectAsync(flagService.run(['-s', '-e', 'key', '@', 'command'])).toBeRejectedWithError(
-      'invalid arguments passed'
-    )
+    const result = await flagService.run(['-s', '-e', 'key', '@', 'command'])
+    expect(result).toEqual(true)
+    expect(infoResult).toEqual([['invalid value for env']])
   })
 })
