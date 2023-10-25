@@ -12,7 +12,7 @@ export class SetFlag extends Flag {
     key: 'set',
     short: 's',
     desc: 'set an alias',
-    run: (args: string[]): undefined => this.setAlias(args)
+    run: (args: string[]): boolean | undefined => this.setAlias(args)
   }
 
   mods = [
@@ -74,18 +74,20 @@ export class SetFlag extends Flag {
     logger.set('ENV File', this.options.envFile)
   }
 
-  private setAlias(args: string[]): undefined {
+  private setAlias(args: string[]): boolean | undefined {
     const separator = this.confService.separator
     const separatorIndex = args.findIndex((a) => a === separator)
     if (separatorIndex === -1) {
-      throw new Error(`invalid input, missing separator: '${separator}'`)
+      logger.info(`invalid input, missing separator: '${separator}'`)
+      return true
     }
 
     const key = args[separatorIndex - 1]
     let command = args.slice(separatorIndex + 1)
 
     if (!key || command.length === 0) {
-      throw new Error('invalid arguments passed')
+      logger.info(`invalid arguments passed: '${key || ''}' ${separator} '${command.join(' ')}'`)
+      return true
     }
 
     if (command.length === 1) {
