@@ -65,6 +65,11 @@ describe('SetFlag', () => {
     expect(infoSpy).toHaveBeenCalledWith(`invalid value for env`)
   })
 
+  it('should set alias with multiple env variables', async () => {
+    await flagService.run(['-s', '--env', 'TEST=test', '--env', 'TEST2=test2', 'test', '@', 'echo', 'test2'])
+    expect(infoResult).toEqual([['\t', 'TEST=test'], ['\t', 'TEST2=test2'], ['set alias: test @ echo test2']])
+  })
+
   it('should set an alias with env file option', async () => {
     await flagService.run(['-s', '--env-file', 'test.env', 'test', '@', 'echo', 'test2'])
     expect(setSpy).toHaveBeenCalledWith('ENV File', path.resolve('test.env'))

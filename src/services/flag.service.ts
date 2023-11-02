@@ -61,7 +61,7 @@ export class FlagService {
         return true
       }
 
-      modData[mod.key] = []
+      modData[mod.key] ??= []
 
       const start = flargs.findIndex((a) => a === modArg)
       const next = flargs[start + 1]
