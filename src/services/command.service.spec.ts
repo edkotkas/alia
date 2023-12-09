@@ -138,4 +138,22 @@ describe('CommandService', () => {
 
     expect(spawnSyncSpy).toHaveBeenCalled()
   })
+
+  it('should run command with arguments', () => {
+    configServiceSpy.getAlias.and.returnValue({
+      command: ['echo'],
+      options: {
+        quote: true
+      }
+    })
+
+    commandService.run(['test', 'test test'])
+
+    expect(spawnSyncSpy).toHaveBeenCalledOnceWith('echo', ['"test test"'], {
+      cwd: process.cwd(),
+      shell: undefined,
+      stdio: 'inherit',
+      env: {}
+    })
+  })
 })

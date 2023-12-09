@@ -33,8 +33,25 @@ export class SetFlag extends Flag {
       short: 'ef',
       desc: 'add environment variables file',
       run: (args: string[]): boolean | undefined => this.setEnvFile(args)
+    },
+    {
+      key: 'quote',
+      short: 'q',
+      desc: 'add quotes to command',
+      run: (args: string[]): boolean | undefined => this.setQuote(args)
     }
   ]
+
+  private setQuote(data: string[]): boolean | undefined {
+    const quote = toBool(data)
+    if (quote === undefined) {
+      logger.info(`invalid value for quote: '${data[0]}'`)
+      return true
+    }
+
+    this.options.quote = quote
+    logger.set('quote', this.options.quote)
+  }
 
   private setShell(data: string[]): boolean | undefined {
     const shell = toBool(data)

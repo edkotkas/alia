@@ -1,12 +1,11 @@
-# Alia 
+# Alia
+
 [![install size](https://packagephobia.com/badge?p=alia)](https://packagephobia.com/result?p=alia)
 [![c8 config on GitHub](https://img.shields.io/nycrc/edkotkas/alia?config=.c8rc.json)](coverage\index.html)
-[![Snyk Vulnerabilities for npm package](https://img.shields.io/snyk/vulnerabilities/npm/alia)](https://img.shields.io/snyk/vulnerabilities/npm/alia)
 
 [![Node.js CI](https://github.com/edkotkas/alia/actions/workflows/ci.yml/badge.svg)](https://github.com/edkotkas/alia/actions/workflows/ci.yml)
-[![Node.js Package](https://github.com/edkotkas/alia/actions/workflows/publish.yml/badge.svg)](https://github.com/edkotkas/alia/actions/workflows/publish.yml)
 
-[![npm](https://img.shields.io/npm/v/alia)](https://www.npmjs.com/package/alia)
+[![npm](https://img.shields.io/npm/v/alia)](https://www.npmjs.com/package/alia)![npm](https://img.shields.io/npm/dm/alia)
 
 ## Alias To Go
 
@@ -30,8 +29,8 @@ al --help
 
 Alia allows you to backup/restore config from a [gist](http://gist.github.com) using the commands:
 
-- `al --sync --push` to backup your config (push to gist)
-- `al --sync --pull` to restore your config (pull from gist)
+- `al --sync --backup` to backup your config to gist
+- `al --sync --restore` to restore your config from gist
 
 To get started:
 
@@ -40,28 +39,33 @@ To get started:
 3. Setup Alia with the following commands:
 
 ```bash
-al --conf --token=<api token> --gist=<gist id>
+al --conf --token <api token> --gist <gist id>
 ```
 
 ## Developing
+
 Get up and running with Alia on your local machine.
 
 ### Prerequisites
 
-- Node: Version 19 or higher
+- Node: LTS or higher
 
-### Installing
--  Clone the repository (or fork it)
+### Setup
+
+- Clone the repository (or fork it)
+
 ```bash
 git clone https://github.com/edkotkas/alia.git && cd alia
 ```
 
 - Install the dev dependencies
+
 ```bash
 npm i
 ```
 
-- Run the script (will create a global config file in your home directory)
+- Run the script
+
 ```bash
 npm start -- --help
 ```
@@ -69,7 +73,9 @@ npm start -- --help
 - Add issues to Github, make changes to the project and create pull requests for review
 
 ### Tests
+
 Run the tests
+
 ```bash
 npm test
 ```

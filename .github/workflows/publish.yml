@@ -48,25 +48,25 @@ jobs:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
 
   publish-gpr:
-      needs: test
-      runs-on: ubuntu-latest
-      permissions:
-        contents: read
-        packages: write
-      steps:
-        - uses: actions/checkout@v3
-        - uses: actions/setup-node@v3
-          with:
-            node-version: lts/*
-            registry-url: https://npm.pkg.github.com/
-            scope: '@edkotkas'
-            cache: 'npm'
-        - run: echo "$( jq '.name = "@edkotkas/alia"' package.json )" > package.json
-        - name: Install
-          run: npm ci
-        - name: Build
-          run: npm run build
-        - name: Publish GPR
-          run: npm publish
-          env:
-            NODE_AUTH_TOKEN: ${{secrets.GPR_TOKEN}}
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: lts/*
+          registry-url: https://npm.pkg.github.com/
+          scope: '@edkotkas'
+          cache: 'npm'
+      - run: echo "$( jq '.name = "@edkotkas/alia"' package.json )" > package.json
+      - name: Install
+        run: npm ci
+      - name: Build
+        run: npm run build
+      - name: Publish GPR
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.GPR_TOKEN}}

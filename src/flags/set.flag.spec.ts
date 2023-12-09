@@ -95,4 +95,14 @@ describe('SetFlag', () => {
     await flagService.run(['-s', '@'])
     expect(infoSpy).toHaveBeenCalledWith(`invalid arguments passed: '' @ ''`)
   })
+
+  it('should add quotes to command', async () => {
+    await flagService.run(['-s', '-q', 'test', '@', 'echo', 'test 2'])
+    expect(setSpy).toHaveBeenCalledWith('quote', true)
+  })
+
+  it('should log error if quote option is not valid', async () => {
+    await flagService.run(['-s', '-q', 'test', 'test', '@', 'echo', 'test2'])
+    expect(infoSpy).toHaveBeenCalledWith(`invalid value for quote: 'test'`)
+  })
 })
