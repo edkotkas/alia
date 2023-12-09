@@ -20,6 +20,7 @@ export interface Options {
 }
 
 export interface AliasOptions {
+  quote?: boolean
   shell?: boolean
   env?: NodeJS.ProcessEnv
   envFile?: string

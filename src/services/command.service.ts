@@ -36,6 +36,10 @@ export class CommandService {
       }
     }
 
+    if (al.options.quote) {
+      args = args.map((arg) => `"${arg}"`)
+    }
+
     const [command, ...parameters] = al.command.concat(args)
     const options: SpawnOptions = {
       cwd: process.cwd(),
