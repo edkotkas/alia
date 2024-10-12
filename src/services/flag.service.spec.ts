@@ -8,6 +8,7 @@ describe('FlagService', () => {
   let infoSpy: jasmine.Spy
   let infoResult: (string | boolean)[][]
   let setSpy: jasmine.Spy
+  let initSpy: jasmine.Spy
 
   const helpLine = [
     `
@@ -25,14 +26,16 @@ describe('FlagService', () => {
       infoResult = [...infoResult, data as string[]]
     })
     setSpy = spyOn(logger, 'set').and.callFake(() => ({}))
+    initSpy = spyOn(logger, 'init').and.callFake(() => ({}))
 
-    const configServiceSpy = jasmine.createSpyObj<ConfigService>('ConfigService', [
-      'config',
-      'separator',
-      'getAlias',
-      'setAlias',
-      'save'
-    ])
+    const configServiceSpy = jasmine.createSpyObj<ConfigService>(
+      'ConfigService',
+      ['config', 'separator', 'getAlias', 'setAlias', 'save'],
+      {
+        isReady: true
+      }
+    )
+
     configServiceSpy.separator = '@'
     configServiceSpy.config.alias = {}
 
@@ -57,6 +60,22 @@ describe('FlagService', () => {
     await flagService.run(['--help'])
     expect(infoSpy).toHaveBeenCalled()
     expect(infoResult[0]).toEqual(helpLine)
+  })
+
+  it('should call logger init with no config', async () => {
+    const spy = jasmine.createSpyObj<ConfigService>(
+      'ConfigService',
+      ['config', 'separator', 'getAlias', 'setAlias', 'save'],
+      {
+        isReady: false
+      }
+    )
+
+    const flag = new FlagService(spy, {} as GistService)
+
+    await flag.run(['-c'])
+
+    expect(initSpy).toHaveBeenCalled()
   })
 
   it('should return with non flag input', async () => {
@@ -92,6 +111,6 @@ describe('FlagService', () => {
   it('should throw error with no env variables', async () => {
     const result = await flagService.run(['-s', '-e', 'key', '@', 'command'])
     expect(result).toEqual(true)
-    expect(infoResult).toEqual([['invalid value for env']])
+    expect(infoResult).toEqual([[`invalid value for env flag: undefined`]])
   })
 })

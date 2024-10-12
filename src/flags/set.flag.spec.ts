@@ -17,12 +17,13 @@ describe('SetFlag', () => {
     })
     setSpy = spyOn(logger, 'set').and.callFake(() => ({}))
 
-    configServiceSpy = jasmine.createSpyObj<ConfigService>('ConfigService', [
-      'config',
-      'separator',
-      'getAlias',
-      'setAlias'
-    ])
+    configServiceSpy = jasmine.createSpyObj<ConfigService>(
+      'ConfigService',
+      ['config', 'separator', 'getAlias', 'setAlias'],
+      {
+        isReady: true
+      }
+    )
     configServiceSpy.separator = '@'
     configServiceSpy.config.alias = {
       test: {
@@ -51,8 +52,8 @@ describe('SetFlag', () => {
   })
 
   it('should log error if shell option is not valid', async () => {
-    await flagService.run(['-s', '--shell', 'test', 'test', '@', 'echo', 'test2'])
-    expect(infoSpy).toHaveBeenCalledWith(`invalid value for shell: 'test'`)
+    await flagService.run(['-s', '--shell', 'test', 'test', '@', 'echo', 'test'])
+    expect(infoSpy).toHaveBeenCalledWith(`invalid value for shell flag: test`)
   })
 
   it('should set an alias with env option', async () => {
@@ -62,7 +63,7 @@ describe('SetFlag', () => {
 
   it('should log error if env option is not valid', async () => {
     await flagService.run(['-s', '--env', 'test', '@', 'echo', 'test2'])
-    expect(infoSpy).toHaveBeenCalledWith(`invalid value for env`)
+    expect(infoSpy).toHaveBeenCalledWith(`invalid value for env flag: undefined`)
   })
 
   it('should set alias with multiple env variables', async () => {
@@ -77,12 +78,12 @@ describe('SetFlag', () => {
 
   it('should log error if env file option is not valid', async () => {
     await flagService.run(['-s', '--env-file', 'test', '@', 'echo', 'test2'])
-    expect(infoSpy).toHaveBeenCalledWith(`invalid value for env-file`)
+    expect(infoSpy).toHaveBeenCalledWith(`invalid value for env-file flag: undefined`)
   })
 
   it('should throw error witout separator', async () => {
     await flagService.run(['-s', 'test', 'echo', 'test2'])
-    expect(infoResult).toEqual([[`invalid input, missing separator: '@'`]])
+    expect(infoResult).toEqual([[`invalid input, missing separator: @`]])
   })
 
   it('should update existing alias', async () => {
@@ -102,7 +103,12 @@ describe('SetFlag', () => {
   })
 
   it('should log error if quote option is not valid', async () => {
-    await flagService.run(['-s', '-q', 'test', 'test', '@', 'echo', 'test2'])
-    expect(infoSpy).toHaveBeenCalledWith(`invalid value for quote: 'test'`)
+    await flagService.run(['-s', '-q', 'test', 'test', '@', 'echo', 'test'])
+    expect(infoSpy).toHaveBeenCalledWith(`invalid value for quote: test`)
+  })
+
+  it('should log error if quote option is not valid with multiple values', async () => {
+    await flagService.run(['-s', '-q', 'test', '-q', 'test3', 'test2', 'test', '@', 'echo', 'test'])
+    expect(infoSpy).toHaveBeenCalledWith(`invalid value for quote: test`)
   })
 })

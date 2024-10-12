@@ -27,12 +27,38 @@ describe('ConfigService', () => {
   })
 
   it('should get config', () => {
+    readSpy.and.callFake(() => '{}')
     expect(configService.config).toBeDefined()
   })
 
-  it('should throw error reading config', () => {
+  it('should get alias', () => {
+    readSpy.and.callFake(() => '{"alias": {"test": "echo test"}}')
+    expect(configService.alias).toBeDefined()
+  })
+
+  it('should get keys', () => {
+    readSpy.and.callFake(() => '{"alias": {"test": "echo test"}}')
+    expect(configService.keys).toBeDefined()
+  })
+
+  it('should get options', () => {
+    readSpy.and.callFake(() => '{"options": {"separator": "@"}}')
+    expect(configService.options).toBeDefined()
+  })
+
+  it('should get isReady as false', () => {
     readSpy.and.throwError('error')
-    expect(() => configService.config).toThrowError('error')
+    expect(configService.isReady).toBeFalsy()
+  })
+
+  it('should get isReady as true', () => {
+    readSpy.and.callFake(() => '{}')
+    expect(configService.isReady).toBeTruthy()
+  })
+
+  it('should return default config on error', () => {
+    readSpy.and.throwError('error')
+    expect(configService.config).toEqual(configService.defaultConfig)
   })
 
   it('should get shell', () => {

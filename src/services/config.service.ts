@@ -1,4 +1,4 @@
-import type { Config, Command, MetaData } from '../models/config.model.js'
+import type { Config, Command, MetaData, Alias, Options } from '../models/config.model.js'
 
 import * as path from 'node:path'
 import { homedir } from 'node:os'
@@ -33,7 +33,7 @@ export class ConfigService {
   public filePath = path.join(homedir(), this.fileName)
 
   private _config: Config | undefined
-  get config(): Config {
+  public get config(): Config {
     if (this._config) {
       return this._config
     }
@@ -43,10 +43,24 @@ export class ConfigService {
       this._config = JSON.parse(config) as Config
       return this._config
     } catch (e) {
-      logger.info('Failed to load config:', this.filePath)
-      logger.info('Make sure to run: al --init')
-      throw e
+      return this.defaultConfig
     }
+  }
+
+  public get isReady(): boolean {
+    return JSON.stringify(this.config) != JSON.stringify(this.defaultConfig) && Boolean(this._config)
+  }
+
+  public get alias(): Alias {
+    return this.config.alias
+  }
+
+  public get keys(): string[] {
+    return Object.keys(this.config.alias)
+  }
+
+  public get options(): Options {
+    return this.config.options
   }
 
   public getAlias(key: string): Command | undefined {
@@ -114,7 +128,7 @@ export class ConfigService {
 
       rli.close()
 
-      if (!/y(es)?/.test(answer.toLowerCase())) {
+      if (!/y(es)?/i.test(answer)) {
         return
       }
     }

@@ -1,3 +1,4 @@
+import logger from '../logger'
 import type { CommandService } from './command.service'
 import type { FlagService } from './flag.service'
 import { InputService } from './input.service'
@@ -6,8 +7,10 @@ describe('InputService', () => {
   let inputService: InputService
   let flagServiceSpy: jasmine.SpyObj<FlagService>
   let commandServiceSpy: jasmine.SpyObj<CommandService>
+  let errorSpy: jasmine.Spy
 
   beforeEach(() => {
+    errorSpy = spyOn(logger, 'error').and.callFake(() => ({}))
     flagServiceSpy = jasmine.createSpyObj<FlagService>('FlagService', ['run'])
     commandServiceSpy = jasmine.createSpyObj<CommandService>('CommandService', ['run'])
 
@@ -36,5 +39,13 @@ describe('InputService', () => {
 
     expect(flagSpy).toHaveBeenCalledOnceWith([])
     expect(commandSpy).toHaveBeenCalledOnceWith([])
+  })
+
+  it('should log error', async () => {
+    const error = new Error('test error')
+    flagServiceSpy.run.and.rejectWith(error)
+    await inputService.read()
+
+    expect(errorSpy).not.toHaveBeenCalledOnceWith([['test error']])
   })
 })

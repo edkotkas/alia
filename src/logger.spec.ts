@@ -1,4 +1,4 @@
-import { info, error, set } from './logger.js'
+import { info, error, set, init } from './logger.js'
 
 describe('Logger', () => {
   beforeEach(() => {
@@ -21,5 +21,10 @@ describe('Logger', () => {
   it('should call console log with set', () => {
     set('test', 'test')
     expect(console.info).toHaveBeenCalledOnceWith('test', 'set to:', 'test')
+  })
+
+  it('should call console log with init', () => {
+    init()
+    expect(console.info).toHaveBeenCalledTimes(2)
   })
 })

@@ -123,3 +123,7 @@ fabric.properties
 .alia*.json
 dist/
 *.tsbuildinfo
+
+# stryker temp files
+.stryker-tmp
+/reports

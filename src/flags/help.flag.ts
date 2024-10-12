@@ -6,6 +6,7 @@ export class HelpFlag extends Flag {
   flag: FlagInfo = {
     key: 'help',
     short: 'h',
-    desc: 'show help'
+    desc: 'show help',
+    noConf: true
   }
 }

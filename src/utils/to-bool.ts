@@ -13,4 +13,6 @@ export function toBool(data: string[]): boolean | undefined {
   if (falses.find((t) => t === data[0])) {
     return false
   }
+
+  return undefined
 }

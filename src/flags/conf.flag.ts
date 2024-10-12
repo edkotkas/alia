@@ -72,7 +72,7 @@ export class ConfFlag extends Flag {
   private setShell(args: string[]): undefined {
     const shell = toBool(args)
     if (shell === undefined) {
-      logger.info(`invalid value for shell: '${args[0]}'`)
+      logger.info(`invalid value for shell flag: ${args[0]}`)
       return
     }
 

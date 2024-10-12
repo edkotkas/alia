@@ -19,13 +19,13 @@ describe('ConfFlag', () => {
 
     setSpy = spyOn(logger, 'set').and.callFake(() => ({}))
 
-    configServiceSpy = jasmine.createSpyObj<ConfigService>('ConfigService', [
-      'config',
-      'separator',
-      'getAlias',
-      'setAlias',
-      'save'
-    ])
+    configServiceSpy = jasmine.createSpyObj<ConfigService>(
+      'ConfigService',
+      ['config', 'separator', 'getAlias', 'setAlias', 'save'],
+      {
+        isReady: true
+      }
+    )
     configServiceSpy.separator = '@'
     configServiceSpy.config.alias = {}
     configServiceSpy.defaultConfig = {
@@ -79,7 +79,7 @@ describe('ConfFlag', () => {
 
   it('should log error if invalid value provided for shell', async () => {
     await flagService.run(['-c', '-sh', 'test'])
-    expect(infoSpy).toHaveBeenCalledWith(`invalid value for shell: 'test'`)
+    expect(infoSpy).toHaveBeenCalledWith(`invalid value for shell flag: test`)
   })
 
   it('should show path', async () => {

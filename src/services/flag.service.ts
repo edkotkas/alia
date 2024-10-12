@@ -41,6 +41,11 @@ export class FlagService {
     }
 
     const flag = this.flags.find((f) => this.dashMatch(f.flag, arg))
+    if (!flag?.flag.noConf && !this.confService.isReady) {
+      logger.init()
+      return true
+    }
+
     if (!flag) {
       return false
     }

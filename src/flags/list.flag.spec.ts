@@ -6,29 +6,37 @@ import { FlagService } from '../services/flag.service'
 describe('ListFlag', () => {
   let flagService: FlagService
   let infoSpy: jasmine.Spy
-  let configServiceSpy: jasmine.SpyObj<ConfigService>
+  let fakeConfigService: ConfigService
+
+  const alias = {
+    test: {
+      command: ['echo'],
+      options: {
+        env: {
+          TEST: 'test'
+        }
+      }
+    },
+    atest: {
+      command: ['echo', 'another'],
+      options: {}
+    }
+  }
 
   beforeEach(() => {
     infoSpy = spyOn(logger, 'info').and.callFake(() => ({}))
 
-    configServiceSpy = jasmine.createSpyObj<ConfigService>('ConfigService', ['config', 'separator'])
-    configServiceSpy.separator = '@'
-    configServiceSpy.config.alias = {
-      test: {
-        command: ['echo'],
-        options: {
-          env: {
-            TEST: 'test'
-          }
-        }
+    fakeConfigService = {
+      config: {
+        alias
       },
-      atest: {
-        command: ['echo', 'another'],
-        options: {}
-      }
-    }
+      separator: '@',
+      keys: Object.keys(alias),
+      alias: alias,
+      isReady: true
+    } as unknown as ConfigService
 
-    flagService = new FlagService(configServiceSpy, {} as GistService)
+    flagService = new FlagService(fakeConfigService, {} as GistService)
 
     infoSpy.calls.reset()
   })
@@ -45,7 +53,7 @@ describe('ListFlag', () => {
 
   it('should list aliases in json format', async () => {
     await flagService.run(['-l', '-j'])
-    expect(infoSpy).toHaveBeenCalledWith(JSON.stringify(configServiceSpy.config.alias, null, 2))
+    expect(infoSpy).toHaveBeenCalledWith(JSON.stringify(fakeConfigService.config.alias, null, 2))
   })
 
   it('should list aliases in json format sorted', async () => {
@@ -53,8 +61,8 @@ describe('ListFlag', () => {
     expect(infoSpy).toHaveBeenCalledWith(
       JSON.stringify(
         {
-          atest: configServiceSpy.config.alias.atest,
-          test: configServiceSpy.config.alias.test
+          atest: fakeConfigService.config.alias.atest,
+          test: fakeConfigService.config.alias.test
         },
         null,
         2
@@ -72,7 +80,7 @@ describe('ListFlag', () => {
     expect(infoSpy).toHaveBeenCalledWith(
       JSON.stringify(
         {
-          test: configServiceSpy.config.alias.test
+          test: fakeConfigService.config.alias.test
         },
         null,
         2

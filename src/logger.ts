@@ -10,4 +10,9 @@ export function set(key: string, value: string | number | boolean): void {
   info(key, 'set to:', value)
 }
 
-export default { info, error, set }
+export function init(): void {
+  info('failed to load config')
+  info('make sure to run: al --init')
+}
+
+export default { info, error, set, init }

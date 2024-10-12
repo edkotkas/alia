@@ -5,8 +5,8 @@ import logger from '../logger.js'
 import { Flag } from './flag.js'
 
 export class ListFlag extends Flag {
-  private alias = this.confService.config.alias
-  private aliaKeys = Object.keys(this.alias)
+  private alias: Alias = this.confService.alias
+  private aliaKeys: string[] = this.confService.keys
   private jsonFormat = false
 
   flag: FlagInfo = {

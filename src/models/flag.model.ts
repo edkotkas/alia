@@ -8,6 +8,7 @@ export interface FlagInfo {
   mods?: FlagInfo[]
   format?: RegExp
   usage?: string
+  noConf?: boolean
 }
 
 export interface ModData {
@@ -15,7 +16,10 @@ export interface ModData {
   args: string[]
 }
 
-export type Action = (args: string[], data?: FlagData) => boolean | Promise<boolean> | undefined | Promise<undefined>
+export type Action = (
+  args: string[],
+  data?: FlagData
+) => boolean | Promise<boolean> | undefined | Promise<undefined> | Promise<void>
 
 export interface ActionParams {
   args: string[]

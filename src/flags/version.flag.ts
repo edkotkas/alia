@@ -12,7 +12,8 @@ export class VersionFlag extends Flag {
     key: 'version',
     short: 'v',
     desc: 'show version',
-    run: (): undefined => this.version()
+    run: (): undefined => this.version(),
+    noConf: true
   }
 
   private version(): undefined {

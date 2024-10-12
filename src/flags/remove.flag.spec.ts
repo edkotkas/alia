@@ -12,7 +12,9 @@ describe('RemoveFlag', () => {
   beforeEach(() => {
     infoSpy = spyOn(logger, 'info').and.callFake(() => ({}))
 
-    configServiceSpy = jasmine.createSpyObj<ConfigService>('ConfigService', ['config', 'getAlias', 'removeAlias'])
+    configServiceSpy = jasmine.createSpyObj<ConfigService>('ConfigService', ['config', 'getAlias', 'removeAlias'], {
+      isReady: true
+    })
     configServiceSpy.config.alias = {
       test: {
         command: ['echo'],

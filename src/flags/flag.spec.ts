@@ -11,13 +11,13 @@ describe('Flag', () => {
   beforeEach(() => {
     infoSpy = spyOn(logger, 'info').and.callFake(() => ({}))
 
-    configServiceSpy = jasmine.createSpyObj<ConfigService>('ConfigService', [
-      'config',
-      'separator',
-      'getAlias',
-      'setAlias',
-      'save'
-    ])
+    configServiceSpy = jasmine.createSpyObj<ConfigService>(
+      'ConfigService',
+      ['config', 'separator', 'getAlias', 'setAlias', 'save'],
+      {
+        isReady: true
+      }
+    )
     configServiceSpy.separator = '@'
     configServiceSpy.config.alias = {}
 

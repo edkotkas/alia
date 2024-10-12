@@ -19,8 +19,8 @@ export class SetFlag extends Flag {
     {
       key: 'shell',
       short: 'sh',
-      desc: 'enable shell mode',
-      run: (args: string[]): boolean | undefined => this.setShell(args)
+      desc: 'enable shell mode (default: true)',
+      run: (args: string[]): undefined => this.setShell(args)
     },
     {
       key: 'env',
@@ -37,27 +37,27 @@ export class SetFlag extends Flag {
     {
       key: 'quote',
       short: 'q',
-      desc: 'add quotes to command',
-      run: (args: string[]): boolean | undefined => this.setQuote(args)
+      desc: 'add quotes to command (default: true)',
+      run: (args: string[]): undefined => this.setQuote(args)
     }
   ]
 
-  private setQuote(data: string[]): boolean | undefined {
+  private setQuote(data: string[]): undefined {
     const quote = toBool(data)
     if (quote === undefined) {
-      logger.info(`invalid value for quote: '${data[0]}'`)
-      return true
+      logger.info(`invalid value for quote: ${data[0]}`)
+      return
     }
 
     this.options.quote = quote
     logger.set('quote', this.options.quote)
   }
 
-  private setShell(data: string[]): boolean | undefined {
+  private setShell(data: string[]): undefined {
     const shell = toBool(data)
     if (shell === undefined) {
-      logger.info(`invalid value for shell: '${data[0]}'`)
-      return true
+      logger.info(`invalid value for shell flag: ${data[0]}`)
+      return
     }
 
     this.options.shell = shell
@@ -66,7 +66,7 @@ export class SetFlag extends Flag {
 
   private setEnv(data: string[]): boolean | undefined {
     if (!data[0]) {
-      logger.info(`invalid value for env`)
+      logger.info(`invalid value for env flag: ${data[0]}`)
       return true
     }
 
@@ -83,7 +83,7 @@ export class SetFlag extends Flag {
 
   private setEnvFile(data: string[]): boolean | undefined {
     if (!data[0]) {
-      logger.info(`invalid value for env-file`)
+      logger.info(`invalid value for env-file flag: ${data[0]}`)
       return true
     }
 
@@ -95,7 +95,7 @@ export class SetFlag extends Flag {
     const separator = this.confService.separator
     const separatorIndex = args.findIndex((a) => a === separator)
     if (separatorIndex === -1) {
-      logger.info(`invalid input, missing separator: '${separator}'`)
+      logger.info(`invalid input, missing separator: ${separator}`)
       return true
     }
 
