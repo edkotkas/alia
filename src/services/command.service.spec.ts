@@ -4,7 +4,7 @@ import child from 'node:child_process'
 import dotenv from 'dotenv'
 
 import { CommandService } from './command.service'
-import logger from '../logger'
+import logger from '../utils/logger'
 
 describe('CommandService', () => {
   let commandService: CommandService
@@ -61,7 +61,9 @@ describe('CommandService', () => {
   })
 
   it('should throw error with no arguments', () => {
-    expect(() => commandService.run([])).toThrowError('No arguments provided for command')
+    expect(() => {
+      commandService.run([])
+    }).toThrowError('no arguments provided for command')
   })
 
   it('should log info with no alias', () => {
@@ -69,7 +71,7 @@ describe('CommandService', () => {
 
     commandService.run(['test'])
 
-    expect(infoSpy).toHaveBeenCalledOnceWith('Alias not set: test')
+    expect(infoSpy).toHaveBeenCalledOnceWith('alias not set: test')
   })
 
   it('should run command with env file', () => {
@@ -82,6 +84,10 @@ describe('CommandService', () => {
 
     commandService.run(['test'])
 
+    expect(dotEnvSpy).toHaveBeenCalledOnceWith({
+      path: '.env'
+    })
+
     expect(spawnSyncSpy).toHaveBeenCalledOnceWith('echo', [], {
       cwd: process.cwd(),
       shell: undefined,
@@ -90,6 +96,21 @@ describe('CommandService', () => {
         TEST: 'test'
       }
     })
+  })
+
+  it('should throw error when failed to parse env file', () => {
+    configServiceSpy.getAlias.and.returnValue({
+      command: ['echo'],
+      options: {
+        envFile: '.env'
+      }
+    })
+
+    dotEnvSpy.and.returnValue({})
+
+    expect(() => {
+      commandService.run(['test'])
+    }).toThrowError('failed to parse env file: .env')
   })
 
   it('should throw error with no env file', () => {
@@ -104,7 +125,9 @@ describe('CommandService', () => {
       error: new Error('test')
     })
 
-    expect(() => commandService.run(['test'])).toThrowError('test')
+    expect(() => {
+      commandService.run(['test'])
+    }).toThrowError('test')
   })
 
   it('should run command with shell', () => {
@@ -139,7 +162,30 @@ describe('CommandService', () => {
     expect(spawnSyncSpy).toHaveBeenCalled()
   })
 
-  it('should run command with arguments', () => {
+  it('should use env variables from env file and alias', () => {
+    configServiceSpy.getAlias.and.returnValue({
+      command: ['echo'],
+      options: {
+        envFile: '.env',
+        env: {
+          TEST: 'test'
+        }
+      }
+    })
+
+    commandService.run(['test'])
+
+    expect(spawnSyncSpy).toHaveBeenCalledOnceWith('echo', [], {
+      cwd: process.cwd(),
+      shell: undefined,
+      stdio: 'inherit',
+      env: {
+        TEST: 'test'
+      }
+    })
+  })
+
+  it('should run command with quotes', () => {
     configServiceSpy.getAlias.and.returnValue({
       command: ['echo'],
       options: {
@@ -151,6 +197,42 @@ describe('CommandService', () => {
 
     expect(spawnSyncSpy).toHaveBeenCalledOnceWith('echo', ['"test test"'], {
       cwd: process.cwd(),
+      shell: undefined,
+      stdio: 'inherit',
+      env: {}
+    })
+  })
+
+  it('should run command without quotes', () => {
+    configServiceSpy.getAlias.and.returnValue({
+      command: ['echo'],
+      options: {
+        quote: false
+      }
+    })
+
+    commandService.run(['test', 'test test'])
+
+    expect(spawnSyncSpy).toHaveBeenCalledOnceWith('echo', ['test test'], {
+      cwd: process.cwd(),
+      shell: undefined,
+      stdio: 'inherit',
+      env: {}
+    })
+  })
+
+  it('should run command with work directory', () => {
+    configServiceSpy.getAlias.and.returnValue({
+      command: ['echo'],
+      options: {
+        workDir: 'test'
+      }
+    })
+
+    commandService.run(['test'])
+
+    expect(spawnSyncSpy).toHaveBeenCalledOnceWith('echo', [], {
+      cwd: 'test',
       shell: undefined,
       stdio: 'inherit',
       env: {}

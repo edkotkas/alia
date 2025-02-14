@@ -1,7 +1,8 @@
 import type { ConfigService } from '../services/config.service'
 import type { GistService } from '../services/gist.service'
-import logger from '../logger'
+import logger from '../utils/logger'
 import { FlagService } from '../services/flag.service'
+import { FlagLoaderService } from '../services/flag-loader.service'
 
 describe('ListFlag', () => {
   let flagService: FlagService
@@ -36,7 +37,7 @@ describe('ListFlag', () => {
       isReady: true
     } as unknown as ConfigService
 
-    flagService = new FlagService(fakeConfigService, {} as GistService)
+    flagService = new FlagService(fakeConfigService, {} as GistService, new FlagLoaderService())
 
     infoSpy.calls.reset()
   })
@@ -44,6 +45,7 @@ describe('ListFlag', () => {
   it('should list aliases', async () => {
     await flagService.run(['-l'])
     expect(infoSpy).toHaveBeenCalledWith(`test \t@ \techo\natest \t@ \techo another`)
+    expect(infoSpy).not.toHaveBeenCalledWith('flag usage:')
   })
 
   it('should list aliases sorted', async () => {
@@ -54,6 +56,7 @@ describe('ListFlag', () => {
   it('should list aliases in json format', async () => {
     await flagService.run(['-l', '-j'])
     expect(infoSpy).toHaveBeenCalledWith(JSON.stringify(fakeConfigService.config.alias, null, 2))
+    expect(infoSpy).not.toHaveBeenCalledWith('flag usage:')
   })
 
   it('should list aliases in json format sorted', async () => {

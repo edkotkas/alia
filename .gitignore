@@ -127,3 +127,7 @@ dist/
 # stryker temp files
 .stryker-tmp
 /reports
+
+
+# test files
+test-tmp/

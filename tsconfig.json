@@ -8,12 +8,7 @@
     "resolveJsonModule": true,
     "experimentalDecorators": true,
     "strict": true,
-    "types": [
-      "node",
-      "jasmine"
-    ]
+    "types": ["node", "jasmine"]
   },
-  "exclude": [
-    "node_modules"
-  ]
+  "exclude": ["node_modules"]
 }

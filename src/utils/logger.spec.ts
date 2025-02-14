@@ -26,5 +26,7 @@ describe('Logger', () => {
   it('should call console log with init', () => {
     init()
     expect(console.info).toHaveBeenCalledTimes(2)
+    expect(console.info).toHaveBeenCalledWith('failed to load config')
+    expect(console.info).toHaveBeenCalledWith('make sure to run: al --init')
   })
 })

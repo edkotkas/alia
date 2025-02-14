@@ -1,0 +1,34 @@
+usage: al [options] [alias] [separator] [command]
+
+options:
+	--conf, -c		alia config (must specify an option)
+		--separator, -s		set alias separator (default: @)
+		--shell, -sh		set global shell mode
+		--token, -t		set the personal access token for gist sync
+		--gist, -g		set the gist id to use for sync
+		--path, -p		show config file path
+
+	--help, -h		show help
+
+	--init, -i		initialize config
+
+	--list, -l		list available alias
+		--sort, -s		sort alphabetically
+		--json, -j		list alias info as json
+		--filter, -f		filter alias list
+
+	--remove, -r		remove an alias
+
+	--set, -s		set an alias
+		--shell, -sh		enable shell mode (default: true)
+		--env, -e		add environment variables
+		--env-file, -ef		add environment variables file
+		--quote, -q		add quotes to command (default: true)
+		--work-dir, -wd		run command in a specific directory
+
+	--sync, -sy		backup/restore config from gist (default: restore)
+		--backup, -b		backup your current config
+		--restore, -r		restore latest config from gist
+
+	--version, -v		show version
+

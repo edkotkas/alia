@@ -3,7 +3,7 @@ import type { ConfigService } from './config.service.js'
 
 import child from 'node:child_process'
 import dotenv from 'dotenv'
-import logger from '../logger.js'
+import logger from '../utils/logger.js'
 
 export class CommandService {
   constructor(private configService: ConfigService) {}
@@ -11,12 +11,12 @@ export class CommandService {
   run(args: string[]): void {
     const key = args.shift()
     if (!key) {
-      throw new Error('No arguments provided for command')
+      throw new Error('no arguments provided for command')
     }
 
     const al = this.configService.getAlias(key)
     if (!al) {
-      logger.info(`Alias not set: ${key}`)
+      logger.info(`alias not set: ${key}`)
       return
     }
 
@@ -31,9 +31,11 @@ export class CommandService {
         throw env.error
       }
 
-      if (env.parsed) {
-        al.options.env = Object.assign(env.parsed, al.options.env ?? {})
+      if (!env.parsed) {
+        throw new Error(`failed to parse env file: ${al.options.envFile}`)
       }
+
+      al.options.env = Object.assign(env.parsed, al.options.env)
     }
 
     if (al.options.quote) {
@@ -42,10 +44,10 @@ export class CommandService {
 
     const [command, ...parameters] = al.command.concat(args)
     const options: SpawnOptions = {
-      cwd: process.cwd(),
+      cwd: al.options.workDir ?? process.cwd(),
       stdio: 'inherit',
       shell: al.options.shell ?? shell,
-      env: Object.assign(process.env, al.options.env ?? {})
+      env: Object.assign(process.env, al.options.env)
     }
 
     child.spawnSync(command, parameters, options)

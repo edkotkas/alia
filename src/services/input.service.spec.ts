@@ -1,4 +1,4 @@
-import logger from '../logger'
+import logger from '../utils/logger'
 import type { CommandService } from './command.service'
 import type { FlagService } from './flag.service'
 import { InputService } from './input.service'
@@ -46,6 +46,6 @@ describe('InputService', () => {
     flagServiceSpy.run.and.rejectWith(error)
     await inputService.read()
 
-    expect(errorSpy).not.toHaveBeenCalledOnceWith([['test error']])
+    expect(errorSpy).toHaveBeenCalledOnceWith(error)
   })
 })

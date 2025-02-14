@@ -1,21 +1,24 @@
-import logger from '../logger'
+import logger from '../utils/logger'
 import type { ConfigService } from '../services/config.service'
-import { FlagService } from '../services/flag.service'
 import type { GistService } from '../services/gist.service'
-import { file } from '../utils/file'
+import { FlagService } from '../services/flag.service'
+import { FlagLoaderService } from '../services/flag-loader.service'
 
 describe('VersionFlag', () => {
   let flagService: FlagService
+  let infoSpy: jasmine.Spy
   beforeEach(() => {
-    spyOn(logger, 'info').and.callFake(() => ({}))
+    infoSpy = spyOn(logger, 'info').and.callFake(() => ({}))
 
-    spyOn(file, 'read').and.returnValue('test').and.returnValue('{"version": "1.0.0"}')
-
-    flagService = new FlagService({ config: { alias: {} } } as ConfigService, {} as GistService)
+    flagService = new FlagService(
+      { config: { alias: {} } } as ConfigService,
+      {} as GistService,
+      new FlagLoaderService()
+    )
   })
 
   it('should print version', async () => {
     await flagService.run(['-v'])
-    expect(logger.info).toHaveBeenCalledWith(`1.0.0`)
+    expect(infoSpy).toHaveBeenCalledOnceWith(jasmine.stringMatching(/\d+\.\d+\.\d+/))
   })
 })

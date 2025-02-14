@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "meta": {
+    "gist": {
+      "token": "",
+      "id": ""
+    }
+  },
+  "options": {
+    "separator": "@",
+    "shell": false
+  },
+  "alias": {
+    "test": {
+      "options": {},
+      "command": ["echo", "alia", "is", "working!"]
+    }
+  }
+}

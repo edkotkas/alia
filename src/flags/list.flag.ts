@@ -1,7 +1,7 @@
 import type { Alias } from '../models/config.model.js'
 import type { FlagInfo } from '../models/flag.model.js'
 
-import logger from '../logger.js'
+import logger from '../utils/logger.js'
 import { Flag } from './flag.js'
 
 export class ListFlag extends Flag {
@@ -13,7 +13,7 @@ export class ListFlag extends Flag {
     key: 'list',
     short: 'l',
     desc: 'list available alias',
-    run: (): undefined => this.list()
+    run: () => this.list()
   }
 
   mods: FlagInfo[] = [
@@ -21,42 +21,49 @@ export class ListFlag extends Flag {
       key: 'sort',
       short: 's',
       desc: 'sort alphabetically',
-      run: (): undefined => this.sort()
+      run: () => this.sort()
     },
     {
       key: 'json',
       short: 'j',
       desc: 'list alias info as json',
-      run: (): undefined => this.json()
+      run: () => this.json()
     },
     {
       key: 'filter',
       short: 'f',
       desc: 'filter alias list',
-      run: (args: string[]): undefined => this.filter(args)
+      run: (args: string[]) => this.filter(args)
     }
   ]
 
-  private sort(): undefined {
+  private sort(): boolean {
     this.aliaKeys = this.aliaKeys.sort()
+
+    return true
   }
 
-  private json(): undefined {
+  private json(): boolean {
     this.jsonFormat = true
+
+    return true
   }
 
-  private filter(data: string[]): undefined {
+  private filter(data: string[]): boolean {
     this.aliaKeys = this.aliaKeys.filter((a) => data.includes(a))
+
+    return true
   }
 
-  private list(): undefined {
+  private list(): boolean {
     if (this.jsonFormat) {
       const alias = this.aliaKeys.reduce<Alias>((acc, val) => {
         acc[val] = this.alias[val]
         return acc
       }, {})
       logger.info(JSON.stringify(alias, null, 2))
-      return
+
+      return true
     }
 
     const list = this.aliaKeys
@@ -64,5 +71,7 @@ export class ListFlag extends Flag {
       .join('\n')
 
     logger.info(list)
+
+    return true
   }
 }

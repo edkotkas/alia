@@ -1,7 +1,8 @@
 import type { ConfigService } from '../services/config.service'
 import type { GistService } from '../services/gist.service'
-import logger from '../logger'
+import logger from '../utils/logger'
 import { FlagService } from '../services/flag.service'
+import { FlagLoaderService } from '../services/flag-loader.service'
 
 describe('RemoveFlag', () => {
   let flagService: FlagService
@@ -30,17 +31,20 @@ describe('RemoveFlag', () => {
 
     removeSpy = configServiceSpy.removeAlias.and.callFake(() => ({}))
 
-    flagService = new FlagService(configServiceSpy, {} as GistService)
+    flagService = new FlagService(configServiceSpy, {} as GistService, new FlagLoaderService())
   })
 
   it('should remove alias', async () => {
     await flagService.run(['-r', 'test'])
     expect(removeSpy).toHaveBeenCalledOnceWith('test')
+    expect(infoSpy).not.toHaveBeenCalledWith('flag usage:')
+    expect(infoSpy).toHaveBeenCalledWith('removed alias: test')
   })
 
   it('should call info with alias not found', async () => {
     configServiceSpy.getAlias.and.returnValue(undefined)
     await flagService.run(['-r', 'test'])
-    expect(infoSpy).toHaveBeenCalledWith(`Alias 'test' does not exist`)
+    expect(infoSpy).toHaveBeenCalledWith(`alias 'test' does not exist`)
+    expect(infoSpy).not.toHaveBeenCalledWith('flag usage:')
   })
 })

@@ -1,7 +1,6 @@
 import path from 'path'
-import { fileURLToPath } from 'url'
 
-import logger from '../logger.js'
+import logger from '../utils/logger.js'
 import { Flag } from './flag.js'
 import type { FlagInfo } from '../models/flag.model.js'
 import type { PackageJson } from '../models/fs-wrapper.model.js'
@@ -12,15 +11,16 @@ export class VersionFlag extends Flag {
     key: 'version',
     short: 'v',
     desc: 'show version',
-    run: (): undefined => this.version(),
+    run: () => this.version(),
     noConf: true
   }
 
-  private version(): undefined {
-    const dirname = fileURLToPath(new URL('.', import.meta.url))
-    const filePath = path.resolve(dirname, '..', '..', 'package.json')
+  private version(): boolean {
+    const filePath = path.resolve(import.meta.dirname, '..', '..', 'package.json')
     const pkg = JSON.parse(file.read(filePath)) as PackageJson
 
     logger.info(pkg.version)
+
+    return true
   }
 }

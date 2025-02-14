@@ -4,30 +4,19 @@ import * as path from 'node:path'
 import { homedir } from 'node:os'
 import * as readline from 'node:readline/promises'
 import { stdin as input, stdout as output } from 'process'
-import logger from '../logger.js'
+import logger from '../utils/logger.js'
 import { file } from '../utils/file.js'
 import { read } from '../utils/read.js'
 
 export class ConfigService {
   public fileName = '.alia.json'
-  public defaultConfig: Config = {
-    version: 1,
-    meta: {
-      gist: {
-        token: '',
-        id: ''
-      }
-    },
-    options: {
-      separator: '@',
-      shell: false
-    },
-    alias: {
-      test: {
-        options: {},
-        command: ['echo', 'alia', 'is', 'working!']
-      }
-    }
+
+  public get defaultConfig(): Config {
+    const cfgPath = path.resolve(import.meta.dirname, '..', '..', 'data', 'config.default.json')
+    const cfgFile = file.read(cfgPath)
+    const cfg = JSON.parse(cfgFile) as Config
+
+    return cfg
   }
 
   public filePath = path.join(homedir(), this.fileName)
@@ -42,13 +31,13 @@ export class ConfigService {
       const config = file.read(this.filePath)
       this._config = JSON.parse(config) as Config
       return this._config
-    } catch (e) {
+    } catch (_) {
       return this.defaultConfig
     }
   }
 
   public get isReady(): boolean {
-    return JSON.stringify(this.config) != JSON.stringify(this.defaultConfig) && Boolean(this._config)
+    return file.exists(this.filePath)
   }
 
   public get alias(): Alias {
@@ -123,7 +112,7 @@ export class ConfigService {
       const rli = readline.createInterface({ input, output })
       const answer = await read.question(
         rli,
-        `Config already exists at: ${this.filePath}\nWould you like to overwrite (y/n): `
+        `config already exists at: ${this.filePath}\nwould you like to overwrite (y/n): `
       )
 
       rli.close()
@@ -134,7 +123,7 @@ export class ConfigService {
     }
 
     this.save(this.defaultConfig)
-    logger.info('Created config:', this.filePath)
+    logger.info('created config:', this.filePath)
   }
 
   public save(config: Config): void {

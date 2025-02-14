@@ -5,30 +5,37 @@
   "exports": null,
   "type": "module",
   "files": [
-    "dist/**/*"
+    "dist/**/**",
+    "data/**/**",
+    "!dist/models/**",
+    "!**/*.spec.*",
+    "!**/*.tsbuildinfo",
+    "LICENSE",
+    "README.md"
   ],
   "bin": {
     "al": "dist/main.js"
   },
   "scripts": {
     "start": "tsx src/main.ts",
+    "dist": "node dist/main.js",
+    "snap": "tsx src/main.ts -h > snapshots/help",
     "prebuild": "del-cli dist/",
     "build": "tsc --build tsconfig.build.json",
-    "postbuild": "del-cli dist/models",
     "test": "tsx test.ts",
     "test:watch": "npm run test -- --watch",
     "test:coverage": "c8 --all npm run test",
     "test:mutation": "stryker run",
-    "lint": "eslint . --ext .ts",
-    "format": "prettier --ignore-unknown --write",
-    "prepare": "husky install"
+    "lint": "eslint .",
+    "format": "prettier --config .prettierrc --ignore-unknown --write"
   },
   "keywords": [
     "alias",
     "cli",
     "cmd",
     "aka",
-    "alias-to-go"
+    "alias-to-go",
+    "dev"
   ],
   "author": "Eduard Kotkas",
   "license": "ISC",
@@ -41,28 +48,26 @@
   },
   "homepage": "https://github.com/edkotkas/alia#readme",
   "dependencies": {
-    "dotenv": "^16.3.1"
+    "dotenv": "^16.4.7"
   },
   "devDependencies": {
-    "@stryker-mutator/core": "^8.0.0",
-    "@stryker-mutator/jasmine-runner": "^8.0.0",
-    "@stryker-mutator/typescript-checker": "^8.0.0",
-    "@types/jasmine": "^5.1.1",
-    "@types/node": "^20.8.8",
-    "@typescript-eslint/eslint-plugin": "^6.9.0",
-    "@typescript-eslint/parser": "^6.9.0",
-    "c8": "^8.0.1",
-    "del-cli": "^5.1.0",
-    "eslint": "^8.52.0",
-    "eslint-config-standard-with-typescript": "^39.1.1",
-    "eslint-plugin-import": "^2.29.0",
-    "eslint-plugin-n": "^16.2.0",
-    "eslint-plugin-promise": "^6.1.1",
-    "http-request-mock": "^1.8.17",
-    "husky": "^8.0.3",
-    "jasmine": "^5.1.0",
-    "prettier": "^3.0.3",
-    "tsx": "^3.14.0",
-    "typescript": "^5.2.2"
+    "@eslint/eslintrc": "^3.2.0",
+    "@eslint/js": "^9.20.0",
+    "@stryker-mutator/core": "^8.7.1",
+    "@stryker-mutator/jasmine-runner": "^8.7.1",
+    "@stryker-mutator/typescript-checker": "^8.7.1",
+    "@types/eslint__js": "^8.42.3",
+    "@types/jasmine": "^5.1.5",
+    "@types/node": "^22.13.1",
+    "c8": "^10.1.3",
+    "del-cli": "^6.0.0",
+    "eslint": "^9.20.1",
+    "globals": "^15.15.0",
+    "http-request-mock": "^2.0.2",
+    "jasmine": "^5.6.0",
+    "prettier": "^3.5.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.24.0"
   }
 }

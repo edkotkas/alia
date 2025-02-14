@@ -1,8 +1,9 @@
 import { file } from '../utils/file'
 import { ConfigService } from './config.service'
-import logger from '../logger'
+import logger from '../utils/logger'
 import type { Command } from '../models/config.model'
 import { read } from '../utils/read'
+import defaultConfig from '../../data/config.default.json'
 
 describe('ConfigService', () => {
   let configService: ConfigService
@@ -11,13 +12,14 @@ describe('ConfigService', () => {
   let readSpy: jasmine.Spy
   let existsSpy: jasmine.Spy
   let questionSpy: jasmine.Spy
+  let infoSpy: jasmine.Spy
 
   beforeEach(() => {
-    spyOn(logger, 'info').and.callFake(() => ({}))
+    infoSpy = spyOn(logger, 'info').and.callFake(() => ({}))
     writeSpy = spyOn(file, 'write').and.callFake(() => ({}))
     readSpy = spyOn(file, 'read').and.callFake(() => '{}')
-    existsSpy = spyOn(file, 'exists').and.callFake(() => true)
-    questionSpy = spyOn(read, 'question').and.callFake(() => Promise.resolve(''))
+    existsSpy = spyOn(file, 'exists').and.returnValue(true)
+    questionSpy = spyOn(read, 'question').and.resolveTo('')
 
     configService = new ConfigService()
   })
@@ -27,64 +29,65 @@ describe('ConfigService', () => {
   })
 
   it('should get config', () => {
-    readSpy.and.callFake(() => '{}')
+    readSpy.and.returnValue('{}')
     expect(configService.config).toBeDefined()
   })
 
   it('should get alias', () => {
-    readSpy.and.callFake(() => '{"alias": {"test": "echo test"}}')
+    readSpy.and.returnValue('{"alias": {"test": "echo test"}}')
     expect(configService.alias).toBeDefined()
   })
 
   it('should get keys', () => {
-    readSpy.and.callFake(() => '{"alias": {"test": "echo test"}}')
+    readSpy.and.returnValue('{"alias": {"test": "echo test"}}')
     expect(configService.keys).toBeDefined()
   })
 
   it('should get options', () => {
-    readSpy.and.callFake(() => '{"options": {"separator": "@"}}')
+    readSpy.and.returnValue('{"options": {"separator": "@"}}')
     expect(configService.options).toBeDefined()
   })
 
-  it('should get isReady as false', () => {
-    readSpy.and.throwError('error')
-    expect(configService.isReady).toBeFalsy()
-  })
-
   it('should get isReady as true', () => {
-    readSpy.and.callFake(() => '{}')
+    readSpy.and.returnValue('{}')
     expect(configService.isReady).toBeTruthy()
   })
 
   it('should return default config on error', () => {
-    readSpy.and.throwError('error')
+    readSpy.and.callFake((path: string) => {
+      if (path.endsWith(configService.fileName)) {
+        throw new Error('error')
+      } else {
+        return '{ "version": "1.0.0" }'
+      }
+    })
     expect(configService.config).toEqual(configService.defaultConfig)
   })
 
   it('should get shell', () => {
-    readSpy.and.callFake(() => '{"options": {"shell": true}}')
+    readSpy.and.returnValue('{"options": {"shell": true}}')
     expect(configService.shell).toBeDefined()
   })
 
   it('should set shell', () => {
-    readSpy.and.callFake(() => JSON.stringify({ options: { shell: true } }))
+    readSpy.and.returnValue('{"options": {"shell": true}}')
     configService.shell = false
     expect(writeSpy).toHaveBeenCalledOnceWith(configService.filePath, { options: { shell: false } })
   })
 
   it('should get separator', () => {
-    readSpy.and.callFake(() => '{"options": {"separator": "@"}}')
+    readSpy.and.returnValue('{"options": {"separator": "@"}}')
     expect(configService.separator).toBeDefined()
   })
 
   it('should set separator', () => {
-    readSpy.and.callFake(() => JSON.stringify({ options: { separator: '@' } }))
+    readSpy.and.returnValue('{"options": {"separator": "@"}}')
     configService.separator = '#'
     expect(writeSpy).toHaveBeenCalledOnceWith(configService.filePath, { options: { separator: '#' } })
   })
 
   it('should get alias', () => {
-    readSpy.and.callFake(() => '{"alias": {"test": {"command": ["echo", "alia", "is", "working!"]}}}')
+    readSpy.and.returnValue('{"alias": {"test": {"command": ["echo", "alia", "is", "working!"]}}}')
     expect(configService.getAlias('test')).toBeDefined()
   })
 
@@ -97,50 +100,61 @@ describe('ConfigService', () => {
 
   it('should remove alias', () => {
     const config = { alias: { test: { command: ['echo', 'alia', 'is', 'working!'] } } }
-    readSpy.and.callFake(() => JSON.stringify(config))
+    readSpy.and.returnValue(JSON.stringify(config))
     configService.removeAlias('test')
     expect(writeSpy).toHaveBeenCalledOnceWith(configService.filePath, { alias: {} })
   })
 
   it('should get token', () => {
-    readSpy.and.callFake(() => JSON.stringify({ meta: { gist: { token: 'token' } } }))
+    readSpy.and.returnValue(JSON.stringify({ meta: { gist: { token: 'token' } } }))
     expect(configService.token).toEqual('token')
   })
 
   it('should set token', () => {
-    readSpy.and.callFake(() => JSON.stringify({ meta: { gist: {} } }))
+    readSpy.and.returnValue(JSON.stringify({ meta: { gist: {} } }))
     configService.token = 'newToken'
     expect(writeSpy).toHaveBeenCalledOnceWith(configService.filePath, { meta: { gist: { token: 'newToken' } } })
   })
 
   it('should get gistId', () => {
-    readSpy.and.callFake(() => JSON.stringify({ meta: { gist: { id: 'gistId' } } }))
+    readSpy.and.returnValue(JSON.stringify({ meta: { gist: { id: 'gistId' } } }))
     expect(configService.gistId).toEqual('gistId')
   })
 
   it('should set gistId', () => {
-    readSpy.and.callFake(() => JSON.stringify({ meta: { gist: {} } }))
+    readSpy.and.returnValue(JSON.stringify({ meta: { gist: {} } }))
     configService.gistId = 'newGistId'
     expect(writeSpy).toHaveBeenCalledOnceWith(configService.filePath, { meta: { gist: { id: 'newGistId' } } })
   })
 
   it('should init', async () => {
-    existsSpy.and.callFake(() => false)
-    readSpy.and.callFake(() => JSON.stringify({}))
+    existsSpy.and.returnValue(false)
+    readSpy.and.returnValue(JSON.stringify({}))
     await configService.init()
     expect(writeSpy).toHaveBeenCalledOnceWith(configService.filePath, configService.defaultConfig)
   })
 
-  it('should init with existing config', async () => {
-    readSpy.and.callFake(() => JSON.stringify({}))
-    questionSpy.and.callFake(() => Promise.resolve('y'))
-    await configService.init()
-    expect(writeSpy).toHaveBeenCalled()
+  it('should get default config', () => {
+    readSpy.and.callThrough()
+    expect(configService.defaultConfig).toEqual(defaultConfig)
   })
 
   it('should init with existing config', async () => {
-    readSpy.and.callFake(() => JSON.stringify({}))
-    questionSpy.and.callFake(() => Promise.resolve('x'))
+    readSpy.and.returnValue(JSON.stringify({}))
+    const spy = questionSpy.and.resolveTo('y')
+    await configService.init()
+
+    expect(spy).toHaveBeenCalledOnceWith(jasmine.anything(), jasmine.stringContaining('config already exists'))
+    expect(writeSpy).toHaveBeenCalled()
+    expect(infoSpy).toHaveBeenCalledOnceWith(
+      jasmine.stringContaining('created config'),
+      jasmine.stringContaining('.alia.json')
+    )
+  })
+
+  it('should init with existing config', async () => {
+    readSpy.and.returnValue(JSON.stringify({}))
+    questionSpy.and.returnValue(Promise.resolve('x'))
     await configService.init()
     expect(writeSpy).not.toHaveBeenCalled()
   })

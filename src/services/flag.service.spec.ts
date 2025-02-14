@@ -1,30 +1,25 @@
 import type { ConfigService } from './config.service'
 import type { GistService } from './gist.service'
+
+import fs from 'node:fs/promises'
+
 import { FlagService } from './flag.service'
-import logger from '../logger'
+import logger from '../utils/logger'
+import { FlagLoaderService } from './flag-loader.service'
 
 describe('FlagService', () => {
   let flagService: FlagService
   let infoSpy: jasmine.Spy
-  let infoResult: (string | boolean)[][]
   let setSpy: jasmine.Spy
   let initSpy: jasmine.Spy
+  let helpSnap: string
 
-  const helpLine = [
-    `
-    usage:
-
-      $ al [options] [alias] [separator] [command]
-
-    options:
-    `
-  ]
+  beforeAll(async () => {
+    helpSnap = await fs.readFile('snapshots/help', 'utf-8')
+  })
 
   beforeEach(() => {
-    infoResult = []
-    infoSpy = spyOn(logger, 'info').and.callFake((...data: unknown[]) => {
-      infoResult = [...infoResult, data as string[]]
-    })
+    infoSpy = spyOn(logger, 'info').and.callFake(() => ({}))
     setSpy = spyOn(logger, 'set').and.callFake(() => ({}))
     initSpy = spyOn(logger, 'init').and.callFake(() => ({}))
 
@@ -42,7 +37,7 @@ describe('FlagService', () => {
     configServiceSpy.getAlias.and.returnValue(undefined)
     configServiceSpy.setAlias.and.callFake(() => ({}))
 
-    flagService = new FlagService(configServiceSpy, {} as GistService)
+    flagService = new FlagService(configServiceSpy, {} as GistService, new FlagLoaderService())
     infoSpy.calls.reset()
   })
 
@@ -51,15 +46,20 @@ describe('FlagService', () => {
   })
 
   it('should return help with no input', async () => {
-    await flagService.run([])
-    expect(infoSpy).toHaveBeenCalled()
-    expect(infoResult[0]).toEqual(helpLine)
+    const result = await flagService.run([])
+    expect(result).toEqual(true)
+    const helpParts = helpSnap.split('\n').filter((p) => p.trim().length > 0)
+    helpParts.forEach((part) => {
+      expect(infoSpy).toHaveBeenCalledWith(part)
+    })
   })
 
   it('should return help with valid flag', async () => {
     await flagService.run(['--help'])
-    expect(infoSpy).toHaveBeenCalled()
-    expect(infoResult[0]).toEqual(helpLine)
+    const helpParts = helpSnap.split('\n').filter((p) => p.trim().length > 0)
+    helpParts.forEach((part) => {
+      expect(infoSpy).toHaveBeenCalledWith(part)
+    })
   })
 
   it('should call logger init with no config', async () => {
@@ -71,11 +71,13 @@ describe('FlagService', () => {
       }
     )
 
-    const flag = new FlagService(spy, {} as GistService)
+    const flag = new FlagService(spy, {} as GistService, new FlagLoaderService())
 
-    await flag.run(['-c'])
+    const result = await flag.run(['-c'])
 
-    expect(initSpy).toHaveBeenCalled()
+    expect(result).toEqual(true)
+
+    expect(initSpy).toHaveBeenCalledOnceWith()
   })
 
   it('should return with non flag input', async () => {
@@ -88,9 +90,32 @@ describe('FlagService', () => {
     expect(result).toEqual(false)
   })
 
-  it('should throw error with invalid flag', async () => {
-    await flagService.run(['-c', '--invalid'])
-    expect(infoResult[0]).toEqual(['unknown flag: --invalid\navailable options:'])
+  it('should show error with invalid flag', async () => {
+    const result = await flagService.run(['-c', '--invalid'])
+    expect(result).toEqual(true)
+    expect(infoSpy).toHaveBeenCalledWith('unknown flag: --invalid')
+    expect(infoSpy).toHaveBeenCalledWith('flag usage:')
+    expect(infoSpy).toHaveBeenCalledWith(jasmine.stringMatching(/^--conf, -c/))
+    expect(infoSpy).toHaveBeenCalledWith(jasmine.stringMatching(/^\s--path, -p\t\tshow config file path$/))
+  })
+
+  it('should show error with invalid flag usage', async () => {
+    const result = await flagService.run(['-s'])
+    expect(result).toEqual(true)
+    expect(infoSpy).toHaveBeenCalledWith('flag usage:')
+    expect(infoSpy).toHaveBeenCalledWith(jasmine.stringMatching(/^--set, -s/))
+  })
+
+  it('should not fail regex for flags', async () => {
+    const result = await flagService.run(['-c', 'test--path'])
+    expect(result).toEqual(true)
+    expect(infoSpy).not.toHaveBeenCalled()
+  })
+
+  it('should have the correct amount of dashes', async () => {
+    const result = await flagService.run(['-c', '-pp--path'])
+    expect(result).toEqual(true)
+    expect(infoSpy).toHaveBeenCalledWith('unknown flag: -pp--path')
   })
 
   it('should take in value for flag', async () => {
@@ -100,7 +125,9 @@ describe('FlagService', () => {
 
   it('should take value with consecutive flags', async () => {
     await flagService.run(['-s', '-sh', '-e', 'test=test', 'key', '@', 'command'])
-    expect(infoResult).toEqual([['\t', 'test=test'], ['set alias: key @ command']])
+    expect(infoSpy).toHaveBeenCalledWith('\t', 'test=test')
+    expect(setSpy).toHaveBeenCalledWith('shell', true)
+    expect(infoSpy).toHaveBeenCalledWith('set alias: key @ command')
   })
 
   it('should set shell flag with value', async () => {
@@ -109,8 +136,7 @@ describe('FlagService', () => {
   })
 
   it('should throw error with no env variables', async () => {
-    const result = await flagService.run(['-s', '-e', 'key', '@', 'command'])
-    expect(result).toEqual(true)
-    expect(infoResult).toEqual([[`invalid value for env flag: undefined`]])
+    await flagService.run(['-s', '-e', 'key', '@', 'command'])
+    expect(infoSpy).toHaveBeenCalledWith(`invalid value for env flag: undefined`)
   })
 })

@@ -6,13 +6,6 @@
   "branches": 100,
   "statements": 100,
   "reporter": ["text", "html", "cobertura"],
-  "include": [
-    "src/**/*.ts"
-  ],
-  "exclude": [
-    "src/**/*.spec.ts",
-    "src/models/*.ts",
-    "src/utils/*.ts",
-    "main.ts"
-  ]
+  "include": ["src/**/*.ts"],
+  "exclude": ["src/**/*.spec.ts", "src/models/*.ts", "src/utils/*.ts", "main.ts"]
 }

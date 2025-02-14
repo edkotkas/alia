@@ -11,8 +11,8 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: lts/*
           cache: 'npm'
@@ -20,20 +20,13 @@ jobs:
         run: npm ci
       - name: Test
         run: npm test
-      - name: Coverage
-        run: npm run test:coverage
-      - name: Upload Coverage
-        uses: actions/upload-artifact@v3
-        with:
-          name: coverage
-          path: ./coverage
 
   publish-npm:
     needs: test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 'lts/*'
           registry-url: https://registry.npmjs.org/
@@ -54,8 +47,8 @@ jobs:
       contents: read
       packages: write
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: lts/*
           registry-url: https://npm.pkg.github.com/

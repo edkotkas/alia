@@ -1,7 +1,7 @@
 import type { CommandService } from './command.service'
 import type { FlagService } from './flag.service'
 
-import logger from '../logger.js'
+import logger from '../utils/logger.js'
 
 export class InputService {
   constructor(

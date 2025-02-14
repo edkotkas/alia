@@ -16,10 +16,7 @@ export interface ModData {
   args: string[]
 }
 
-export type Action = (
-  args: string[],
-  data?: FlagData
-) => boolean | Promise<boolean> | undefined | Promise<undefined> | Promise<void>
+export type Action = (args: string[], data?: FlagData) => boolean | Promise<boolean>
 
 export interface ActionParams {
   args: string[]

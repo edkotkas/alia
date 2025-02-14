@@ -1,34 +1,30 @@
-import type Mocker from 'http-request-mock/src/mocker/mocker-for-node'
-import HttpRequestMock from 'http-request-mock'
-
-import type { MetaData } from '../models/config.model'
-import type { ConfigService } from './config.service'
+import type { Config, MetaData } from '../models/config.model'
+import { ConfigService } from './config.service'
 import { GistService } from './gist.service'
-import logger from '../logger'
+import logger from '../utils/logger'
+
+import { request } from '../utils/request'
 
 describe('GistService', () => {
-  const gistUrl = 'https://api.github.com/gists/'
-
   let gistService: GistService
-  let configServiceSpy: jasmine.SpyObj<ConfigService>
+  let fakeConfigService: ConfigService
   let infoSpy: jasmine.Spy
-
-  let mocker: Mocker
-
-  beforeAll(() => {
-    mocker = HttpRequestMock.setup()
-  })
+  let requestSpy: jasmine.Spy
 
   beforeEach(() => {
-    configServiceSpy = jasmine.createSpyObj<ConfigService>('ConfigService', ['gistId', 'fileName', 'config', 'save'])
-
-    configServiceSpy.gistId = 'gistId'
-    configServiceSpy.token = 'token'
-    configServiceSpy.fileName = 'fileName'
+    requestSpy = spyOn(request, 'call').and.callFake(() => new Promise(() => ({})))
+    fakeConfigService = {
+      gistId: 'gistId',
+      token: 'token',
+      fileName: 'fileName',
+      save: () => ({}),
+      config: {} as Config,
+      filePath: 'filePath'
+    } as unknown as ConfigService //jasmine.createSpyObj<ConfigService>('ConfigService', ['gistId', 'fileName', 'save'], ['config'])
 
     infoSpy = spyOn(logger, 'info').and.callFake(() => ({}))
 
-    gistService = new GistService(configServiceSpy)
+    gistService = new GistService(fakeConfigService)
   })
 
   it('should be defined', () => {
@@ -37,95 +33,82 @@ describe('GistService', () => {
 
   describe('Restore', () => {
     it('should fail to restore from gist with bad status code', async () => {
-      mocker.mock({
-        url: gistUrl,
-        status: 404
-      })
+      requestSpy.and.rejectWith(new Error('Not Found'))
 
       await expectAsync(gistService.restore()).toBeRejectedWithError('Not Found')
     })
 
     it('should fail to restore from gist with no file', async () => {
-      const expectedResult = {
-        files: {}
-      }
-
-      mocker.mock({
-        url: gistUrl,
-        status: 200,
-        body: JSON.stringify(expectedResult)
-      })
+      requestSpy.and.resolveTo({ updated_at: 'test', files: {} })
 
       await expectAsync(gistService.restore()).toBeRejectedWithError(
-        `Gist must contain a file named '${configServiceSpy.fileName}'`
+        `gist must contain a file named '${fakeConfigService.fileName}'`
       )
     })
 
     it('should fail to restore from gist with bad file data', async () => {
-      const expectedResult = {
-        files: {
-          fileName: '{bad}'
-        }
-      }
-
-      mocker.mock({
-        url: gistUrl,
-        status: 200,
-        body: JSON.stringify(expectedResult)
-      })
+      requestSpy.and.resolveTo({ updated_at: 'test', files: { fileName: { content: '{bad}' } } })
 
       await expectAsync(gistService.restore()).toBeRejected()
     })
 
     it('should restore gist and save', async () => {
-      const expectedResult = {
-        files: {
-          fileName: {
-            content: '{}'
-          }
-        }
-      }
+      const rspy = requestSpy.and.resolveTo({ updated_at: 'test', files: { fileName: { content: '{}' } } })
 
-      mocker.mock({
-        url: gistUrl,
-        status: 200,
-        body: JSON.stringify(expectedResult)
-      })
-
-      const spy = configServiceSpy.save.and.callFake(() => ({}))
+      const spy = spyOn(fakeConfigService, 'save').and.callFake(() => ({}))
 
       await expectAsync(gistService.restore()).toBeResolved()
+
+      expect(rspy).toHaveBeenCalledOnceWith('gistId', { method: 'GET', headers: { 'User-Agent': 'nodejs' } })
+
+      expect(infoSpy).toHaveBeenCalledWith(jasmine.stringContaining('restore config'))
+      expect(infoSpy).toHaveBeenCalledWith('fetched: test')
+      expect(infoSpy).toHaveBeenCalledWith('...done:', fakeConfigService.filePath)
+
       expect(spy).toHaveBeenCalled()
     })
   })
 
   describe('Backup', () => {
     beforeEach(() => {
-      configServiceSpy.config.meta = {} as MetaData
+      fakeConfigService.config.meta = {} as MetaData
       infoSpy.calls.reset()
     })
 
     it('should fail to backup to gist', async () => {
-      mocker.mock({
-        url: gistUrl,
-        status: 500
-      })
+      requestSpy.and.rejectWith(new Error('Internal Server Error'))
 
       await expectAsync(gistService.backup()).toBeRejectedWithError('Internal Server Error')
     })
 
     it('should backup to gist', async () => {
-      mocker.mock({
-        url: gistUrl,
-        status: 200,
-        body: {
-          html_url: 'test'
+      const rspy = requestSpy.and.resolveTo({ html_url: 'test' })
+
+      const data = JSON.stringify({
+        description: 'Alia Config',
+        files: {
+          fileName: {
+            content: JSON.stringify({ meta: {} }, null, 2)
+          }
         }
       })
 
       await gistService.backup()
 
-      expect(infoSpy).toHaveBeenCalledWith('...Done:', 'test')
+      expect(rspy).toHaveBeenCalledOnceWith(
+        'gistId',
+        {
+          method: 'PATCH',
+          headers: {
+            'User-Agent': 'nodejs',
+            Authorization: `token ${fakeConfigService.token}`
+          }
+        },
+        data
+      )
+
+      expect(infoSpy).toHaveBeenCalledWith(jasmine.stringContaining('backup local config'))
+      expect(infoSpy).toHaveBeenCalledWith('...done:', 'test')
     })
   })
 })

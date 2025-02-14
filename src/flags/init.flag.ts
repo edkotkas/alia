@@ -7,11 +7,12 @@ export class InitFlag extends Flag {
     key: 'init',
     short: 'i',
     desc: 'initialize config',
-    run: (): Promise<undefined> => this.init(),
+    run: (): Promise<boolean> => this.init(),
     noConf: true
   }
 
-  private async init(): Promise<undefined> {
+  private async init(): Promise<boolean> {
     await this.confService.init()
+    return true
   }
 }

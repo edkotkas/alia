@@ -20,9 +20,10 @@ export interface Options {
 }
 
 export interface AliasOptions {
+  workDir?: string
   quote?: boolean
   shell?: boolean
-  env?: NodeJS.ProcessEnv
+  env?: Record<string, string>
   envFile?: string
 }
 
