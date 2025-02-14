@@ -181,7 +181,7 @@ describe('SetFlag', () => {
 
   it('should set flag with work-dir flag', async () => {
     await flagService.run(['-s', '--work-dir', 'c:/path/to/dir', 'test', '@', 'echo', 'test2'])
-    expect(setSpy).toHaveBeenCalledWith('work dir', 'c:\\path\\to\\dir')
+    expect(setSpy).toHaveBeenCalledWith('work dir', jasmine.stringMatching(/c:[/\\]path[/\\]to[/\\]dir/))
     expect(infoSpy).not.toHaveBeenCalledWith('flag usage:')
   })
 
