@@ -1,8 +1,8 @@
-import { defineConfig, configs } from '@eslint/js'
+import js from '@eslint/js'
 import tseslint from 'typescript-eslint'
 
-export default defineConfig(
-  configs.recommended,
+export default [
+  js.configs.recommended,
   ...tseslint.configs.strictTypeChecked,
   ...tseslint.configs.stylisticTypeChecked,
   {
@@ -32,4 +32,4 @@ export default defineConfig(
   {
     ignores: ['dist/**/*', 'coverage/**/*', 'reports/**/*', '.stryker-tmp/**/*']
   }
-)
+]
