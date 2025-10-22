@@ -1,4 +1,4 @@
-import type { GistResponse } from '../models/gist-response.model'
+import type { GistResponse } from '../models/gist-response.model.js'
 import https from 'node:https'
 
 const baseUrl = `https://api.github.com/gists/`

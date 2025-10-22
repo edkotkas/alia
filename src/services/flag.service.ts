@@ -1,28 +1,25 @@
 import type { Flag } from '../flags/flag.js'
 import type { FlagData, FlagInfo } from '../models/flag.model.js'
-import type { ConfigService } from './config.service.js'
-import type { GistService } from './gist.service.js'
-import type { FlagLoaderService } from './flag-loader.service.js'
+import { ConfigService } from './config.service.js'
+import { FlagLoaderService } from './flag-loader.service.js'
 
 import logger from '../utils/logger.js'
+import { inject } from '../utils/di.js'
 
 export class FlagService {
-  private dashTypes: Record<string, keyof FlagInfo> = {
+  readonly #confService = inject(ConfigService)
+  readonly #flagLoaderService = inject(FlagLoaderService)
+
+  readonly #dashTypes: Record<string, keyof FlagInfo> = {
     '-': 'short',
     '--': 'key'
   }
 
-  constructor(
-    private confService: ConfigService,
-    private gistService: GistService,
-    private readonly flagLoaderService: FlagLoaderService
-  ) {}
-
-  private async getFlags(): Promise<Flag[]> {
-    let flags = await this.flagLoaderService.loadFlags(this.confService, this.gistService)
+  async #getFlags(): Promise<Flag[]> {
+    let flags = await this.#flagLoaderService.loadFlags()
     flags = flags.map((f) => {
       if (f.flag.key === 'help') {
-        f.run = () => this.showHelp()
+        f.run = () => this.#showHelp()
       }
 
       return f
@@ -35,13 +32,13 @@ export class FlagService {
     const [arg, ...args]: string[] = argv
 
     if (!arg) {
-      return this.showHelp()
+      return this.#showHelp()
     }
 
-    const flags = await this.getFlags()
+    const flags = await this.#getFlags()
 
-    const flag = flags.find((f) => this.dashMatch(f.flag, arg))
-    if (!flag?.flag.noConf && !this.confService.isReady) {
+    const flag = flags.find((f) => this.#dashMatch(f.flag, arg))
+    if (!flag?.flag.noConf && !this.#confService.isReady) {
       logger.init()
       return true
     }
@@ -52,18 +49,18 @@ export class FlagService {
 
     const dashRegex = /^-{1,2}\w/
 
-    const cut = flag.flag.key === 'set' ? args.findIndex((a) => a === this.confService.separator) - 1 : undefined
+    const cut = flag.flag.key === 'set' ? args.findIndex((a) => a === this.#confService.separator) - 1 : undefined
     let rawData = args.slice(0, cut)
 
     const mods = rawData.filter((a) => dashRegex.test(a))
     const data: FlagData = {}
 
     for (const rawMod of mods) {
-      const mod = flag.mods.find((f) => this.dashMatch(f, rawMod))
+      const mod = flag.mods.find((f) => this.#dashMatch(f, rawMod))
       if (!mod) {
         logger.info(`unknown flag: ${rawMod}`)
         logger.info('flag usage:')
-        this.flagHelp(flag, '')
+        this.#flagHelp(flag, '')
         return true
       }
 
@@ -84,39 +81,39 @@ export class FlagService {
     const result = await flag.run(args, data)
     if (!result) {
       logger.info('flag usage:')
-      this.flagHelp(flag, '')
+      this.#flagHelp(flag, '')
     }
 
     return true
   }
 
-  private dashMatch(flagLike: FlagInfo, value: string): boolean {
+  #dashMatch(flagLike: FlagInfo, value: string): boolean {
     const result = /(-{1,2})((?:\w-?)+)/.exec(value)
     if (!result) {
       return false
     }
 
     const [_, dashes, rawKey] = result
-    const key = this.dashTypes[dashes]
+    const key = this.#dashTypes[dashes]
 
     return flagLike[key] === rawKey
   }
 
-  private async showHelp(): Promise<boolean> {
-    const flags = await this.getFlags()
+  async #showHelp(): Promise<boolean> {
+    const flags = await this.#getFlags()
 
     logger.info(`usage: al [options] [alias] [separator] [command]`)
     logger.info()
     logger.info('options:')
 
     flags.forEach((flag) => {
-      this.flagHelp(flag)
+      this.#flagHelp(flag)
     })
 
     return true
   }
 
-  private flagHelp({ flag, mods }: Flag, pad = '\t'): void {
+  #flagHelp({ flag, mods }: Flag, pad = '\t'): void {
     const desc = (f: FlagInfo): string => `\t\t${f.desc}`
     const short = (f: FlagInfo): string => `, -${f.short}`
 

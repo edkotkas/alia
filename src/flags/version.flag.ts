@@ -11,11 +11,11 @@ export class VersionFlag extends Flag {
     key: 'version',
     short: 'v',
     desc: 'show version',
-    run: () => this.version(),
+    run: () => this.#version(),
     noConf: true
   }
 
-  private version(): boolean {
+  #version(): boolean {
     const filePath = path.resolve(import.meta.dirname, '..', '..', 'package.json')
     const pkg = JSON.parse(file.read(filePath)) as PackageJson
 

@@ -1,10 +1,11 @@
-import type { ConfigService } from './config.service'
+import { ConfigService } from './config.service.js'
 
 import child from 'node:child_process'
 import dotenv from 'dotenv'
 
-import { CommandService } from './command.service'
-import logger from '../utils/logger'
+import { CommandService } from './command.service.js'
+import logger from '../utils/logger.js'
+import { clearProviders, inject, provide } from '../utils/di.js'
 
 describe('CommandService', () => {
   let commandService: CommandService
@@ -40,7 +41,13 @@ describe('CommandService', () => {
 
     infoSpy = spyOn(logger, 'info')
 
-    commandService = new CommandService(configServiceSpy)
+    provide(ConfigService, configServiceSpy)
+
+    commandService = inject(CommandService)
+  })
+
+  afterEach(() => {
+    clearProviders()
   })
 
   it('should be defined', () => {
@@ -233,6 +240,26 @@ describe('CommandService', () => {
 
     expect(spawnSyncSpy).toHaveBeenCalledOnceWith('echo', [], {
       cwd: 'test',
+      shell: undefined,
+      stdio: 'inherit',
+      env: {}
+    })
+  })
+
+  it('should run command with arguments', () => {
+    Object.defineProperty(process, 'platform', {
+      value: 'win32'
+    })
+
+    configServiceSpy.getAlias.and.returnValue({
+      command: ['echo', 'one'],
+      options: {}
+    })
+
+    commandService.run(['key', 'two'])
+
+    expect(spawnSyncSpy).toHaveBeenCalledOnceWith('echo', ['one', 'two'], {
+      cwd: process.cwd(),
       shell: undefined,
       stdio: 'inherit',
       env: {}

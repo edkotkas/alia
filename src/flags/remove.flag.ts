@@ -7,10 +7,10 @@ export class RemoveFlag extends Flag {
     key: 'remove',
     short: 'r',
     desc: 'remove an alias',
-    run: (args: string[]) => this.remove(args)
+    run: (args: string[]) => this.#remove(args)
   }
 
-  private remove(data: string[]): boolean {
+  #remove(data: string[]): boolean {
     const alias = this.confService.getAlias(data[0])
     if (!alias) {
       logger.info(`alias '${data[0]}' does not exist`)

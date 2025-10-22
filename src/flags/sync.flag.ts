@@ -6,7 +6,7 @@ export class SyncFlag extends Flag {
     key: 'sync',
     short: 'sy',
     desc: 'backup/restore config from gist (default: restore)',
-    run: (args: string[], _?: FlagData) => this.sync(args)
+    run: (args: string[], _?: FlagData) => this.#sync(args)
   }
 
   mods = [
@@ -14,32 +14,33 @@ export class SyncFlag extends Flag {
       key: 'backup',
       short: 'b',
       desc: 'backup your current config',
-      run: () => this.backup()
+      run: () => this.#backup()
     },
     {
       key: 'restore',
       short: 'r',
       desc: 'restore latest config from gist',
-      run: () => this.restore()
+      run: () => this.#restore()
     }
   ]
-  private async sync(args: string[]): Promise<boolean> {
+
+  async #sync(args: string[]): Promise<boolean> {
     if (args.length) {
       return true
     }
 
-    await this.restore()
+    await this.#restore()
 
     return true
   }
 
-  private async restore(): Promise<boolean> {
+  async #restore(): Promise<boolean> {
     await this.gistService.restore()
 
     return true
   }
 
-  private async backup(): Promise<boolean> {
+  async #backup(): Promise<boolean> {
     await this.gistService.backup()
 
     return true

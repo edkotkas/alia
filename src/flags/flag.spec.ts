@@ -1,11 +1,11 @@
-import type { ConfigService } from '../services/config.service'
-import type { GistService } from '../services/gist.service'
-import logger from '../utils/logger'
-import { FlagService } from '../services/flag.service'
-import { FlagLoaderService } from '../services/flag-loader.service'
-import type { ConfFlag } from './conf.flag'
-import { Flag } from './flag'
-import type { FlagData, FlagInfo } from '../models/flag.model'
+import { ConfigService } from '../services/config.service.js'
+import logger from '../utils/logger.js'
+import { FlagService } from '../services/flag.service.js'
+import { FlagLoaderService } from '../services/flag-loader.service.js'
+import type { ConfFlag } from './conf.flag.js'
+import { Flag } from './flag.js'
+import type { FlagData, FlagInfo } from '../models/flag.model.js'
+import { clearProviders, inject, provide } from '../utils/di.js'
 
 describe('Flag', () => {
   let flagService: FlagService
@@ -31,8 +31,15 @@ describe('Flag', () => {
 
     flagLoaderServiceSpy = jasmine.createSpyObj<FlagLoaderService>('FlagLoaderService', ['loadFlags'])
 
-    flagService = new FlagService(configServiceSpy, {} as GistService, flagLoaderServiceSpy)
+    provide(ConfigService, configServiceSpy)
+    provide(FlagLoaderService, flagLoaderServiceSpy)
+
+    flagService = inject(FlagService)
     infoSpy.calls.reset()
+  })
+
+  afterEach(() => {
+    clearProviders()
   })
 
   it('should log error for invalid modifier', async () => {
@@ -51,7 +58,7 @@ describe('Flag', () => {
   })
 
   it('should pass for mod with no run function', async () => {
-    const flag = new Flag({} as ConfigService, {} as GistService)
+    const flag = inject(Flag)
     flag.flag = {
       short: 'c'
     } as FlagInfo
@@ -71,7 +78,7 @@ describe('Flag', () => {
   })
 
   it('should pass for flag with no run function', async () => {
-    const flag = new Flag({} as ConfigService, {} as GistService)
+    const flag = inject(Flag)
     flag.flag = {
       short: 'c'
     } as FlagInfo
@@ -85,7 +92,7 @@ describe('Flag', () => {
   })
 
   it('should return false on flag run fail', async () => {
-    const flag = new Flag({} as ConfigService, {} as GistService)
+    const flag = inject(Flag)
     flag.flag = {
       short: 'c',
       run: (_: string[], __?: FlagData) => false

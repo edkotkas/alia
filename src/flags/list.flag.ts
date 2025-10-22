@@ -5,15 +5,16 @@ import logger from '../utils/logger.js'
 import { Flag } from './flag.js'
 
 export class ListFlag extends Flag {
-  private alias: Alias = this.confService.alias
-  private aliaKeys: string[] = this.confService.keys
-  private jsonFormat = false
+  readonly #alias: Alias = this.confService.alias
+
+  #aliaKeys: string[] = this.confService.keys
+  #jsonFormat = false
 
   flag: FlagInfo = {
     key: 'list',
     short: 'l',
     desc: 'list available alias',
-    run: () => this.list()
+    run: () => this.#list()
   }
 
   mods: FlagInfo[] = [
@@ -21,44 +22,44 @@ export class ListFlag extends Flag {
       key: 'sort',
       short: 's',
       desc: 'sort alphabetically',
-      run: () => this.sort()
+      run: () => this.#sort()
     },
     {
       key: 'json',
       short: 'j',
       desc: 'list alias info as json',
-      run: () => this.json()
+      run: () => this.#json()
     },
     {
       key: 'filter',
       short: 'f',
       desc: 'filter alias list',
-      run: (args: string[]) => this.filter(args)
+      run: (args: string[]) => this.#filter(args)
     }
   ]
 
-  private sort(): boolean {
-    this.aliaKeys = this.aliaKeys.sort()
+  #sort(): boolean {
+    this.#aliaKeys = this.#aliaKeys.sort()
 
     return true
   }
 
-  private json(): boolean {
-    this.jsonFormat = true
+  #json(): boolean {
+    this.#jsonFormat = true
 
     return true
   }
 
-  private filter(data: string[]): boolean {
-    this.aliaKeys = this.aliaKeys.filter((a) => data.includes(a))
+  #filter(data: string[]): boolean {
+    this.#aliaKeys = this.#aliaKeys.filter((a) => data.includes(a))
 
     return true
   }
 
-  private list(): boolean {
-    if (this.jsonFormat) {
-      const alias = this.aliaKeys.reduce<Alias>((acc, val) => {
-        acc[val] = this.alias[val]
+  #list(): boolean {
+    if (this.#jsonFormat) {
+      const alias = this.#aliaKeys.reduce<Alias>((acc, val) => {
+        acc[val] = this.#alias[val]
         return acc
       }, {})
       logger.info(JSON.stringify(alias, null, 2))
@@ -66,8 +67,8 @@ export class ListFlag extends Flag {
       return true
     }
 
-    const list = this.aliaKeys
-      .map((key) => `${key} \t${this.confService.separator} \t${this.alias[key].command.join(' ')}`)
+    const list = this.#aliaKeys
+      .map((key) => `${key} \t${this.confService.separator} \t${this.#alias[key].command.join(' ')}`)
       .join('\n')
 
     logger.info(list)

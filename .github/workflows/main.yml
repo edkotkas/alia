@@ -1,0 +1,96 @@
+on:
+  push:
+  pull_request:
+
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  pull-requests: write
+  packages: write
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: latest
+          cache: 'npm'
+
+      - run: npm ci
+      - run: npm run build
+      - run: npm test
+      - run: npm run test:coverage
+      - run: npm run test:mutation
+      - run: npm run lint
+      - run: npm run format:check
+
+      - name: Upload build artifacts
+        if: github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  check-release:
+    if: github.ref == 'refs/heads/main'
+    needs: checks
+    runs-on: ubuntu-latest
+    outputs:
+      needs-release: ${{ steps.version-check.outputs.needs-release }}
+      version: ${{ steps.version-check.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: latest
+
+      - name: Check if release is needed
+        id: version-check
+        run: |
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          echo "version=$PACKAGE_VERSION" >> $GITHUB_OUTPUT
+          echo "Current version: $PACKAGE_VERSION"
+
+          # Check if version exists on NPM
+          if npm view alia@$PACKAGE_VERSION version 2>/dev/null; then
+            echo "Version $PACKAGE_VERSION already exists on NPM - skipping release"
+            echo "needs-release=false" >> $GITHUB_OUTPUT
+          else
+            echo "Version $PACKAGE_VERSION does not exist on NPM - release needed"
+            echo "needs-release=true" >> $GITHUB_OUTPUT
+          fi
+
+  release:
+    if: needs.check-release.outputs.needs-release == 'true'
+    needs: [checks, check-release]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: latest
+          registry-url: https://registry.npmjs.org/
+          cache: 'npm'
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Publish NPM
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+
+      - name: Publish GPR
+        run: |
+          echo "$( jq '.name = \"@edkotkas/alia\"' package.json )" > package.json
+          echo "registry=https://npm.pkg.github.com/@edkotkas" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> .npmrc
+          npm publish

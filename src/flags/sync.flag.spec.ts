@@ -1,8 +1,8 @@
-import type { ConfigService } from '../services/config.service'
-import type { GistService } from '../services/gist.service'
-import logger from '../utils/logger'
-import { FlagService } from '../services/flag.service'
-import { FlagLoaderService } from '../services/flag-loader.service'
+import { ConfigService } from '../services/config.service.js'
+import { GistService } from '../services/gist.service.js'
+import logger from '../utils/logger.js'
+import { FlagService } from '../services/flag.service.js'
+import { clearProviders, inject, provide } from '../utils/di.js'
 
 describe('SyncFlag', () => {
   let flagService: FlagService
@@ -40,10 +40,17 @@ describe('SyncFlag', () => {
     restoreSpy = gistServiceSpy.restore.and.resolveTo()
     backupSpy = gistServiceSpy.backup.and.resolveTo()
 
-    flagService = new FlagService(configServiceSpy, gistServiceSpy, new FlagLoaderService())
+    provide(ConfigService, configServiceSpy)
+    provide(GistService, gistServiceSpy)
+
+    flagService = inject(FlagService)
 
     restoreSpy.calls.reset()
     backupSpy.calls.reset()
+  })
+
+  afterEach(() => {
+    clearProviders()
   })
 
   it('should backup', async () => {

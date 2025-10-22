@@ -1,6 +1,6 @@
 import fs from 'node:fs'
-import type { Config } from '../models/config.model'
-import { file } from './file'
+import type { Config } from '../models/config.model.js'
+import { file } from './file.js'
 
 describe('file', () => {
   beforeAll(() => {

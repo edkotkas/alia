@@ -1,17 +1,22 @@
 import type { MetaData, Config } from '../models/config.model.js'
 import type { GistResponse } from '../models/gist-response.model.js'
-import type { ConfigService } from './config.service.js'
+import { ConfigService } from './config.service.js'
 
 import logger from '../utils/logger.js'
 import { request } from '../utils/request.js'
+import { inject } from '../utils/di.js'
 
 export class GistService {
-  constructor(private configService: ConfigService) {}
+  readonly #configService: ConfigService = inject(ConfigService)
 
-  public async restore(): Promise<void> {
+  // constructor(configService: ConfigService) {
+  //   this.#configService = configService
+  // }
+
+  async restore(): Promise<void> {
     logger.info('restore config from gist...')
 
-    const gistId = this.configService.gistId
+    const gistId = this.#configService.gistId
     let data = {} as GistResponse
 
     data = await request.call(gistId, {
@@ -23,32 +28,32 @@ export class GistService {
 
     logger.info(`fetched: ${updated_at}`)
 
-    const gistFile = files[this.configService.fileName]
+    const gistFile = files[this.#configService.fileName]
     if (!gistFile) {
-      throw new Error(`gist must contain a file named '${this.configService.fileName}'`)
+      throw new Error(`gist must contain a file named '${this.#configService.fileName}'`)
     }
 
     const aliaConfig = JSON.parse(gistFile.content) as Config
 
-    aliaConfig.meta = this.configService.meta
+    aliaConfig.meta = this.#configService.meta
 
-    this.configService.save(aliaConfig)
+    this.#configService.save(aliaConfig)
 
-    logger.info('...done:', this.configService.filePath)
+    logger.info('...done:', this.#configService.filePath)
   }
 
-  public async backup(): Promise<void> {
+  async backup(): Promise<void> {
     logger.info('backup local config to gist...')
-    const gistId = this.configService.gistId
-    const token = this.configService.token
+    const gistId = this.#configService.gistId
+    const token = this.#configService.token
 
-    const config = this.configService.config
+    const config = this.#configService.config
     config.meta = {} as MetaData
 
     const data = JSON.stringify({
       description: 'Alia Config',
       files: {
-        [this.configService.fileName]: {
+        [this.#configService.fileName]: {
           content: JSON.stringify(config, null, 2)
         }
       }

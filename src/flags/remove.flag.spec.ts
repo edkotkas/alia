@@ -1,8 +1,7 @@
-import type { ConfigService } from '../services/config.service'
-import type { GistService } from '../services/gist.service'
-import logger from '../utils/logger'
-import { FlagService } from '../services/flag.service'
-import { FlagLoaderService } from '../services/flag-loader.service'
+import { ConfigService } from '../services/config.service.js'
+import logger from '../utils/logger.js'
+import { FlagService } from '../services/flag.service.js'
+import { clearProviders, inject, provide } from '../utils/di.js'
 
 describe('RemoveFlag', () => {
   let flagService: FlagService
@@ -31,7 +30,13 @@ describe('RemoveFlag', () => {
 
     removeSpy = configServiceSpy.removeAlias.and.callFake(() => ({}))
 
-    flagService = new FlagService(configServiceSpy, {} as GistService, new FlagLoaderService())
+    provide(ConfigService, configServiceSpy)
+
+    flagService = inject(FlagService)
+  })
+
+  afterEach(() => {
+    clearProviders()
   })
 
   it('should remove alias', async () => {

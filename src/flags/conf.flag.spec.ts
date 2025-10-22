@@ -1,10 +1,9 @@
-import type { ConfigService } from '../services/config.service'
-import type { GistService } from '../services/gist.service'
-import logger from '../utils/logger'
-import { file } from '../utils/file'
-import { FlagService } from '../services/flag.service'
-import { FlagLoaderService } from '../services/flag-loader.service'
-import type { Config } from '../models/config.model'
+import { ConfigService } from '../services/config.service.js'
+import logger from '../utils/logger.js'
+import { file } from '../utils/file.js'
+import { FlagService } from '../services/flag.service.js'
+import type { Config } from '../models/config.model.js'
+import { clearProviders, inject, provide } from '../utils/di.js'
 
 describe('ConfFlag', () => {
   let flagService: FlagService
@@ -35,8 +34,15 @@ describe('ConfFlag', () => {
       }
     } as unknown as ConfigService
 
-    flagService = new FlagService(fakeConfigService, {} as GistService, new FlagLoaderService())
+    provide(ConfigService, fakeConfigService)
+
+    flagService = inject(FlagService)
+
     infoSpy.calls.reset()
+  })
+
+  afterEach(() => {
+    clearProviders()
   })
 
   it('should set separator', async () => {

@@ -1,9 +1,8 @@
-import type { ConfigService } from '../services/config.service'
-import type { GistService } from '../services/gist.service'
-import logger from '../utils/logger'
-import { FlagService } from '../services/flag.service'
+import { ConfigService } from '../services/config.service.js'
+import logger from '../utils/logger.js'
+import { FlagService } from '../services/flag.service.js'
 import path from 'node:path'
-import { FlagLoaderService } from '../services/flag-loader.service'
+import { clearProviders, inject, provide } from '../utils/di.js'
 
 describe('SetFlag', () => {
   let flagService: FlagService
@@ -38,9 +37,15 @@ describe('SetFlag', () => {
       }
     }
 
-    flagService = new FlagService(configServiceSpy, {} as GistService, new FlagLoaderService())
+    provide(ConfigService, configServiceSpy)
+
+    flagService = inject(FlagService)
 
     infoSpy.calls.reset()
+  })
+
+  afterEach(() => {
+    clearProviders()
   })
 
   it('should set an alias', async () => {

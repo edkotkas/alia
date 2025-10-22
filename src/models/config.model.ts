@@ -16,7 +16,7 @@ export interface Gist {
 
 export interface Options {
   separator: string
-  shell: boolean
+  shell?: boolean
 }
 
 export interface AliasOptions {

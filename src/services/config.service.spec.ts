@@ -1,9 +1,10 @@
-import { file } from '../utils/file'
-import { ConfigService } from './config.service'
-import logger from '../utils/logger'
-import type { Command } from '../models/config.model'
-import { read } from '../utils/read'
-import defaultConfig from '../../data/config.default.json'
+import { file } from '../utils/file.js'
+import { ConfigService } from './config.service.js'
+import logger from '../utils/logger.js'
+import type { Command } from '../models/config.model.js'
+import { read } from '../utils/read.js'
+import defaultConfig from '../../data/config.default.json' with { type: 'json' }
+import { clearProviders, inject } from '../utils/di.js'
 
 describe('ConfigService', () => {
   let configService: ConfigService
@@ -14,6 +15,8 @@ describe('ConfigService', () => {
   let questionSpy: jasmine.Spy
   let infoSpy: jasmine.Spy
 
+  let originalPlatform: NodeJS.Platform
+
   beforeEach(() => {
     infoSpy = spyOn(logger, 'info').and.callFake(() => ({}))
     writeSpy = spyOn(file, 'write').and.callFake(() => ({}))
@@ -21,7 +24,17 @@ describe('ConfigService', () => {
     existsSpy = spyOn(file, 'exists').and.returnValue(true)
     questionSpy = spyOn(read, 'question').and.resolveTo('')
 
-    configService = new ConfigService()
+    originalPlatform = process.platform
+
+    configService = inject(ConfigService)
+  })
+
+  afterEach(() => {
+    Object.defineProperty(process, 'platform', {
+      value: originalPlatform
+    })
+
+    clearProviders()
   })
 
   it('should be defined', () => {
@@ -146,7 +159,11 @@ describe('ConfigService', () => {
 
     expect(spy).toHaveBeenCalledOnceWith(jasmine.anything(), jasmine.stringContaining('config already exists'))
     expect(writeSpy).toHaveBeenCalled()
-    expect(infoSpy).toHaveBeenCalledOnceWith(
+    expect(infoSpy).toHaveBeenCalledWith(
+      jasmine.stringContaining('backup created:'),
+      jasmine.stringMatching(/\.alia\.json\.backup-\d+/)
+    )
+    expect(infoSpy).toHaveBeenCalledWith(
       jasmine.stringContaining('created config'),
       jasmine.stringContaining('.alia.json')
     )
@@ -157,5 +174,23 @@ describe('ConfigService', () => {
     questionSpy.and.returnValue(Promise.resolve('x'))
     await configService.init()
     expect(writeSpy).not.toHaveBeenCalled()
+  })
+
+  it('should set config shell based on platform', () => {
+    readSpy.and.returnValue(JSON.stringify({ options: {} }))
+
+    Object.defineProperty(process, 'platform', {
+      value: 'win32'
+    })
+
+    const service = inject(ConfigService)
+    expect(service.shell).toBeTrue()
+
+    Object.defineProperty(process, 'platform', {
+      value: 'linux'
+    })
+
+    const service2 = inject(ConfigService)
+    expect(service2.shell).toBeFalse()
   })
 })

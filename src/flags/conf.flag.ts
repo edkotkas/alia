@@ -16,42 +16,42 @@ export class ConfFlag extends Flag {
       key: 'separator',
       short: 's',
       desc: 'set alias separator (default: @)',
-      run: (args: string[]) => this.setSeparator(args)
+      run: (args: string[]) => this.#setSeparator(args)
     },
     {
       key: 'shell',
       short: 'sh',
       desc: 'set global shell mode',
-      run: (args: string[]) => this.setShell(args)
+      run: (args: string[]) => this.#setShell(args)
     },
     {
       key: 'token',
       short: 't',
       desc: 'set the personal access token for gist sync',
-      run: (args: string[]) => this.setToken(args)
+      run: (args: string[]) => this.#setToken(args)
     },
     {
       key: 'gist',
       short: 'g',
       desc: 'set the gist id to use for sync',
-      run: (args: string[]) => this.setGist(args)
+      run: (args: string[]) => this.#setGist(args)
     },
     {
       key: 'path',
       short: 'p',
       desc: 'show config file path',
-      run: () => this.showPath()
+      run: () => this.#showPath()
     }
   ]
 
-  private setSeparator(args: string[]): boolean {
+  #setSeparator(args: string[]): boolean {
     this.confService.separator = args[0] ?? this.confService.defaultConfig.options.separator
     logger.set('separator', this.confService.separator)
 
     return true
   }
 
-  private setGist(args: string[]): boolean {
+  #setGist(args: string[]): boolean {
     if (!args[0]) {
       logger.info('must specify a gist id')
       return false
@@ -63,7 +63,7 @@ export class ConfFlag extends Flag {
     return true
   }
 
-  private setToken(args: string[]): boolean {
+  #setToken(args: string[]): boolean {
     if (!args[0]) {
       logger.info('must specify a token')
       return false
@@ -75,7 +75,7 @@ export class ConfFlag extends Flag {
     return true
   }
 
-  private setShell(args: string[]): boolean {
+  #setShell(args: string[]): boolean {
     const shell = toBool(args)
     if (shell === undefined) {
       logger.info(`invalid value for shell flag: ${args[0]}`)
@@ -88,7 +88,7 @@ export class ConfFlag extends Flag {
     return true
   }
 
-  private showPath(): boolean {
+  #showPath(): boolean {
     logger.info(this.confService.filePath)
 
     return true

@@ -1,9 +1,7 @@
-import type { ConfigService } from './config.service'
-import type { GistService } from './gist.service'
-
 import fs from 'node:fs'
 
-import { FlagLoaderService } from './flag-loader.service'
+import { FlagLoaderService } from './flag-loader.service.js'
+import { clearProviders, inject } from '../utils/di.js'
 
 function escapeRegExp(string: string) {
   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
@@ -14,16 +12,20 @@ describe('FlagLoaderService', () => {
   const helpSnap = fs.readFileSync('snapshots/help', 'utf-8')
 
   beforeEach(() => {
-    flagLoaderService = new FlagLoaderService()
+    flagLoaderService = inject(FlagLoaderService)
+  })
+
+  afterEach(() => {
+    clearProviders()
   })
 
   it('should load flags', async () => {
-    const flags = await flagLoaderService.loadFlags({} as ConfigService, {} as GistService)
+    const flags = await flagLoaderService.loadFlags()
     expect(flags.length).toBeGreaterThan(0)
   })
 
   it('should have flag matching snap', async () => {
-    const flags = await flagLoaderService.loadFlags({} as ConfigService, {} as GistService)
+    const flags = await flagLoaderService.loadFlags()
 
     for (const flag of flags) {
       const escapedDesc = escapeRegExp(flag.flag.desc)

@@ -1,8 +1,7 @@
-import type { ConfigService } from '../services/config.service'
-import type { GistService } from '../services/gist.service'
-import { FlagService } from '../services/flag.service'
-import { FlagLoaderService } from '../services/flag-loader.service'
-import logger from '../utils/logger'
+import { ConfigService } from '../services/config.service.js'
+import { FlagService } from '../services/flag.service.js'
+import { clearProviders, inject, provide } from '../utils/di.js'
+import logger from '../utils/logger.js'
 
 describe('InitFlag', () => {
   let flagService: FlagService
@@ -15,7 +14,13 @@ describe('InitFlag', () => {
     configServiceSpy = jasmine.createSpyObj<ConfigService>('ConfigService', ['init', 'config'])
     configServiceSpy.config.alias = {}
 
-    flagService = new FlagService(configServiceSpy, {} as GistService, new FlagLoaderService())
+    provide(ConfigService, configServiceSpy)
+
+    flagService = inject(FlagService)
+  })
+
+  afterEach(() => {
+    clearProviders()
   })
 
   it('should initialize config', async () => {

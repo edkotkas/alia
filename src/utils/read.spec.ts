@@ -1,4 +1,4 @@
-import { read } from './read'
+import { read } from './read.js'
 import { Interface } from 'node:readline/promises'
 
 describe('read', () => {

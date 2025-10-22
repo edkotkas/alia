@@ -1,5 +1,5 @@
-import type { FSWrapper } from '../models/fs-wrapper.model'
-import type { Config } from '../models/config.model'
+import type { FSWrapper } from '../models/fs-wrapper.model.js'
+import type { Config } from '../models/config.model.js'
 
 import * as fs from 'node:fs'
 

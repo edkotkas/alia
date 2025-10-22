@@ -1,17 +1,16 @@
-import type { FlagInfo, FlagData } from '../models/flag.model'
-import type { ConfigService } from '../services/config.service'
-import type { GistService } from '../services/gist.service'
+import type { FlagInfo, FlagData } from '../models/flag.model.js'
+import { ConfigService } from '../services/config.service.js'
+import { GistService } from '../services/gist.service.js'
+import { inject } from '../utils/di.js'
 
-export type FlagConstructor = new (confService: ConfigService, gistService: GistService) => Flag
+export type FlagConstructor = new () => Flag
 export type FlagModule = Record<string, FlagConstructor>
 
 export class Flag {
-  flag!: FlagInfo
+  readonly confService: ConfigService = inject(ConfigService)
+  readonly gistService: GistService = inject(GistService)
 
-  constructor(
-    protected confService: ConfigService,
-    protected gistService: GistService
-  ) {}
+  flag!: FlagInfo
 
   mods: FlagInfo[] = []
 

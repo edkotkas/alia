@@ -1,4 +1,4 @@
-import { toBool } from './to-bool'
+import { toBool } from './to-bool.js'
 
 describe('ToBool', () => {
   it('should return true - empty', () => {

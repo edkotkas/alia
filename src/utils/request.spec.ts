@@ -1,5 +1,5 @@
 import https from 'node:https'
-import { request } from './request'
+import { request } from './request.js'
 import type { ClientRequest, IncomingMessage } from 'http'
 
 function createHttpsRequestSpy(responseOptions: { statusCode: number; data: string; error?: Error }) {

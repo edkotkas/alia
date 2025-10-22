@@ -7,8 +7,7 @@
     }
   },
   "options": {
-    "separator": "@",
-    "shell": false
+    "separator": "@"
   },
   "alias": {
     "test": {

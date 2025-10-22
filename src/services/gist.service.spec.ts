@@ -1,9 +1,10 @@
-import type { Config, MetaData } from '../models/config.model'
-import { ConfigService } from './config.service'
-import { GistService } from './gist.service'
-import logger from '../utils/logger'
+import type { Config, MetaData } from '../models/config.model.js'
+import { ConfigService } from './config.service.js'
+import { GistService } from './gist.service.js'
+import logger from '../utils/logger.js'
 
-import { request } from '../utils/request'
+import { request } from '../utils/request.js'
+import { clearProviders, provide } from '../utils/di.js'
 
 describe('GistService', () => {
   let gistService: GistService
@@ -20,11 +21,17 @@ describe('GistService', () => {
       save: () => ({}),
       config: {} as Config,
       filePath: 'filePath'
-    } as unknown as ConfigService //jasmine.createSpyObj<ConfigService>('ConfigService', ['gistId', 'fileName', 'save'], ['config'])
+    } as unknown as ConfigService
 
     infoSpy = spyOn(logger, 'info').and.callFake(() => ({}))
 
-    gistService = new GistService(fakeConfigService)
+    provide(ConfigService, fakeConfigService)
+
+    gistService = new GistService()
+  })
+
+  afterEach(() => {
+    clearProviders()
   })
 
   it('should be defined', () => {

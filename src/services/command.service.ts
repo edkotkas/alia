@@ -1,12 +1,13 @@
 import type { SpawnOptions } from 'node:child_process'
-import type { ConfigService } from './config.service.js'
+import { ConfigService } from './config.service.js'
 
 import child from 'node:child_process'
 import dotenv from 'dotenv'
 import logger from '../utils/logger.js'
+import { inject } from '../utils/di.js'
 
 export class CommandService {
-  constructor(private configService: ConfigService) {}
+  readonly #configService = inject(ConfigService)
 
   run(args: string[]): void {
     const key = args.shift()
@@ -14,13 +15,13 @@ export class CommandService {
       throw new Error('no arguments provided for command')
     }
 
-    const al = this.configService.getAlias(key)
+    const al = this.#configService.getAlias(key)
     if (!al) {
       logger.info(`alias not set: ${key}`)
       return
     }
 
-    const shell = this.configService.shell
+    const configShell = this.#configService.shell
 
     if (al.options.envFile) {
       const env = dotenv.config({
@@ -42,14 +43,24 @@ export class CommandService {
       args = args.map((arg) => `"${arg}"`)
     }
 
-    const [command, ...parameters] = al.command.concat(args)
+    const shell = al.options.shell ?? configShell
+    let cmd: string, parameters: string[]
+    if (shell) {
+      cmd = [...al.command, ...args].join(' ')
+      parameters = []
+    } else {
+      const combined = al.command.concat(args)
+      cmd = combined[0]
+      parameters = combined.slice(1)
+    }
+
     const options: SpawnOptions = {
       cwd: al.options.workDir ?? process.cwd(),
       stdio: 'inherit',
-      shell: al.options.shell ?? shell,
+      shell,
       env: Object.assign(process.env, al.options.env)
     }
 
-    child.spawnSync(command, parameters, options)
+    child.spawnSync(cmd, parameters, options)
   }
 }

@@ -1,11 +1,10 @@
-import type { ConfigService } from './config.service'
-import type { GistService } from './gist.service'
+import { ConfigService } from './config.service.js'
 
 import fs from 'node:fs/promises'
 
-import { FlagService } from './flag.service'
-import logger from '../utils/logger'
-import { FlagLoaderService } from './flag-loader.service'
+import { FlagService } from './flag.service.js'
+import logger from '../utils/logger.js'
+import { clearProviders, inject, provide } from '../utils/di.js'
 
 describe('FlagService', () => {
   let flagService: FlagService
@@ -37,8 +36,14 @@ describe('FlagService', () => {
     configServiceSpy.getAlias.and.returnValue(undefined)
     configServiceSpy.setAlias.and.callFake(() => ({}))
 
-    flagService = new FlagService(configServiceSpy, {} as GistService, new FlagLoaderService())
+    provide(ConfigService, configServiceSpy)
+
+    flagService = inject(FlagService)
     infoSpy.calls.reset()
+  })
+
+  afterEach(() => {
+    clearProviders()
   })
 
   it('should be defined', () => {
@@ -71,7 +76,11 @@ describe('FlagService', () => {
       }
     )
 
-    const flag = new FlagService(spy, {} as GistService, new FlagLoaderService())
+    clearProviders()
+
+    provide(ConfigService, spy)
+
+    const flag = inject(FlagService)
 
     const result = await flag.run(['-c'])
 

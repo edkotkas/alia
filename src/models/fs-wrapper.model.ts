@@ -1,4 +1,4 @@
-import type { Config } from './config.model'
+import type { Config } from './config.model.js'
 
 export interface FSWrapper {
   read: (path: string) => string

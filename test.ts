@@ -1,5 +1,5 @@
 import Jasmine from 'jasmine'
-import jasmineConfig from './jasmine.json'
+import jasmineConfig from './jasmine.json' with { type: 'json' }
 
 void (async function (): Promise<void> {
   process.env.NODE_ENV = 'test'

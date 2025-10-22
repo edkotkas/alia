@@ -1,7 +1,8 @@
-import logger from '../utils/logger'
-import type { CommandService } from './command.service'
-import type { FlagService } from './flag.service'
-import { InputService } from './input.service'
+import { clearProviders, inject, provide } from '../utils/di.js'
+import logger from '../utils/logger.js'
+import { CommandService } from './command.service.js'
+import { FlagService } from './flag.service.js'
+import { InputService } from './input.service.js'
 
 describe('InputService', () => {
   let inputService: InputService
@@ -14,7 +15,14 @@ describe('InputService', () => {
     flagServiceSpy = jasmine.createSpyObj<FlagService>('FlagService', ['run'])
     commandServiceSpy = jasmine.createSpyObj<CommandService>('CommandService', ['run'])
 
-    inputService = new InputService(flagServiceSpy, commandServiceSpy)
+    provide(FlagService, flagServiceSpy)
+    provide(CommandService, commandServiceSpy)
+
+    inputService = inject(InputService)
+  })
+
+  afterEach(() => {
+    clearProviders()
   })
 
   it('should be defined', () => {

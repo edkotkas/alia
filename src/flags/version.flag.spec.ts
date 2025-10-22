@@ -1,8 +1,6 @@
-import logger from '../utils/logger'
-import type { ConfigService } from '../services/config.service'
-import type { GistService } from '../services/gist.service'
-import { FlagService } from '../services/flag.service'
-import { FlagLoaderService } from '../services/flag-loader.service'
+import logger from '../utils/logger.js'
+import { FlagService } from '../services/flag.service.js'
+import { inject } from '../utils/di.js'
 
 describe('VersionFlag', () => {
   let flagService: FlagService
@@ -10,11 +8,7 @@ describe('VersionFlag', () => {
   beforeEach(() => {
     infoSpy = spyOn(logger, 'info').and.callFake(() => ({}))
 
-    flagService = new FlagService(
-      { config: { alias: {} } } as ConfigService,
-      {} as GistService,
-      new FlagLoaderService()
-    )
+    flagService = inject(FlagService)
   })
 
   it('should print version', async () => {
