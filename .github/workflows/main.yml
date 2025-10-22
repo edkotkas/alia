@@ -85,10 +85,3 @@ jobs:
         run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
-
-      - name: Publish GPR
-        run: |
-          echo "$( jq '.name = \"@edkotkas/alia\"' package.json )" > package.json
-          echo "registry=https://npm.pkg.github.com/@edkotkas" >> .npmrc
-          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> .npmrc
-          npm publish
