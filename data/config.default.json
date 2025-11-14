@@ -6,9 +6,7 @@
       "id": ""
     }
   },
-  "options": {
-    "separator": "@"
-  },
+  "options": {},
   "alias": {
     "test": {
       "options": {},

@@ -28,8 +28,8 @@ export class FlagService {
     return flags
   }
 
-  async run(argv: string[]): Promise<boolean> {
-    const [arg, ...args]: string[] = argv
+  async run(args: string[]): Promise<boolean> {
+    const arg = args.shift()
 
     if (!arg) {
       return this.#showHelp()
@@ -49,10 +49,7 @@ export class FlagService {
 
     const dashRegex = /^-{1,2}\w/
 
-    const cut = flag.flag.key === 'set' ? args.findIndex((a) => a === this.#confService.separator) - 1 : undefined
-    let rawData = args.slice(0, cut)
-
-    const mods = rawData.filter((a) => dashRegex.test(a))
+    const mods = args.filter((a) => dashRegex.test(a))
     const data: FlagData = {}
 
     for (const rawMod of mods) {
@@ -66,16 +63,25 @@ export class FlagService {
 
       data[mod.key] ??= []
 
-      const next = rawData[1]
+      const next = args[1]
       const end = mods.includes(next) ? -1 : 1
 
-      const { [0]: _, [end]: value, ...rest } = rawData
+      const { [0]: _, [end]: value, ...rest } = args
 
       if (value) {
         data[mod.key].push(value)
       }
 
-      rawData = Object.values(rest as Record<number, string>)
+      args = Object.values(rest as Record<number, string>)
+    }
+
+    const required = flag.mods.filter((m) => m.required)
+    const missing = required.filter((r) => !(r.key in data))
+    if (missing.length > 0) {
+      logger.info(`missing required flag(s): ${missing.map((m) => `--${m.key}`).join(', ')}`)
+      logger.info('flag usage:')
+      this.#flagHelp(flag, '')
+      return true
     }
 
     const result = await flag.run(args, data)
@@ -102,7 +108,7 @@ export class FlagService {
   async #showHelp(): Promise<boolean> {
     const flags = await this.#getFlags()
 
-    logger.info(`usage: al [options] [alias] [separator] [command]`)
+    logger.info(`usage: al [options] [alias]`)
     logger.info()
     logger.info('options:')
 
@@ -114,10 +120,11 @@ export class FlagService {
   }
 
   #flagHelp({ flag, mods }: Flag, pad = '\t'): void {
-    const desc = (f: FlagInfo): string => `\t\t${f.desc}`
+    const desc = (f: FlagInfo): string => `\t\t${f.desc}${f.required ? ' (required)' : ''}`
     const short = (f: FlagInfo): string => `, -${f.short}`
 
     logger.info(`${pad}--${flag.key}${short(flag)}${desc(flag)}`)
+
     mods.forEach((m) => {
       logger.info(`${pad}\t--${m.key}${short(m)}${desc(m)}`)
     })

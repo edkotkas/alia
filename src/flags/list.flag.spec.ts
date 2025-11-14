@@ -30,7 +30,6 @@ describe('ListFlag', () => {
       config: {
         alias
       },
-      separator: '@',
       keys: Object.keys(alias),
       alias: alias,
       isReady: true
@@ -49,13 +48,13 @@ describe('ListFlag', () => {
 
   it('should list aliases', async () => {
     await flagService.run(['-l'])
-    expect(infoSpy).toHaveBeenCalledWith(`test \t@ \techo\natest \t@ \techo another`)
+    expect(infoSpy).toHaveBeenCalledWith(`test \t=> \techo\natest \t=> \techo another`)
     expect(infoSpy).not.toHaveBeenCalledWith('flag usage:')
   })
 
   it('should list aliases sorted', async () => {
     await flagService.run(['-l', '-s'])
-    expect(infoSpy).toHaveBeenCalledWith(`atest \t@ \techo another\ntest \t@ \techo`)
+    expect(infoSpy).toHaveBeenCalledWith(`atest \t=> \techo another\ntest \t=> \techo`)
   })
 
   it('should list aliases in json format', async () => {
@@ -80,7 +79,7 @@ describe('ListFlag', () => {
 
   it('should list aliases filtered', async () => {
     await flagService.run(['-l', '-f', 'test'])
-    expect(infoSpy).toHaveBeenCalledWith(`test \t@ \techo`)
+    expect(infoSpy).toHaveBeenCalledWith(`test \t=> \techo`)
   })
 
   it('should list aliases filtered in json format', async () => {

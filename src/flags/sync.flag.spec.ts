@@ -23,7 +23,6 @@ describe('SyncFlag', () => {
       }
     )
 
-    configServiceSpy.separator = '@'
     configServiceSpy.config.alias = {
       test: {
         command: ['echo'],

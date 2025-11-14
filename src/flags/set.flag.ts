@@ -9,11 +9,14 @@ import type { FlagInfo } from '../models/flag.model.js'
 export class SetFlag extends Flag {
   #options: AliasOptions = {}
 
+  #command!: string[]
+  #key!: string
+
   flag: FlagInfo = {
     key: 'set',
     short: 's',
     desc: 'set an alias',
-    run: (args: string[]) => this.#setAlias(args)
+    run: (_: string[]) => this.#setAlias()
   }
 
   mods: FlagInfo[] = [
@@ -46,8 +49,43 @@ export class SetFlag extends Flag {
       short: 'wd',
       desc: 'run command in a specific directory',
       run: (args: string[]) => this.#setWorkDir(args)
+    },
+    {
+      key: 'key',
+      short: 'k',
+      desc: 'the alias key to set',
+      required: true,
+      run: (args: string[]) => this.#setKey(args)
+    },
+    {
+      key: 'command',
+      short: 'c',
+      desc: 'the command to set as alias (group multiple args with quotes)',
+      required: true,
+      run: (args: string[]) => this.#setCommand(args)
     }
   ]
+
+  #setKey(data: string[]): boolean {
+    if (!data[0]) {
+      logger.info(`no value provided for key`)
+      return false
+    }
+
+    this.#key = data[0]
+    return true
+  }
+
+  #setCommand(data: string[]): boolean {
+    if (data.length === 0) {
+      logger.info(`no value provided for command`)
+      return false
+    }
+
+    this.#command = data[0].split(' ')
+
+    return true
+  }
 
   #setQuote(data: string[]): boolean {
     const quote = toBool(data)
@@ -132,38 +170,19 @@ export class SetFlag extends Flag {
     return true
   }
 
-  #setAlias(args: string[]): boolean {
-    const separator = this.confService.separator
-    const separatorIndex = args.findIndex((a) => a === separator)
-    if (separatorIndex === -1) {
-      logger.info(`invalid input, missing separator: ${separator}`)
-      return false
-    }
-
-    const key = args[separatorIndex - 1]
-    let command = args.slice(separatorIndex + 1)
-
-    if (!key || command.length === 0) {
-      logger.info(`invalid arguments passed: '${key || ''}' ${separator} '${command.join(' ')}'`)
-      return false
-    }
-
-    if (command.length === 1) {
-      command = command[0].split(' ')
-    }
-
-    const alias = this.confService.getAlias(key)
+  #setAlias(): boolean {
+    const alias = this.confService.getAlias(this.#key)
 
     if (alias) {
-      logger.info(`unset alias: ${key} ${separator} ${alias.command.join(' ')}`)
+      logger.info(`unset alias: ${this.#key} => ${alias.command.join(' ')}`)
     }
 
-    this.confService.setAlias(key, {
+    this.confService.setAlias(this.#key, {
       options: this.#options,
-      command
+      command: this.#command
     })
 
-    logger.info(`set alias: ${key} ${separator} ${command.join(' ')}`)
+    logger.info(`set alias: ${this.#key} => ${this.#command.join(' ')}`)
 
     return true
   }

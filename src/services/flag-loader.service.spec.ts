@@ -30,13 +30,13 @@ describe('FlagLoaderService', () => {
     for (const flag of flags) {
       const escapedDesc = escapeRegExp(flag.flag.desc)
       const helpDesc = new RegExp(`--${flag.flag.key},\\s-${flag.flag.short}\\s+${escapedDesc}\n`)
-
       expect(helpDesc.test(helpSnap)).toBeTrue()
 
       if (flag.mods.length > 0) {
         for (const mod of flag.mods) {
           const escapedMod = escapeRegExp(mod.desc)
-          const modDesc = new RegExp(`\\s+--${mod.key},\\s+-${mod.short}\\s+${escapedMod}\n`)
+          const modDesc = new RegExp(`\\s+--${mod.key},\\s+-${mod.short}\\s+${escapedMod}(\\s+\\(required\\))*\n`)
+          if (!modDesc.test(helpSnap)) console.log('mod', modDesc)
 
           expect(modDesc.test(helpSnap)).toBeTrue()
         }

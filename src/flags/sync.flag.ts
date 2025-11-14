@@ -6,7 +6,7 @@ export class SyncFlag extends Flag {
     key: 'sync',
     short: 'sy',
     desc: 'backup/restore config from gist (default: restore)',
-    run: (args: string[], _?: FlagData) => this.#sync(args)
+    run: (_: string[], data?: FlagData) => this.#sync(data)
   }
 
   mods = [
@@ -24,8 +24,8 @@ export class SyncFlag extends Flag {
     }
   ]
 
-  async #sync(args: string[]): Promise<boolean> {
-    if (args.length) {
+  async #sync(data?: FlagData): Promise<boolean> {
+    if (data && Object.keys(data).length > 0) {
       return true
     }
 

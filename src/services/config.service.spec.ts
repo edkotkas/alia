@@ -57,7 +57,7 @@ describe('ConfigService', () => {
   })
 
   it('should get options', () => {
-    readSpy.and.returnValue('{"options": {"separator": "@"}}')
+    readSpy.and.returnValue('{"options": {}}')
     expect(configService.options).toBeDefined()
   })
 
@@ -86,17 +86,6 @@ describe('ConfigService', () => {
     readSpy.and.returnValue('{"options": {"shell": true}}')
     configService.shell = false
     expect(writeSpy).toHaveBeenCalledOnceWith(configService.filePath, { options: { shell: false } })
-  })
-
-  it('should get separator', () => {
-    readSpy.and.returnValue('{"options": {"separator": "@"}}')
-    expect(configService.separator).toBeDefined()
-  })
-
-  it('should set separator', () => {
-    readSpy.and.returnValue('{"options": {"separator": "@"}}')
-    configService.separator = '#'
-    expect(writeSpy).toHaveBeenCalledOnceWith(configService.filePath, { options: { separator: '#' } })
   })
 
   it('should get alias', () => {

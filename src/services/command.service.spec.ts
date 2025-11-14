@@ -265,4 +265,26 @@ describe('CommandService', () => {
       env: {}
     })
   })
+
+  it('should concat command parts when using shell', () => {
+    Object.defineProperty(process, 'platform', {
+      value: 'win32'
+    })
+
+    configServiceSpy.getAlias.and.returnValue({
+      command: ['echo', 'one'],
+      options: {
+        shell: true
+      }
+    })
+
+    commandService.run(['key', 'two'])
+
+    expect(spawnSyncSpy).toHaveBeenCalledOnceWith('echo one two', [], {
+      cwd: process.cwd(),
+      shell: true,
+      stdio: 'inherit',
+      env: {}
+    })
+  })
 })

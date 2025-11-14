@@ -23,7 +23,7 @@ describe('Flag', () => {
         isReady: true
       }
     )
-    configServiceSpy.separator = '@'
+
     configServiceSpy.config.alias = {}
 
     configServiceSpy.getAlias.and.returnValue(undefined)

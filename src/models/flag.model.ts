@@ -9,6 +9,7 @@ export interface FlagInfo {
   format?: RegExp
   usage?: string
   noConf?: boolean
+  required?: boolean
 }
 
 export interface ModData {
@@ -16,7 +17,7 @@ export interface ModData {
   args: string[]
 }
 
-export type Action = (args: string[], data?: FlagData) => boolean | Promise<boolean>
+export type Action = (args: string[], data?: FlagData, flag?: FlagInfo) => boolean | Promise<boolean>
 
 export interface ActionParams {
   args: string[]

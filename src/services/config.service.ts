@@ -66,15 +66,6 @@ export class ConfigService {
     this.save(this.config)
   }
 
-  get separator(): string {
-    return this.config.options.separator
-  }
-
-  set separator(separator: string) {
-    this.config.options.separator = separator
-    this.save(this.config)
-  }
-
   get shell(): boolean {
     return this.config.options.shell ?? process.platform === 'win32'
   }

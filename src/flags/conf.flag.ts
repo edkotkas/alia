@@ -13,12 +13,6 @@ export class ConfFlag extends Flag {
 
   mods: FlagInfo[] = [
     {
-      key: 'separator',
-      short: 's',
-      desc: 'set alias separator (default: @)',
-      run: (args: string[]) => this.#setSeparator(args)
-    },
-    {
       key: 'shell',
       short: 'sh',
       desc: 'set global shell mode',
@@ -43,13 +37,6 @@ export class ConfFlag extends Flag {
       run: () => this.#showPath()
     }
   ]
-
-  #setSeparator(args: string[]): boolean {
-    this.confService.separator = args[0] ?? this.confService.defaultConfig.options.separator
-    logger.set('separator', this.confService.separator)
-
-    return true
-  }
 
   #setGist(args: string[]): boolean {
     if (!args[0]) {

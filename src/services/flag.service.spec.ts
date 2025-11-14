@@ -30,7 +30,6 @@ describe('FlagService', () => {
       }
     )
 
-    configServiceSpy.separator = '@'
     configServiceSpy.config.alias = {}
 
     configServiceSpy.getAlias.and.returnValue(undefined)
@@ -112,7 +111,7 @@ describe('FlagService', () => {
     const result = await flagService.run(['-s'])
     expect(result).toEqual(true)
     expect(infoSpy).toHaveBeenCalledWith('flag usage:')
-    expect(infoSpy).toHaveBeenCalledWith(jasmine.stringMatching(/^--set, -s/))
+    expect(infoSpy).toHaveBeenCalledWith(jasmine.stringMatching(/^--set, -s\s+set an alias/))
   })
 
   it('should not fail regex for flags', async () => {
@@ -133,19 +132,29 @@ describe('FlagService', () => {
   })
 
   it('should take value with consecutive flags', async () => {
-    await flagService.run(['-s', '-sh', '-e', 'test=test', 'key', '@', 'command'])
+    await flagService.run(['-s', '-sh', '-e', 'test=test', '-k', 'key', '-c', 'command'])
     expect(infoSpy).toHaveBeenCalledWith('\t', 'test=test')
     expect(setSpy).toHaveBeenCalledWith('shell', true)
-    expect(infoSpy).toHaveBeenCalledWith('set alias: key @ command')
+    expect(infoSpy).toHaveBeenCalledWith('set alias: key => command')
   })
 
   it('should set shell flag with value', async () => {
-    await flagService.run(['-s', '-sh', 'false', 'key', '@', 'command'])
+    await flagService.run(['-s', '-sh', 'false', '-k', 'key', '-c', 'command'])
     expect(setSpy).toHaveBeenCalledOnceWith('shell', false)
   })
 
   it('should throw error with no env variables', async () => {
-    await flagService.run(['-s', '-e', 'key', '@', 'command'])
+    await flagService.run(['-s', '-e', '-k', 'key', '-c', 'command'])
     expect(infoSpy).toHaveBeenCalledWith(`invalid value for env flag: undefined`)
+  })
+
+  it('should throw error with missing required flags', async () => {
+    await flagService.run(['-s', '-k', 'key'])
+    expect(infoSpy).toHaveBeenCalledWith(`missing required flag(s): --command`)
+  })
+
+  it('should throw error with multiple missing required flags', async () => {
+    await flagService.run(['-s'])
+    expect(infoSpy).toHaveBeenCalledWith(`missing required flag(s): --key, --command`)
   })
 })

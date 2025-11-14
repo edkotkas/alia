@@ -67,9 +67,7 @@ export class ListFlag extends Flag {
       return true
     }
 
-    const list = this.#aliaKeys
-      .map((key) => `${key} \t${this.confService.separator} \t${this.#alias[key].command.join(' ')}`)
-      .join('\n')
+    const list = this.#aliaKeys.map((key) => `${key} \t=> \t${this.#alias[key].command.join(' ')}`).join('\n')
 
     logger.info(list)
 
