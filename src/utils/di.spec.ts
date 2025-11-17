@@ -35,6 +35,18 @@ class CircularServiceB {
   circularServiceA = inject(CircularServiceA)
 }
 
+class CircularServiceC {
+  circularServiceA = inject(CircularServiceA)
+}
+
+class ServiceWithParam {
+  constructor(public value: string) {}
+}
+
+class ServiceWithParamsInjection {
+  serviceWithParam = inject(ServiceWithParam, 'injected value')
+}
+
 describe('Dependency Injection', () => {
   afterEach(() => {
     clearProviders()
@@ -78,8 +90,15 @@ describe('Dependency Injection', () => {
   })
 
   it('should throw on indirect circular dependencies', () => {
-    expect(() => inject(CircularServiceA)).toThrowError(
-      'Circular dependency in CircularServiceA: CircularServiceA -> CircularServiceB -> CircularServiceA'
+    expect(() => inject(CircularServiceC)).toThrowError(
+      'Circular dependency in CircularServiceC: CircularServiceA -> CircularServiceB -> CircularServiceA'
     )
+  })
+
+  it('should inject constructor parameters', () => {
+    const serviceWithParamsInjection = inject(ServiceWithParamsInjection)
+    expect(serviceWithParamsInjection).toBeInstanceOf(ServiceWithParamsInjection)
+    expect(serviceWithParamsInjection.serviceWithParam).toBeInstanceOf(ServiceWithParam)
+    expect(serviceWithParamsInjection.serviceWithParam.value).toBe('injected value')
   })
 })

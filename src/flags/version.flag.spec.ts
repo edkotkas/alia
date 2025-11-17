@@ -22,5 +22,6 @@ describe('VersionFlag', () => {
   it('should not call init logger', async () => {
     await flagService.run(['-v'])
     expect(initSpy).not.toHaveBeenCalled()
+    expect(infoSpy).toHaveBeenCalledOnceWith(jasmine.stringMatching(/\d+\.\d+\.\d+/))
   })
 })
