@@ -20,7 +20,7 @@ options:
 
 	--set, -s		set an alias
 		--shell, -sh		enable shell mode (default: true)
-		--env, -e		add environment variables
+		--env, -e		add environment variables (key=value)
 		--env-file, -ef		add environment variables file
 		--quote, -q		add quotes to command (default: true)
 		--work-dir, -wd		run command in a specific directory

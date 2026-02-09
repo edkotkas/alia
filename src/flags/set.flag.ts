@@ -29,7 +29,7 @@ export class SetFlag extends Flag {
     {
       key: 'env',
       short: 'e',
-      desc: 'add environment variables',
+      desc: 'add environment variables (key=value)',
       run: (args: string[]) => this.#setEnv(args)
     },
     {

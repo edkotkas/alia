@@ -3,7 +3,7 @@
 [![install size](https://packagephobia.com/badge?p=alia)](https://packagephobia.com/result?p=alia)
 [![c8 config on GitHub](https://img.shields.io/nycrc/edkotkas/alia?config=.c8rc.json)](coverage\index.html)
 
-[![Node.js CI](https://github.com/edkotkas/alia/actions/workflows/ci.yml/badge.svg)](https://github.com/edkotkas/alia/actions/workflows/ci.yml)
+[![.github/workflows/main.yml](https://github.com/edkotkas/alia/actions/workflows/main.yml/badge.svg)](https://github.com/edkotkas/alia/actions/workflows/main.yml)
 
 [![npm](https://img.shields.io/npm/v/alia)](https://www.npmjs.com/package/alia)![npm](https://img.shields.io/npm/dm/alia)
 

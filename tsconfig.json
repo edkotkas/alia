@@ -9,6 +9,5 @@
     "experimentalDecorators": true,
     "strict": true,
     "types": ["node", "jasmine"]
-  },
-  "exclude": ["node_modules"]
+  }
 }

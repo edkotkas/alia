@@ -1,11 +1,11 @@
 import { ConfigService } from './config.service.js'
 
-import child from 'node:child_process'
 import dotenv from 'dotenv'
+import child from 'node:child_process'
 
-import { CommandService } from './command.service.js'
-import logger from '../utils/logger.js'
 import { clearProviders, inject, provide } from '../utils/di.js'
+import logger from '../utils/logger.js'
+import { CommandService } from './command.service.js'
 
 describe('CommandService', () => {
   let commandService: CommandService
@@ -29,7 +29,7 @@ describe('CommandService', () => {
       }
     })
 
-    spawnSyncSpy = spyOn(child, 'spawnSync').and.returnValue({} as child.SpawnSyncReturns<Buffer>)
+    spawnSyncSpy = spyOn(child, 'spawnSync').and.returnValue({} as child.SpawnSyncReturns<string>)
 
     dotEnvSpy = spyOn(dotenv, 'config').and.returnValue({
       parsed: {
