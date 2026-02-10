@@ -7,8 +7,7 @@ export class InitFlag extends Flag {
     key: 'init',
     short: 'i',
     desc: 'initialize config',
-    run: (): Promise<boolean> => this.#init(),
-    noConf: true
+    run: (): Promise<boolean> => this.#init()
   }
 
   async #init(): Promise<boolean> {

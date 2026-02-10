@@ -2,9 +2,9 @@ import { ConfigService } from './config.service.js'
 
 import fs from 'node:fs/promises'
 
-import { FlagService } from './flag.service.js'
-import logger from '../utils/logger.js'
 import { clearProviders, inject, provide } from '../utils/di.js'
+import logger from '../utils/logger.js'
+import { FlagService } from './flag.service.js'
 
 describe('FlagService', () => {
   let flagService: FlagService
@@ -64,28 +64,6 @@ describe('FlagService', () => {
     helpParts.forEach((part) => {
       expect(infoSpy).toHaveBeenCalledWith(part)
     })
-  })
-
-  it('should call logger init with no config', async () => {
-    const spy = jasmine.createSpyObj<ConfigService>(
-      'ConfigService',
-      ['config', 'separator', 'getAlias', 'setAlias', 'save'],
-      {
-        isReady: false
-      }
-    )
-
-    clearProviders()
-
-    provide(ConfigService, spy)
-
-    const flag = inject(FlagService)
-
-    const result = await flag.run(['-c'])
-
-    expect(result).toEqual(true)
-
-    expect(initSpy).toHaveBeenCalledOnceWith()
   })
 
   it('should return with non flag input', async () => {

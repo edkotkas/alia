@@ -1,10 +1,10 @@
-import type { MetaData, Config } from '../models/config.model.js'
+import type { Config, MetaData } from '../models/config.model.js'
 import type { GistResponse } from '../models/gist-response.model.js'
 import { ConfigService } from './config.service.js'
 
+import { inject } from '../utils/di.js'
 import logger from '../utils/logger.js'
 import { request } from '../utils/request.js'
-import { inject } from '../utils/di.js'
 
 export class GistService {
   readonly #configService: ConfigService = inject(ConfigService)
@@ -14,9 +14,13 @@ export class GistService {
   // }
 
   async restore(): Promise<void> {
+    const gistId = this.#configService.gistId
+    if (!gistId) {
+      throw new Error('gist id not set')
+    }
+
     logger.info('restore config from gist...')
 
-    const gistId = this.#configService.gistId
     let data = {} as GistResponse
 
     data = await request.call(gistId, {
@@ -43,8 +47,13 @@ export class GistService {
   }
 
   async backup(): Promise<void> {
-    logger.info('backup local config to gist...')
     const gistId = this.#configService.gistId
+    if (!gistId) {
+      throw new Error('gist id not set')
+    }
+
+    logger.info('backup local config to gist...')
+
     const token = this.#configService.token
 
     const config = this.#configService.config

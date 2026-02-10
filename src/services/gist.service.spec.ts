@@ -1,10 +1,10 @@
 import type { Config, MetaData } from '../models/config.model.js'
+import logger from '../utils/logger.js'
 import { ConfigService } from './config.service.js'
 import { GistService } from './gist.service.js'
-import logger from '../utils/logger.js'
 
-import { request } from '../utils/request.js'
 import { clearProviders, provide } from '../utils/di.js'
+import { request } from '../utils/request.js'
 
 describe('GistService', () => {
   let gistService: GistService
@@ -74,6 +74,11 @@ describe('GistService', () => {
 
       expect(spy).toHaveBeenCalled()
     })
+
+    it('should fail to restore if gist id is not present', async () => {
+      fakeConfigService.gistId = ''
+      await expectAsync(gistService.restore()).toBeRejectedWithError('gist id not set')
+    })
   })
 
   describe('Backup', () => {
@@ -117,5 +122,10 @@ describe('GistService', () => {
       expect(infoSpy).toHaveBeenCalledWith(jasmine.stringContaining('backup local config'))
       expect(infoSpy).toHaveBeenCalledWith('...done:', 'test')
     })
+  })
+
+  it('should fail to backup if gist id is not present', async () => {
+    fakeConfigService.gistId = ''
+    await expectAsync(gistService.backup()).toBeRejectedWithError('gist id not set')
   })
 })

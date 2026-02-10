@@ -1,7 +1,7 @@
 import fs from 'node:fs'
 
-import { FlagLoaderService } from './flag-loader.service.js'
 import { clearProviders, inject } from '../utils/di.js'
+import { FlagLoaderService } from './flag-loader.service.js'
 
 function escapeRegExp(string: string) {
   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
@@ -24,7 +24,7 @@ describe('FlagLoaderService', () => {
     expect(flags.length).toBeGreaterThan(0)
   })
 
-  it('should have flag matching snap', async () => {
+  it('should have flag matching snapshot', async () => {
     const flags = await flagLoaderService.loadFlags()
 
     for (const flag of flags) {

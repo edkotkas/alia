@@ -1,16 +1,5 @@
 {
   "version": 1,
-  "meta": {
-    "gist": {
-      "token": "",
-      "id": ""
-    }
-  },
   "options": {},
-  "alias": {
-    "test": {
-      "options": {},
-      "command": ["echo", "alia", "is", "working!"]
-    }
-  }
+  "alias": {}
 }

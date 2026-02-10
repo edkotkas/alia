@@ -2,7 +2,7 @@ export interface Config {
   version: number
   options: Options
   alias: Alias
-  meta: MetaData
+  meta?: MetaData
 }
 
 export interface MetaData {

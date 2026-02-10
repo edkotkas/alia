@@ -1,10 +1,10 @@
 import type { SpawnOptions } from 'node:child_process'
 import { ConfigService } from './config.service.js'
 
-import child from 'node:child_process'
 import dotenv from 'dotenv'
-import logger from '../utils/logger.js'
+import child from 'node:child_process'
 import { inject } from '../utils/di.js'
+import logger from '../utils/logger.js'
 
 export class CommandService {
   readonly #configService = inject(ConfigService)

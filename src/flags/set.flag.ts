@@ -1,16 +1,17 @@
 import type { AliasOptions } from '../models/config.model.js'
 
 import path from 'path'
-import logger from '../utils/logger.js'
-import { Flag } from './flag.js'
-import { toBool } from '../utils/to-bool.js'
 import type { FlagInfo } from '../models/flag.model.js'
+import logger from '../utils/logger.js'
+import { toBool } from '../utils/to-bool.js'
+import { Flag } from './flag.js'
 
 export class SetFlag extends Flag {
   #options: AliasOptions = {}
 
   #command!: string[]
   #key!: string
+  #project = false
 
   flag: FlagInfo = {
     key: 'set',
@@ -49,6 +50,12 @@ export class SetFlag extends Flag {
       short: 'wd',
       desc: 'run command in a specific directory',
       run: (args: string[]) => this.#setWorkDir(args)
+    },
+    {
+      key: 'project',
+      short: 'p',
+      desc: 'set alias for current project',
+      run: (args: string[]) => this.#setProject(args)
     },
     {
       key: 'key',
@@ -170,17 +177,25 @@ export class SetFlag extends Flag {
     return true
   }
 
-  #setAlias(): boolean {
-    const alias = this.confService.getAlias(this.#key)
-
-    if (alias) {
-      logger.info(`unset alias: ${this.#key} => ${alias.command.join(' ')}`)
+  #setProject(args: string[]): boolean {
+    const project = toBool(args)
+    if (project === undefined) {
+      logger.info(`invalid value for project flag: ${args[0]}`)
+      return false
     }
 
-    this.confService.setAlias(this.#key, {
+    this.#project = project
+
+    return true
+  }
+
+  #setAlias(): boolean {
+    const command = {
       options: this.#options,
       command: this.#command
-    })
+    }
+
+    this.confService.setAlias(this.#key, command, this.#project)
 
     logger.info(`set alias: ${this.#key} => ${this.#command.join(' ')}`)
 

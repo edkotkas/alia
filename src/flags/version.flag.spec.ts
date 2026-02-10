@@ -1,6 +1,6 @@
-import logger from '../utils/logger.js'
 import { FlagService } from '../services/flag.service.js'
 import { inject } from '../utils/di.js'
+import logger from '../utils/logger.js'
 
 describe('VersionFlag', () => {
   let flagService: FlagService
@@ -16,12 +16,8 @@ describe('VersionFlag', () => {
 
   it('should print version', async () => {
     await flagService.run(['-v'])
-    expect(infoSpy).toHaveBeenCalledOnceWith(jasmine.stringMatching(/\d+\.\d+\.\d+/))
-  })
-
-  it('should not call init logger', async () => {
-    await flagService.run(['-v'])
     expect(initSpy).not.toHaveBeenCalled()
+
     expect(infoSpy).toHaveBeenCalledOnceWith(jasmine.stringMatching(/\d+\.\d+\.\d+/))
   })
 })

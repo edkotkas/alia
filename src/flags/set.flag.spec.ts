@@ -1,8 +1,8 @@
-import { ConfigService } from '../services/config.service.js'
-import logger from '../utils/logger.js'
-import { FlagService } from '../services/flag.service.js'
 import path from 'node:path'
+import { ConfigService } from '../services/config.service.js'
+import { FlagService } from '../services/flag.service.js'
 import { clearProviders, inject, provide } from '../utils/di.js'
+import logger from '../utils/logger.js'
 
 describe('SetFlag', () => {
   let flagService: FlagService
@@ -16,7 +16,7 @@ describe('SetFlag', () => {
 
     configServiceSpy = jasmine.createSpyObj<ConfigService>(
       'ConfigService',
-      ['config', 'separator', 'getAlias', 'setAlias'],
+      ['config', 'separator', 'getAlias', 'setAlias', 'setProjectAlias'],
       {
         isReady: true
       }
@@ -52,6 +52,25 @@ describe('SetFlag', () => {
     await flagService.run(['-s', '-k', 'test', '-c', 'echo test2'])
     expect(infoSpy).toHaveBeenCalledWith('set alias: test => echo test2')
     expect(infoSpy).not.toHaveBeenCalledWith('flag usage:')
+  })
+
+  it('should set a project alias when project flag is used', async () => {
+    await flagService.run(['-s', '-p', '-k', 'test', '-c', 'echo test2'])
+
+    expect(configServiceSpy.setAlias).toHaveBeenCalledWith(
+      'test',
+      {
+        options: {},
+        command: ['echo', 'test2']
+      },
+      true
+    )
+  })
+
+  it('should set a project alias with project flag value', async () => {
+    await flagService.run(['-s', '-p', 'test', '-k', 'test', '-c', 'echo test2'])
+    expect(infoSpy).toHaveBeenCalledWith(jasmine.stringMatching(/invalid value/))
+    expect(configServiceSpy.setAlias).not.toHaveBeenCalled()
   })
 
   it('should set an alias with shell option', async () => {
@@ -117,14 +136,12 @@ describe('SetFlag', () => {
   it('should update existing alias', async () => {
     configServiceSpy.getAlias.and.returnValue(configServiceSpy.config.alias.test)
     await flagService.run(['-s', '-k', 'test', '-c', 'echo', 'test2 test3'])
-    expect(infoSpy).toHaveBeenCalledWith('unset alias: test => echo')
     expect(infoSpy).not.toHaveBeenCalledWith('flag usage:')
   })
 
   it('should update existing alias with multiple command parts', async () => {
     configServiceSpy.getAlias.and.returnValue(configServiceSpy.config.alias.test2)
     await flagService.run(['-s', '-k', 'test2', '-c', 'echo test2 test3'])
-    expect(infoSpy).toHaveBeenCalledWith('unset alias: test2 => echo test2')
     expect(infoSpy).toHaveBeenCalledWith('set alias: test2 => echo test2 test3')
     expect(infoSpy).not.toHaveBeenCalledWith('flag usage:')
   })
@@ -152,10 +169,14 @@ describe('SetFlag', () => {
 
     const setAliasSpy = configServiceSpy.setAlias.and.callThrough()
 
-    expect(setAliasSpy).toHaveBeenCalledWith('test', {
-      options: {},
-      command: ['echo', 'test2']
-    })
+    expect(setAliasSpy).toHaveBeenCalledWith(
+      'test',
+      {
+        options: {},
+        command: ['echo', 'test2']
+      },
+      false
+    )
     expect(infoSpy).toHaveBeenCalledWith('set alias: test => echo test2')
     expect(infoSpy).not.toHaveBeenCalledWith('flag usage:')
   })

@@ -24,6 +24,7 @@ options:
 		--env-file, -ef		add environment variables file
 		--quote, -q		add quotes to command (default: true)
 		--work-dir, -wd		run command in a specific directory
+		--project, -p		set alias for current project
 		--key, -k		the alias key to set (required)
 		--command, -c		the command to set as alias (group multiple args with quotes) (required)
 

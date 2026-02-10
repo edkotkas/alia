@@ -3,8 +3,8 @@ import type { FlagData, FlagInfo } from '../models/flag.model.js'
 import { ConfigService } from './config.service.js'
 import { FlagLoaderService } from './flag-loader.service.js'
 
-import logger from '../utils/logger.js'
 import { inject } from '../utils/di.js'
+import logger from '../utils/logger.js'
 
 export class FlagService {
   readonly #confService = inject(ConfigService)
@@ -28,8 +28,9 @@ export class FlagService {
     return flags
   }
 
-  async run(args: string[]): Promise<boolean> {
-    const arg = args.shift()
+  async run(argv: string[]): Promise<boolean> {
+    const [arg] = argv
+    let args = argv.slice(1)
 
     if (!arg) {
       return this.#showHelp()
@@ -38,11 +39,6 @@ export class FlagService {
     const flags = await this.#getFlags()
 
     const flag = flags.find((f) => this.#dashMatch(f.flag, arg))
-    if (!flag?.flag.noConf && !this.#confService.isReady) {
-      logger.init()
-      return true
-    }
-
     if (!flag) {
       return false
     }

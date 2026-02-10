@@ -8,7 +8,6 @@ export interface FlagInfo {
   mods?: FlagInfo[]
   format?: RegExp
   usage?: string
-  noConf?: boolean
   required?: boolean
 }
 
