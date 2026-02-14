@@ -1,4 +1,4 @@
-import type { Alias, Command, Config, MetaData, Options } from '../models/config.model.js'
+import type { Alias, Command, Config, Gist, MetaData, Options } from '../models/config.model.js'
 
 import { homedir } from 'node:os'
 import * as path from 'node:path'
@@ -26,10 +26,8 @@ export class ConfigService {
       return this.#config
     }
 
-    let baseConfig: Config
-
     const config = file.read(this.filePath)
-    baseConfig = JSON.parse(config) as Config
+    const baseConfig = JSON.parse(config) as Config
 
     this.#config = this.#mergeConfig(baseConfig)
 
@@ -41,30 +39,36 @@ export class ConfigService {
   }
 
   get alias(): Alias {
-    return this.config.alias
+    return this.config.alias ?? {}
   }
 
   get keys(): string[] {
-    return Object.keys(this.config.alias)
+    return Object.keys(this.alias)
   }
 
   get options(): Options {
-    return this.config.options
+    return this.config.options ?? {}
   }
 
   getAlias(key: string): Command | undefined {
-    return this.config.alias[key]
+    return this.alias[key]
   }
 
   setAlias(key: string, command: Command, project?: boolean): void {
     this.#updateAlias((projectConfig) => {
+      projectConfig.alias = projectConfig.alias ?? {}
       projectConfig.alias[key] = command
     }, project)
   }
 
   removeAlias(key: string, project?: boolean): void {
     this.#updateAlias((projectConfig) => {
-      delete projectConfig.alias[key]
+      if (!projectConfig.alias?.[key]) {
+        return
+      }
+
+      const { [key]: _, ...rest } = projectConfig.alias
+      projectConfig.alias = rest
     }, project)
   }
 
@@ -85,50 +89,56 @@ export class ConfigService {
 
     cb(projectConfig)
 
-    file.write(projectPath, projectConfig)
+    this.save(projectConfig, projectPath)
   }
 
   get shell(): boolean {
-    return this.config.options.shell ?? process.platform === 'win32'
+    return this.options.shell ?? process.platform === 'win32'
   }
 
   set shell(value: boolean) {
-    this.config.options.shell = value
+    this.options.shell = value
     this.save(this.config)
   }
 
-  get token(): string | undefined {
-    return this.meta?.gist.token
+  get token(): string {
+    return this.gist.token ?? ''
   }
 
   set token(token: string) {
-    if (!this.meta) {
-      this.config.meta = { gist: { token, id: '' } }
-      this.save(this.config)
-      return
-    }
-
-    this.meta.gist.token = token
+    this.gist.token = token
     this.save(this.config)
   }
 
-  get gistId(): string | undefined {
-    return this.meta?.gist.id
+  get gistId(): string {
+    return this.gist.id ?? ''
   }
 
   set gistId(id: string) {
-    if (!this.meta) {
-      this.config.meta = { gist: { token: '', id } }
-      this.save(this.config)
-      return
-    }
-
-    this.meta.gist.id = id
+    this.gist.id = id
     this.save(this.config)
   }
 
-  get meta(): MetaData | undefined {
+  get meta(): MetaData {
+    this.config.meta ??= {}
+
     return this.config.meta
+  }
+
+  set meta(meta: MetaData) {
+    this.config.meta = meta
+    this.save(this.config)
+  }
+
+  get gist(): Gist {
+    this.meta.gist ??= {}
+
+    return this.meta.gist
+  }
+
+  set gist(gist: Gist) {
+    this.meta.gist = gist
+    this.save(this.config)
   }
 
   async init(main?: boolean): Promise<void> {
@@ -157,13 +167,13 @@ export class ConfigService {
     }
   }
 
-  save(config: Config): void {
-    file.write(this.filePath, config)
+  save(config: Config, configPath?: string): void {
+    file.write(configPath ?? this.filePath, config)
   }
 
   backup(config: Config): void {
     const backupPath = `${this.filePath}.backup-${Date.now().toString()}`
-    file.write(backupPath, config)
+    this.save(config, backupPath)
     logger.info('backup created:', backupPath)
   }
 
@@ -171,12 +181,8 @@ export class ConfigService {
     let current = process.cwd()
     const root = path.parse(current).root
 
-    while (true) {
+    while (current !== root) {
       const candidate = path.join(current, this.fileName)
-
-      if (current === root) {
-        break
-      }
 
       if (file.exists(candidate)) {
         return candidate
@@ -194,8 +200,8 @@ export class ConfigService {
       return base
     }
 
-    Object.assign(base.options ?? {}, overrides.options ?? {})
-    Object.assign(base.alias ?? {}, overrides.alias ?? {})
+    Object.assign(base.options ?? {}, overrides.options)
+    Object.assign(base.alias ?? {}, overrides.alias)
 
     return base
   }

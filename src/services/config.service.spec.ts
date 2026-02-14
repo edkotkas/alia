@@ -112,12 +112,19 @@ describe('ConfigService', () => {
     expect(writeSpy).toHaveBeenCalledOnceWith(projectPath, config)
   })
 
+  it('should set alias if config does not have any set', () => {
+    const config = { alias: { test: { command: ['echo', 'test'] } } }
+    readSpy.and.returnValue(JSON.stringify({}))
+    configService.setAlias('test', config.alias.test as Command)
+    expect(writeSpy).toHaveBeenCalledOnceWith(configService.filePath, config)
+  })
+
   it('should throw error if project config does not exist when setting project alias', () => {
     existsSpy.and.returnValue(false)
 
-    expect(() => configService.setAlias('test', {} as Command, true)).toThrowError(
-      'no config file found in current directory or any parent directories'
-    )
+    expect(() => {
+      configService.setAlias('test', {} as Command, true)
+    }).toThrowError('no config file found in current directory or any parent directories')
   })
 
   it('should remove alias', () => {
@@ -163,9 +170,15 @@ describe('ConfigService', () => {
   it('should throw error if project config does not exist when removing project alias', () => {
     existsSpy.and.returnValue(false)
 
-    expect(() => configService.removeAlias('test', true)).toThrowError(
-      'no config file found in current directory or any parent directories'
-    )
+    expect(() => {
+      configService.removeAlias('test', true)
+    }).toThrowError('no config file found in current directory or any parent directories')
+  })
+
+  it('should remove alias if config does not have any set', () => {
+    readSpy.and.returnValue(JSON.stringify({}))
+    configService.removeAlias('test')
+    expect(writeSpy).toHaveBeenCalledOnceWith(configService.filePath, {})
   })
 
   it('should fail to read config file when updating alias', () => {
@@ -180,20 +193,19 @@ describe('ConfigService', () => {
   })
 
   it('should set token', () => {
-    readSpy.and.returnValue(JSON.stringify({ meta: { gist: {} } }))
+    readSpy.and.returnValue(JSON.stringify({}))
     configService.token = 'newToken'
     expect(writeSpy).toHaveBeenCalledOnceWith(configService.filePath, { meta: { gist: { token: 'newToken' } } })
   })
 
-  it('should set token and create meta if not exist', () => {
-    readSpy.and.returnValue(JSON.stringify({}))
-    configService.token = 'newToken'
-    expect(writeSpy).toHaveBeenCalledOnceWith(configService.filePath, { meta: { gist: { token: 'newToken', id: '' } } })
-  })
-
   it('should get undefined if token is not set', () => {
     readSpy.and.returnValue(JSON.stringify({}))
-    expect(configService.token).toBeUndefined()
+    expect(configService.token).toBe('')
+  })
+
+  it('should get token as empty string if gist is not set', () => {
+    readSpy.and.returnValue(JSON.stringify({ meta: {} }))
+    expect(configService.token).toBe('')
   })
 
   it('should get gistId', () => {
@@ -204,20 +216,36 @@ describe('ConfigService', () => {
   it('should set gistId', () => {
     readSpy.and.returnValue(JSON.stringify({ meta: { gist: {} } }))
     configService.gistId = 'newGistId'
-    expect(writeSpy).toHaveBeenCalledOnceWith(configService.filePath, { meta: { gist: { id: 'newGistId' } } })
+    expect(writeSpy).toHaveBeenCalledOnceWith(configService.filePath, {
+      meta: { gist: { id: 'newGistId' } }
+    })
   })
 
   it('should set gistId and create meta if it does not exist', () => {
     readSpy.and.returnValue(JSON.stringify({}))
     configService.gistId = 'newGistId'
     expect(writeSpy).toHaveBeenCalledOnceWith(configService.filePath, {
-      meta: { gist: { token: '', id: 'newGistId' } }
+      meta: { gist: { id: 'newGistId' } }
     })
   })
 
   it('should get undefined if gistId is not set', () => {
     readSpy.and.returnValue(JSON.stringify({}))
-    expect(configService.gistId).toBeUndefined()
+    expect(configService.gistId).toBe('')
+  })
+
+  it('should set meta', () => {
+    const meta = { gist: { token: 'token', id: 'id' } }
+    readSpy.and.returnValue(JSON.stringify({}))
+    configService.meta = meta
+    expect(writeSpy).toHaveBeenCalledOnceWith(configService.filePath, { meta })
+  })
+
+  it('should set gist', () => {
+    const meta = { gist: { token: 'token', id: 'id' } }
+    readSpy.and.returnValue(JSON.stringify({}))
+    configService.gist = meta.gist
+    expect(writeSpy).toHaveBeenCalledOnceWith(configService.filePath, { meta })
   })
 
   it('should init', async () => {
@@ -321,11 +349,9 @@ describe('ConfigService', () => {
       return JSON.stringify({})
     })
 
-    const config = configService.config
-
-    expect(config.options.shell).toBeTrue()
-    expect(config.alias.global).toBeDefined()
-    expect(config.alias.local).toBeDefined()
+    expect(configService.options.shell).toBeTrue()
+    expect(configService.alias.global).toBeDefined()
+    expect(configService.alias.local).toBeDefined()
   })
 
   it('should return base config if project config not present', () => {
@@ -339,11 +365,9 @@ describe('ConfigService', () => {
       }
     })
 
-    const config = configService.config
-
-    expect(config.options.shell).toBeFalse()
-    expect(config.alias.global).toBeDefined()
-    expect(config.alias.local).toBeUndefined()
+    expect(configService.options.shell).toBeFalse()
+    expect(configService.alias.global).toBeDefined()
+    expect(configService.alias.local).toBeUndefined()
   })
 
   it('should return default config if project and global config not present', () => {
@@ -352,5 +376,11 @@ describe('ConfigService', () => {
 
     const config = configService.config
     expect(config).toEqual(configService.defaultConfig)
+  })
+
+  it('should return empty alias and options if not set in config', () => {
+    readSpy.and.returnValue(JSON.stringify({}))
+    expect(configService.alias).toEqual({})
+    expect(configService.options).toEqual({})
   })
 })

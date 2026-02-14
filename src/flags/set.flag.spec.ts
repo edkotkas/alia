@@ -2,6 +2,7 @@ import path from 'node:path'
 import { ConfigService } from '../services/config.service.js'
 import { FlagService } from '../services/flag.service.js'
 import { clearProviders, inject, provide } from '../utils/di.js'
+import { file } from '../utils/file.js'
 import logger from '../utils/logger.js'
 
 describe('SetFlag', () => {
@@ -13,6 +14,22 @@ describe('SetFlag', () => {
   beforeEach(() => {
     infoSpy = spyOn(logger, 'info').and.callFake(() => ({}))
     setSpy = spyOn(logger, 'set').and.callFake(() => ({}))
+    spyOn(file, 'read').and.callFake(() =>
+      JSON.stringify({
+        test: {
+          command: ['echo'],
+          options: {
+            env: {
+              TEST: 'test'
+            }
+          }
+        },
+        test2: {
+          command: ['echo', 'test2'],
+          options: {}
+        }
+      })
+    )
 
     configServiceSpy = jasmine.createSpyObj<ConfigService>(
       'ConfigService',
@@ -21,21 +38,6 @@ describe('SetFlag', () => {
         isReady: true
       }
     )
-
-    configServiceSpy.config.alias = {
-      test: {
-        command: ['echo'],
-        options: {
-          env: {
-            TEST: 'test'
-          }
-        }
-      },
-      test2: {
-        command: ['echo', 'test2'],
-        options: {}
-      }
-    }
 
     provide(ConfigService, configServiceSpy)
 
@@ -134,13 +136,11 @@ describe('SetFlag', () => {
   })
 
   it('should update existing alias', async () => {
-    configServiceSpy.getAlias.and.returnValue(configServiceSpy.config.alias.test)
     await flagService.run(['-s', '-k', 'test', '-c', 'echo', 'test2 test3'])
     expect(infoSpy).not.toHaveBeenCalledWith('flag usage:')
   })
 
   it('should update existing alias with multiple command parts', async () => {
-    configServiceSpy.getAlias.and.returnValue(configServiceSpy.config.alias.test2)
     await flagService.run(['-s', '-k', 'test2', '-c', 'echo test2 test3'])
     expect(infoSpy).toHaveBeenCalledWith('set alias: test2 => echo test2 test3')
     expect(infoSpy).not.toHaveBeenCalledWith('flag usage:')

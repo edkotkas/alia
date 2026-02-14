@@ -40,7 +40,10 @@ class CircularServiceC {
 }
 
 class ServiceWithParam {
-  constructor(public value: string) {}
+  constructor(value: string) {
+    this.value = value
+  }
+  value: string
 }
 
 class ServiceWithParamsInjection {

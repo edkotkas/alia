@@ -4,17 +4,18 @@ import { ConfigService } from './config.service.js'
 import { GistService } from './gist.service.js'
 
 import { clearProviders, provide } from '../utils/di.js'
-import { request } from '../utils/request.js'
 
 describe('GistService', () => {
   let gistService: GistService
-  let fakeConfigService: ConfigService
+  let configService: ConfigService
   let infoSpy: jasmine.Spy
-  let requestSpy: jasmine.Spy
+  let fetchSpy: jasmine.Spy
+
+  const baseUrl = `https://api.github.com/gists/`
 
   beforeEach(() => {
-    requestSpy = spyOn(request, 'call').and.callFake(() => new Promise(() => ({})))
-    fakeConfigService = {
+    fetchSpy = spyOn(global, 'fetch').and.callFake(() => new Promise(() => ({})))
+    configService = {
       gistId: 'gistId',
       token: 'token',
       fileName: 'fileName',
@@ -25,7 +26,7 @@ describe('GistService', () => {
 
     infoSpy = spyOn(logger, 'info').and.callFake(() => ({}))
 
-    provide(ConfigService, fakeConfigService)
+    provide(ConfigService, configService)
 
     gistService = new GistService()
   })
@@ -40,61 +41,69 @@ describe('GistService', () => {
 
   describe('Restore', () => {
     it('should fail to restore from gist with bad status code', async () => {
-      requestSpy.and.rejectWith(new Error('Not Found'))
+      fetchSpy.and.rejectWith(new Error('Not Found'))
 
       await expectAsync(gistService.restore()).toBeRejectedWithError('Not Found')
     })
 
     it('should fail to restore from gist with no file', async () => {
-      requestSpy.and.resolveTo({ updated_at: 'test', files: {} })
+      fetchSpy.and.resolveTo({
+        json: () => Promise.resolve({ updated_at: 'test', files: {} })
+      })
 
       await expectAsync(gistService.restore()).toBeRejectedWithError(
-        `gist must contain a file named '${fakeConfigService.fileName}'`
+        `gist must contain a file named '${configService.fileName}'`
       )
     })
 
     it('should fail to restore from gist with bad file data', async () => {
-      requestSpy.and.resolveTo({ updated_at: 'test', files: { fileName: { content: '{bad}' } } })
+      fetchSpy.and.resolveTo({
+        json: () => Promise.resolve({ updated_at: 'test', files: { fileName: { content: '{bad}' } } })
+      })
 
       await expectAsync(gistService.restore()).toBeRejected()
     })
 
     it('should restore gist and save', async () => {
-      const rspy = requestSpy.and.resolveTo({ updated_at: 'test', files: { fileName: { content: '{}' } } })
+      const rspy = fetchSpy.and.resolveTo({
+        json: () => Promise.resolve({ updated_at: 'test', files: { fileName: { content: '{}' } } })
+      })
 
-      const spy = spyOn(fakeConfigService, 'save').and.callFake(() => ({}))
+      const spy = spyOn(configService, 'save').and.callFake(() => ({}))
 
       await expectAsync(gistService.restore()).toBeResolved()
 
-      expect(rspy).toHaveBeenCalledOnceWith('gistId', { method: 'GET', headers: { 'User-Agent': 'nodejs' } })
+      expect(rspy).toHaveBeenCalledOnceWith(baseUrl + configService.gistId, { method: 'GET' })
 
       expect(infoSpy).toHaveBeenCalledWith(jasmine.stringContaining('restore config'))
       expect(infoSpy).toHaveBeenCalledWith('fetched: test')
-      expect(infoSpy).toHaveBeenCalledWith('...done:', fakeConfigService.filePath)
+      expect(infoSpy).toHaveBeenCalledWith('...done:', configService.filePath)
 
       expect(spy).toHaveBeenCalled()
     })
 
     it('should fail to restore if gist id is not present', async () => {
-      fakeConfigService.gistId = ''
+      configService.gistId = ''
       await expectAsync(gistService.restore()).toBeRejectedWithError('gist id not set')
     })
   })
 
   describe('Backup', () => {
     beforeEach(() => {
-      fakeConfigService.config.meta = {} as MetaData
+      configService.config.meta = {} as MetaData
       infoSpy.calls.reset()
     })
 
     it('should fail to backup to gist', async () => {
-      requestSpy.and.rejectWith(new Error('Internal Server Error'))
+      fetchSpy.and.rejectWith(new Error('Internal Server Error'))
 
       await expectAsync(gistService.backup()).toBeRejectedWithError('Internal Server Error')
     })
 
     it('should backup to gist', async () => {
-      const rspy = requestSpy.and.resolveTo({ html_url: 'test' })
+      const rspy = fetchSpy.and.resolveTo({
+        json: () => Promise.resolve({ html_url: 'test' })
+      })
 
       const data = JSON.stringify({
         description: 'Alia Config',
@@ -107,17 +116,13 @@ describe('GistService', () => {
 
       await gistService.backup()
 
-      expect(rspy).toHaveBeenCalledOnceWith(
-        'gistId',
-        {
-          method: 'PATCH',
-          headers: {
-            'User-Agent': 'nodejs',
-            Authorization: `token ${fakeConfigService.token}`
-          }
+      expect(rspy).toHaveBeenCalledOnceWith(baseUrl + configService.gistId, {
+        method: 'PATCH',
+        headers: {
+          Authorization: `token ${configService.token}`
         },
-        data
-      )
+        body: data
+      })
 
       expect(infoSpy).toHaveBeenCalledWith(jasmine.stringContaining('backup local config'))
       expect(infoSpy).toHaveBeenCalledWith('...done:', 'test')
@@ -125,7 +130,7 @@ describe('GistService', () => {
   })
 
   it('should fail to backup if gist id is not present', async () => {
-    fakeConfigService.gistId = ''
+    configService.gistId = ''
     await expectAsync(gistService.backup()).toBeRejectedWithError('gist id not set')
   })
 })

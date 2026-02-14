@@ -1,7 +1,7 @@
 import { ConfigService } from '../services/config.service.js'
-import logger from '../utils/logger.js'
 import { FlagService } from '../services/flag.service.js'
 import { clearProviders, inject, provide } from '../utils/di.js'
+import logger from '../utils/logger.js'
 
 describe('RemoveFlag', () => {
   let flagService: FlagService
@@ -41,7 +41,14 @@ describe('RemoveFlag', () => {
 
   it('should remove alias', async () => {
     await flagService.run(['-r', 'test'])
-    expect(removeSpy).toHaveBeenCalledOnceWith('test')
+    expect(removeSpy).toHaveBeenCalledOnceWith('test', false)
+    expect(infoSpy).not.toHaveBeenCalledWith('flag usage:')
+    expect(infoSpy).toHaveBeenCalledWith('removed alias: test')
+  })
+
+  it('should remove alias with project mod', async () => {
+    await flagService.run(['-r', '-p', 'test'])
+    expect(removeSpy).toHaveBeenCalledOnceWith('test', true)
     expect(infoSpy).not.toHaveBeenCalledWith('flag usage:')
     expect(infoSpy).toHaveBeenCalledWith('removed alias: test')
   })
@@ -50,6 +57,15 @@ describe('RemoveFlag', () => {
     configServiceSpy.getAlias.and.returnValue(undefined)
     await flagService.run(['-r', 'test'])
     expect(infoSpy).toHaveBeenCalledWith(`alias 'test' does not exist`)
+    expect(infoSpy).not.toHaveBeenCalledWith('flag usage:')
+  })
+
+  it('should fail to remove alias with missing key', async () => {
+    configServiceSpy.getAlias.and.returnValue(undefined)
+
+    await flagService.run(['-r'])
+
+    expect(infoSpy).toHaveBeenCalledWith(`missing alias key`)
     expect(infoSpy).not.toHaveBeenCalledWith('flag usage:')
   })
 })

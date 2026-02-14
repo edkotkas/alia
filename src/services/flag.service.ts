@@ -1,13 +1,11 @@
 import type { Flag } from '../flags/flag.js'
 import type { FlagData, FlagInfo } from '../models/flag.model.js'
-import { ConfigService } from './config.service.js'
 import { FlagLoaderService } from './flag-loader.service.js'
 
 import { inject } from '../utils/di.js'
 import logger from '../utils/logger.js'
 
 export class FlagService {
-  readonly #confService = inject(ConfigService)
   readonly #flagLoaderService = inject(FlagLoaderService)
 
   readonly #dashTypes: Record<string, keyof FlagInfo> = {

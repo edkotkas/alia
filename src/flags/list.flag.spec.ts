@@ -1,7 +1,7 @@
 import { ConfigService } from '../services/config.service.js'
-import logger from '../utils/logger.js'
 import { FlagService } from '../services/flag.service.js'
 import { clearProviders, inject, provide } from '../utils/di.js'
+import logger from '../utils/logger.js'
 
 describe('ListFlag', () => {
   let flagService: FlagService
@@ -59,7 +59,7 @@ describe('ListFlag', () => {
 
   it('should list aliases in json format', async () => {
     await flagService.run(['-l', '-j'])
-    expect(infoSpy).toHaveBeenCalledWith(JSON.stringify(fakeConfigService.config.alias, null, 2))
+    expect(infoSpy).toHaveBeenCalledWith(JSON.stringify(fakeConfigService.alias, null, 2))
     expect(infoSpy).not.toHaveBeenCalledWith('flag usage:')
   })
 
@@ -68,8 +68,8 @@ describe('ListFlag', () => {
     expect(infoSpy).toHaveBeenCalledWith(
       JSON.stringify(
         {
-          atest: fakeConfigService.config.alias.atest,
-          test: fakeConfigService.config.alias.test
+          atest: fakeConfigService.alias.atest,
+          test: fakeConfigService.alias.test
         },
         null,
         2
@@ -87,7 +87,7 @@ describe('ListFlag', () => {
     expect(infoSpy).toHaveBeenCalledWith(
       JSON.stringify(
         {
-          test: fakeConfigService.config.alias.test
+          test: fakeConfigService.alias.test
         },
         null,
         2

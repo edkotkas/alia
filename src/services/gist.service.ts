@@ -1,17 +1,13 @@
 import type { Config, MetaData } from '../models/config.model.js'
-import type { GistResponse } from '../models/gist-response.model.js'
 import { ConfigService } from './config.service.js'
 
+import type { GistResponse } from '../models/gist-response.model.js'
 import { inject } from '../utils/di.js'
 import logger from '../utils/logger.js'
-import { request } from '../utils/request.js'
 
 export class GistService {
   readonly #configService: ConfigService = inject(ConfigService)
-
-  // constructor(configService: ConfigService) {
-  //   this.#configService = configService
-  // }
+  readonly #baseUrl = `https://api.github.com/gists/`
 
   async restore(): Promise<void> {
     const gistId = this.#configService.gistId
@@ -21,14 +17,11 @@ export class GistService {
 
     logger.info('restore config from gist...')
 
-    let data = {} as GistResponse
-
-    data = await request.call(gistId, {
-      method: 'GET',
-      headers: { 'User-Agent': 'nodejs' }
+    const res = await fetch(`${this.#baseUrl}${gistId}`, {
+      method: 'GET'
     })
 
-    const { updated_at, files } = data
+    const { updated_at, files } = (await res.json()) as GistResponse
 
     logger.info(`fetched: ${updated_at}`)
 
@@ -68,17 +61,15 @@ export class GistService {
       }
     })
 
-    const { html_url } = await request.call(
-      gistId,
-      {
-        method: 'PATCH',
-        headers: {
-          'User-Agent': 'nodejs',
-          Authorization: `token ${token}`
-        }
+    const res = await fetch(`${this.#baseUrl}${gistId}`, {
+      method: 'PATCH',
+      headers: {
+        Authorization: `token ${token}`
       },
-      data
-    )
+      body: data
+    })
+
+    const { html_url } = (await res.json()) as GistResponse
 
     logger.info('...done:', html_url)
   }

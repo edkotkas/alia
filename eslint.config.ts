@@ -10,7 +10,9 @@ export default defineConfig(
     languageOptions: {
       sourceType: 'module',
       parserOptions: {
-        projectService: true,
+        projectService: {
+          allowDefaultProject: ['*.mjs']
+        },
         tsconfigRootDir: import.meta.dirname
       }
     }
@@ -26,7 +28,8 @@ export default defineConfig(
           caughtErrorsIgnorePattern: '^_',
           destructuredArrayIgnorePattern: '^_'
         }
-      ]
+      ],
+      '@typescript-eslint/unbound-method': 'off'
     }
   },
   {

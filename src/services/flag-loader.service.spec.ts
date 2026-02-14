@@ -1,6 +1,7 @@
 import fs from 'node:fs'
 
 import { clearProviders, inject } from '../utils/di.js'
+import { file } from '../utils/file.js'
 import { FlagLoaderService } from './flag-loader.service.js'
 
 function escapeRegExp(string: string) {
@@ -13,6 +14,7 @@ describe('FlagLoaderService', () => {
 
   beforeEach(() => {
     flagLoaderService = inject(FlagLoaderService)
+    spyOn(file, 'read').and.callFake(() => JSON.stringify({ alias: { test: { cmd: 'echo test' } }, options: {} }))
   })
 
   afterEach(() => {

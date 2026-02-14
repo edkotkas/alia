@@ -17,6 +17,7 @@ options:
 		--filter, -f		filter alias list
 
 	--remove, -r		remove an alias
+		--project, -p		remove alias from current project
 
 	--set, -s		set an alias
 		--shell, -sh		enable shell mode (default: true)

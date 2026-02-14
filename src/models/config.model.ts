@@ -1,17 +1,17 @@
 export interface Config {
-  version: number
-  options: Options
-  alias: Alias
+  version?: number
+  options?: Options
+  alias?: Alias
   meta?: MetaData
 }
 
 export interface MetaData {
-  gist: Gist
+  gist?: Gist
 }
 
 export interface Gist {
-  token: string
-  id: string
+  token?: string
+  id?: string
 }
 
 export interface Options {

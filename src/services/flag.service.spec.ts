@@ -10,7 +10,6 @@ describe('FlagService', () => {
   let flagService: FlagService
   let infoSpy: jasmine.Spy
   let setSpy: jasmine.Spy
-  let initSpy: jasmine.Spy
   let helpSnap: string
 
   beforeAll(async () => {
@@ -20,7 +19,6 @@ describe('FlagService', () => {
   beforeEach(() => {
     infoSpy = spyOn(logger, 'info').and.callFake(() => ({}))
     setSpy = spyOn(logger, 'set').and.callFake(() => ({}))
-    initSpy = spyOn(logger, 'init').and.callFake(() => ({}))
 
     const configServiceSpy = jasmine.createSpyObj<ConfigService>(
       'ConfigService',
