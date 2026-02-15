@@ -1,4 +1,4 @@
-import type { FlagData, FlagInfo } from '../models/flag.model.js'
+import type { ActionData, FlagInfo } from '../models/flag.model.js'
 import logger from '../utils/logger.js'
 import { Flag } from './flag.js'
 
@@ -9,7 +9,7 @@ export class RemoveFlag extends Flag {
     key: 'remove',
     short: 'r',
     desc: 'remove an alias',
-    run: (args: string[], data?: FlagData) => this.#remove(args, data)
+    run: (args: string[], data: ActionData) => this.#remove(args, data)
   }
 
   mods: FlagInfo[] = [
@@ -28,10 +28,10 @@ export class RemoveFlag extends Flag {
     return true
   }
 
-  #remove(args: string[], data?: FlagData): boolean {
+  #remove(args: string[], data: ActionData): boolean {
     let key: string | undefined = args[0]
     if (this.#project) {
-      key = data?.project[0]
+      key = data.project[0]
     }
 
     if (!key) {

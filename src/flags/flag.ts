@@ -1,4 +1,4 @@
-import type { FlagInfo, FlagData } from '../models/flag.model.js'
+import type { ActionData, FlagInfo } from '../models/flag.model.js'
 import { ConfigService } from '../services/config.service.js'
 import { GistService } from '../services/gist.service.js'
 import { inject } from '../utils/di.js'
@@ -14,17 +14,17 @@ export class Flag {
 
   mods: FlagInfo[] = []
 
-  async run(args: string[], data: FlagData): Promise<boolean> {
+  async run(args: string[], data: ActionData): Promise<boolean> {
     const mods = this.mods.filter((m) => Object.keys(data).includes(m.key))
     for (const mod of mods) {
       const value = data[mod.key]
-      const result = await mod.run?.(value)
+      const result = await mod.run?.(value, data, mod)
       if (result === false) {
         return false
       }
     }
 
-    const result = await this.flag.run?.(args, data)
+    const result = await this.flag.run?.(args, data, this.flag)
     if (result === undefined) {
       return true
     }

@@ -1,11 +1,11 @@
+import type { ActionData, FlagInfo } from '../models/flag.model.js'
 import { ConfigService } from '../services/config.service.js'
-import logger from '../utils/logger.js'
-import { FlagService } from '../services/flag.service.js'
 import { FlagLoaderService } from '../services/flag-loader.service.js'
+import { FlagService } from '../services/flag.service.js'
+import { clearProviders, inject, provide } from '../utils/di.js'
+import logger from '../utils/logger.js'
 import type { ConfFlag } from './conf.flag.js'
 import { Flag } from './flag.js'
-import type { FlagData, FlagInfo } from '../models/flag.model.js'
-import { clearProviders, inject, provide } from '../utils/di.js'
 
 describe('Flag', () => {
   let flagService: FlagService
@@ -95,7 +95,7 @@ describe('Flag', () => {
     const flag = inject(Flag)
     flag.flag = {
       short: 'c',
-      run: (_: string[], __?: FlagData) => false
+      run: (_: string[], __?: ActionData) => false
     } as FlagInfo
 
     flagLoaderServiceSpy.loadFlags.and.resolveTo([flag])

@@ -1,5 +1,3 @@
-export type FlagData = Record<string, string[]>
-
 export interface FlagInfo {
   key: string
   short: string
@@ -11,19 +9,6 @@ export interface FlagInfo {
   required?: boolean
 }
 
-export interface ModData {
-  value: string
-  args: string[]
-}
+export type Action = (args: string[], data: ActionData, flag?: FlagInfo) => boolean | Promise<boolean>
 
-export type Action = (args: string[], data?: FlagData, flag?: FlagInfo) => boolean | Promise<boolean>
-
-export interface ActionParams {
-  args: string[]
-  data?: ActionData
-  mods?: FlagMods
-}
-
-export type ActionData = Record<string, string[] | undefined>
-
-export type FlagMods = Record<string, string>
+export type ActionData = Record<string, string[]>

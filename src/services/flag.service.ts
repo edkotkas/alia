@@ -1,5 +1,5 @@
 import type { Flag } from '../flags/flag.js'
-import type { FlagData, FlagInfo } from '../models/flag.model.js'
+import type { ActionData, FlagInfo } from '../models/flag.model.js'
 import { FlagLoaderService } from './flag-loader.service.js'
 
 import { inject } from '../utils/di.js'
@@ -44,7 +44,7 @@ export class FlagService {
     const dashRegex = /^-{1,2}\w/
 
     const mods = args.filter((a) => dashRegex.test(a))
-    const data: FlagData = {}
+    const data: ActionData = {}
 
     for (const rawMod of mods) {
       const mod = flag.mods.find((f) => this.#dashMatch(f, rawMod))

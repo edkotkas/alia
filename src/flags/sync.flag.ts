@@ -1,4 +1,4 @@
-import type { FlagData } from '../models/flag.model.js'
+import type { ActionData } from '../models/flag.model.js'
 import { Flag } from './flag.js'
 
 export class SyncFlag extends Flag {
@@ -6,7 +6,7 @@ export class SyncFlag extends Flag {
     key: 'sync',
     short: 'sy',
     desc: 'backup/restore config from gist (default: restore)',
-    run: (_: string[], data?: FlagData) => this.#sync(data)
+    run: (_: string[], data: ActionData) => this.#sync(data)
   }
 
   mods = [
@@ -24,8 +24,8 @@ export class SyncFlag extends Flag {
     }
   ]
 
-  async #sync(data?: FlagData): Promise<boolean> {
-    if (data && Object.keys(data).length > 0) {
+  async #sync(data: ActionData): Promise<boolean> {
+    if (Object.keys(data).length > 0) {
       return true
     }
 
